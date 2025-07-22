@@ -21,11 +21,11 @@ exports.getById = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const { nombre, pais, descripcion } = req.body;
-    if (!nombre || !pais || !descripcion) {
+    const { nombre, precio, descripcion } = req.body;
+    if (!nombre || !precio || !descripcion) {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
-    const destino = await destinoService.create({ nombre, pais, descripcion });
+    const destino = await destinoService.create({ nombre, precio, descripcion });
     res.status(201).json(destino);
   } catch (err) {
     next(err);
@@ -34,8 +34,8 @@ exports.create = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    const { nombre, pais, descripcion } = req.body;
-    const destino = await destinoService.update(req.params.id, { nombre, pais, descripcion });
+    const { nombre, precio, descripcion } = req.body;
+    const destino = await destinoService.update(req.params.id, { nombre, precio, descripcion });
     if (!destino) return res.status(404).json({ error: 'Destino no encontrado' });
     res.json(destino);
   } catch (err) {

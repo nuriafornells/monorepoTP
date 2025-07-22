@@ -11,8 +11,8 @@ const Destino = sequelize.define('Destino', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  pais: {
-    type: DataTypes.STRING,
+  precio: {
+    type: DataTypes.FLOAT,
     allowNull: false,
   },
   descripcion: {
