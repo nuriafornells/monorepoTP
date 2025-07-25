@@ -9,6 +9,6 @@ instalar:
 - npm intall dotenv
 
 npm run dev PARA EJECUTAR PROYECTO
-- la api restful para destinos esta funcionando en http://localhost:3000/api/destinos
+- la api restful para destinos esta funcionando en http://localhost:3001/api/destinos
 - se pueden probar los endpoints con POSTMAN (uso ese)
 - ahi hago los get, post, delete , put
