@@ -11,6 +11,7 @@ import Reservation from "./pages/Reservation";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AuthProvider } from './context/AuthProvider';
+import Unauthorized from "./pages/Unauthorized";
 
 
 const router = createBrowserRouter([
@@ -19,10 +20,8 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <Home /> },
-
       // ✅ Ruta pública
       { path: "login", element: <Login /> },
-
       // 🔐 Rutas protegidas
       {
         element: <PrivateRoute />,
@@ -32,9 +31,17 @@ const router = createBrowserRouter([
           { path: "reserve/:slug", element: <Reservation /> }
         ]
       },
-
       { path: "admin", element: <AdminLogin /> },
-      { path: "admin/dashboard", element: <AdminDashboard /> }
+      {
+       path: "admin/dashboard",
+       element: <PrivateRoute requiredRole="admin" />,
+       children: [
+         { index: true, element: <AdminDashboard /> }
+  ]
+},
+       // 🚫 Ruta de acceso denegado
+      { path: "unauthorized", element: <Unauthorized /> }
+
     ]
   }
 ]);

@@ -10,6 +10,8 @@ export interface AuthContextType {
   role: Role;
   login: (email: string) => void;
   logout: () => void;
+  isLoading: boolean; // 🆕
+
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -19,6 +21,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<string | null>(null);
   const [role, setRole] = useState<Role>(null);
 
@@ -28,6 +31,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const storedRole = localStorage.getItem("role");
     if (storedUser) setUser(storedUser);
     if (storedRole === "admin" || storedRole === "user") setRole(storedRole as Role);
+    setIsLoading(false); // ✅ Fin de carga
+
   }, []);
 
   // 🔐 Login: guardar en estado y localStorage
@@ -48,7 +53,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, login, logout }}>
+    <AuthContext.Provider value={{ user, role, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

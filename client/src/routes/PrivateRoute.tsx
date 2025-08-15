@@ -1,10 +1,19 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
-const PrivateRoute = () => {
-  const { user } = useAuth();
+interface PrivateRouteProps {
+  requiredRole?: "admin" | "user";
+}
 
-  return user ? <Outlet /> : <Navigate to="/login" />;
+const PrivateRoute = ({ requiredRole }: PrivateRouteProps) => {
+  const { user, role, isLoading } = useAuth();
+
+  if (isLoading) return null; // ⏳ o un spinner si querés
+
+  if (!user) return <Navigate to="/login" />;
+  if (requiredRole && role !== requiredRole) return <Navigate to="/unauthorized" />;
+
+  return <Outlet />;
 };
 
 export default PrivateRoute;
