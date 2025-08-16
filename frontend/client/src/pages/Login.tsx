@@ -1,21 +1,52 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
-
+import { useState, useContext } from "react";
+import api from "../api"; // Cliente axios configurado
+import axios from "axios"; // Para detectar errores HTTP
+import { AuthContext } from "../context/AuthContext"; // 👈 nuevo
 
 const Login = () => {
-  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const auth = useContext(AuthContext); // 👈 nuevo
 
- const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  login(email);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const isAdmin = email === "admin@admin.com";
-  navigate(isAdmin ? "/admin/dashboard" : "/packages");
-};
+    try {
+      const res = await api.post("/auth/login", { email, password });
+
+      // 🔍 Logs para debugging
+      console.log("✅ Login exitoso:", res);
+      console.log("📦 res.data:", res.data);
+
+      const { token, role } = res.data;
+
+      // Guardar en localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("user", email);
+
+      // Actualizar contexto 👇
+      auth?.setToken(token);
+      auth?.setRole(role);
+      auth?.setUser(email);
+
+      // Redirigir según rol
+      const isAdmin = role === "admin";
+      console.log("🔁 Redirigiendo a:", isAdmin ? "/admin/dashboard" : "/packages");
+      navigate(isAdmin ? "/admin/dashboard" : "/packages");
+    } catch (err: unknown) {
+      // 🔍 Log completo del error
+      console.error("❌ Error en login:", err);
+
+      if (axios.isAxiosError(err)) {
+        alert("Error: " + (err.response?.data?.error || err.message));
+      } else {
+        alert("Error inesperado al iniciar sesión");
+      }
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit}>

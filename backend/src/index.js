@@ -3,27 +3,48 @@ dotenv.config();
 
 const express = require('express');
 const cors = require('cors');
+const errorHandler = require('./middlewares/errorHandler');
 const db = require('./config/db');
-const authRoutes = require('./routes/authRoutes'); // 👈 NUEVO
-const app = express();
-const adminRoutes = require('./routes/adminRoutes');
-app.use('/api', adminRoutes);
 
-app.use(cors());
+// 📦 Rutas
+const authRoutes = require('./routes/authRoutes');
+const paquetesRoutes = require('./routes/PaquetesRoutes'); // ✅ único import
+
+const app = express(); // ✅ primero se declara
+
+// 🛡️ CORS habilitado para el frontend
+app.use(cors({
+  origin: "http://localhost:5173", // adaptá si usás otro puerto en el front
+  credentials: true
+}));
+
+// ✅ Respuesta explícita a preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 
-app.use('/api', authRoutes); // 👈 NUEVO: conecta las rutas de login
+// ✅ Rutas únicas y bien definidas
+app.use('/api/auth', authRoutes);
+app.use('/api/paquetes', paquetesRoutes); // ✅ sin duplicaciones
 
+// 🧱 Modelos
+const Paquete = require('./models/Paquete')(db, require('sequelize').DataTypes);
+
+// 🧯 Middleware global de errores
+app.use(errorHandler);
+
+// 🌍 Ruta base
 app.get('/', (req, res) => {
   res.send('🌍 Backend funcionando');
 });
 
+// 🚀 Inicio del servidor
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, async () => {
   try {
     await db.authenticate();
     const User = require('./models/User');
-    await db.sync({ force: false }); // crea tabla si no existe
+    await db.sync({ force: false });
     console.log('📦 Modelos sincronizados');
     console.log('✅ Conectado a MySQL');
   } catch (error) {

@@ -6,11 +6,11 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ requiredRole }: PrivateRouteProps) => {
-  const { user, role, isLoading } = useAuth();
+  const { user, role, token, isLoading } = useAuth();
 
-  if (isLoading) return null; // ⏳ o un spinner si querés
+  if (isLoading) return <div>Cargando sesión...</div>; // ver dsp si spinner 
 
-  if (!user) return <Navigate to="/login" />;
+  if (!user || !token) return <Navigate to="/login" />; // 🔐 sesión inválida
   if (requiredRole && role !== requiredRole) return <Navigate to="/unauthorized" />;
 
   return <Outlet />;

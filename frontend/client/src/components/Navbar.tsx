@@ -2,7 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Navbar() {
-  const { user, role, logout, isLoading } = useAuth();
+  const { user, role, token, logout, isLoading } = useAuth();
   const navigate = useNavigate();
 
   if (isLoading) return null;
@@ -23,13 +23,22 @@ export default function Navbar() {
         </Link>
 
         <div style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
-          {role === "user" && <NavLink to="/packages">Paquetes</NavLink>}
-          {role === "admin" && <NavLink to="/admin">Admin</NavLink>}
+          {(role === "user" || role === "admin") && (
+            <NavLink to="/packages">Paquetes</NavLink>
+          )}
 
-          {user ? (
+          {role === "admin" && (
+            <NavLink to="/admin/dashboard">Dashboard</NavLink>
+          )}
+
+          {user && token ? (
             <>
-              <span style={{ fontSize: 14 }}>👤 {user} ({role})</span>
-              <button onClick={handleLogout}>Cerrar sesión</button>
+              <span style={{ fontSize: 14, color: "#555" }}>
+                👤 <strong>{user}</strong> <em>({role})</em>
+              </span>
+              <button className="btn danger" onClick={handleLogout}>
+                Cerrar sesión
+              </button>
             </>
           ) : (
             <NavLink to="/login">🔐 Login</NavLink>

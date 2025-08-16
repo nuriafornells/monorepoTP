@@ -1,39 +1,63 @@
 console.log('authController cargado');
+
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // LOGIN
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET no está definido en el .env");
+    }
+
     const user = await User.findOne({ where: { email } });
 
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) {
+      const err = new Error('Usuario no encontrado');
+      err.statusCode = 404;
+      return next(err);
+    }
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return res.status(401).json({ error: 'Contraseña incorrecta' });
+    if (!validPassword) {
+      const err = new Error('Contraseña incorrecta');
+      err.statusCode = 401;
+      return next(err);
+    }
+
+    const { id, role } = user; // ✅ acceso directo sin .get()
+    console.log('🧠 Rol del usuario:', role);
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id, role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    res.json({ token, role: user.role });
+    res.json({ token, role });
   } catch (err) {
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error("❌ Error interno en login:", err);
+    err.statusCode = err.statusCode || 500;
+    next(err);
   }
 };
 
 // REGISTER
-const register = async (req, res) => {
+const register = async (req, res, next) => {
+  console.log('📥 Body recibido en register:', req.body);
+
   const { email, password, role } = req.body;
 
   try {
     const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) return res.status(400).json({ error: 'El usuario ya existe' });
+    if (existingUser) {
+      const err = new Error('El usuario ya existe');
+      err.statusCode = 400;
+      return next(err);
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -51,7 +75,9 @@ const register = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: 'Error al registrar usuario' });
+    console.error('❌ Error en register:', err);
+    err.statusCode = err.statusCode || 500;
+    next(err);
   }
 };
 
