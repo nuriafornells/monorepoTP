@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 
 // LOGIN
 const login = async (req, res, next) => {
+   console.log('📥 Body recibido en login:', req.body);
   const { email, password } = req.body;
 
   try {

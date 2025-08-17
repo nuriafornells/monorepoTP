@@ -8,7 +8,9 @@ const db = require('./config/db');
 
 // 📦 Rutas
 const authRoutes = require('./routes/authRoutes');
+console.log('📦 authRoutes importado en index.js');
 const paquetesRoutes = require('./routes/PaquetesRoutes'); // ✅ único import
+const adminRoutes = require('./routes/adminRoutes'); // 🛂 nuevo import
 
 const app = express(); // ✅ primero se declara
 
@@ -26,6 +28,7 @@ app.use(express.json());
 // ✅ Rutas únicas y bien definidas
 app.use('/api/auth', authRoutes);
 app.use('/api/paquetes', paquetesRoutes); // ✅ sin duplicaciones
+app.use('/api/admin', adminRoutes); // 🛂 ruta protegida para admins
 
 // 🧱 Modelos
 const Paquete = require('./models/Paquete')(db, require('sequelize').DataTypes);
