@@ -1,10 +1,20 @@
 // src/pages/Home.tsx
-import { PACKAGES } from "../data/packages";
+import { useContext } from "react";
+import { TravelContext } from "../context/TravelContext";
 import PackageCard from "../components/PackageCard";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const featured = PACKAGES.filter(p => p.published).slice(0, 3);
+  const context = useContext(TravelContext);
+
+  if (!context) return <p>Error de contexto ❌</p>;
+
+  const { packages } = context;
+
+  const featured = packages
+    .filter(p => p.publicado)
+    .slice(0, 3);
+
   return (
     <>
       <section style={{ padding: "2rem 0" }}>
@@ -20,7 +30,9 @@ export default function Home() {
       <section style={{ marginTop: 24 }}>
         <h2>Destacados</h2>
         <div className="grid grid-3" style={{ marginTop: 12 }}>
-          {featured.map(item => <PackageCard key={item.id} item={item} />)}
+          {featured.map(item => (
+            <PackageCard key={item.id} item={item} />
+          ))}
         </div>
       </section>
     </>

@@ -22,5 +22,9 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
+  Paquete.associate = (models) => {
+    Paquete.hasMany(models.Reservation, { foreignKey: 'packageId' });
+  };
+
   return Paquete;
 };

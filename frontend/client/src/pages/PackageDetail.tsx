@@ -1,31 +1,66 @@
 // src/pages/PackageDetail.tsx
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { PACKAGES } from "../data/packages";
+import { useEffect, useState } from "react";
+import axios from "../../axios";
+import type { Package } from "../types";
 
 export default function PackageDetail() {
-  const { slug } = useParams();
+  // Extraemos `id` en vez de `slug`
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const item = PACKAGES.find(p => p.slug === slug);
+  const [item, setItem] = useState<Package | null>(null);
 
-  if (!item || !item.published) {
+  useEffect(() => {
+    const fetchPackage = async () => {
+      if (!id) return setItem(null);
+
+      try {
+        const res = await axios.get<{ paquete: Package }>(`/paquetes/${id}`);
+        setItem(res.data.paquete);
+      } catch {
+        setItem(null);
+      }
+    };
+    fetchPackage();
+  }, [id]);
+
+  // Solo mostramos detalle si existe y está publicado
+  if (!item) {
     return (
       <div>
         <p>No encontramos este paquete.</p>
-        <button className="btn" onClick={() => navigate("/packages")}>Volver</button>
+        <button className="btn" onClick={() => navigate("/packages")}>
+          Volver
+        </button>
+      </div>
+    );
+  }
+
+  if (!item.publicado) {
+    return (
+      <div>
+        <p>No encontramos este paquete.</p>
+        <button className="btn" onClick={() => navigate("/packages")}>
+          Volver
+        </button>
       </div>
     );
   }
 
   return (
     <div className="card">
-      <img src={item.imageUrl} alt={item.title} />
+      {item.imageUrl && <img src={item.imageUrl} alt={item.nombre} />}
       <div className="card-body">
-        <div className="badge">{item.destination}</div>
-        <h1>{item.title}</h1>
+        <div className="badge">{item.destino}</div>
+        <h1>{item.nombre}</h1>
         <p style={{ color: "var(--muted)" }}>{item.description}</p>
-        <p><strong>Duración:</strong> {item.days} días / {item.nights} noches</p>
-        <p className="price">USD {item.priceUSD}</p>
-        <Link className="btn" to={`/reserve/${item.slug}`}>Reservar</Link>
+        <p>
+          <strong>Duración:</strong> {item.duracion} días
+        </p>
+        <p className="price">USD {item.precio}</p>
+        <Link className="btn" to={`/reserve/${item.id}`}>
+          Reservar
+        </Link>
       </div>
     </div>
   );

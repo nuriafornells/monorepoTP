@@ -1,61 +1,107 @@
 // src/pages/Reservation.tsx
-import { useParams } from "react-router-dom";
-import { useState } from "react";
-import { PACKAGES } from "../data/packages";
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "../../axios";
+import { useTravel } from "../hooks/useTravel";
+import type { Package } from "../types";
 
 export default function Reservation() {
-  const { slug } = useParams();
-  const pkg = PACKAGES.find(p => p.slug === slug && p.published);
+  // 1. Hooks siempre al inicio
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { packages } = useTravel();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [passengers, setPassengers] = useState(1);
-  const [travelDate, setTravelDate] = useState("");
-  const [notes, setNotes] = useState("");
+  // 2. Estados declarados sin condiciones
+  const [fullName, setFullName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [passengers, setPassengers] = useState<number>(1);
+  const [travelDate, setTravelDate] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
 
-  if (!pkg) return <p>Paquete no disponible.</p>;
+  // 3. Buscamos el paquete usando `id`
+  const pkg: Package | undefined = packages?.find(
+    (p) => p.id === Number(id)
+  );
 
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    alert(`Reserva enviada:
-- Paquete: ${pkg!.title}
-- Nombre: ${fullName}
-- Email: ${email}
-- Pasajeros: ${passengers}
-- Fecha: ${travelDate}
-- Notas: ${notes || "-"}
-(Esto es un mock. Luego lo enviaremos al backend.)`);
-    setFullName(""); setEmail(""); setPassengers(1); setTravelDate(""); setNotes("");
+  // 4. Early return si no existe: aquí sí usamos `navigate`
+  if (!pkg) {
+    return (
+      <div>
+        <p>Paquete no encontrado ❌</p>
+        <button className="btn" onClick={() => navigate("/packages")}>
+          Volver
+        </button>
+      </div>
+    );
   }
 
+  // 5. Función de envío con guard interno para TS
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    // TS ve este guard antes de usar `pkg`
+    if (!pkg) return;
+
+    try {
+      await axios.post("/reservas", {
+        packageId: pkg.id,
+        name: fullName,
+        email,
+        passengers,
+        date: travelDate,
+        notes,
+      });
+
+      alert("Reserva enviada correctamente ✅");
+      setFullName("");
+      setEmail("");
+      setPassengers(1);
+      setTravelDate("");
+      setNotes("");
+    } catch (error) {
+      console.error("Error al enviar reserva:", error);
+      alert("Hubo un problema al enviar la reserva ❌");
+    }
+  }
+
+  // 6. Render final
   return (
-    <>
-      <h1>Reservar: {pkg.title}</h1>
-      <form onSubmit={onSubmit} className="card" style={{ padding: 16 }}>
-        <label>Nombre completo</label>
-        <input required value={fullName} onChange={e => setFullName(e.target.value)} style={inputStyle} />
-
-        <label style={{ marginTop: 10 }}>Email</label>
-        <input type="email" required value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
-
-        <label style={{ marginTop: 10 }}>Pasajeros</label>
-        <input type="number" min={1} required value={passengers} onChange={e => setPassengers(Number(e.target.value))} style={inputStyle} />
-
-        <label style={{ marginTop: 10 }}>Fecha de viaje</label>
-        <input type="date" required value={travelDate} onChange={e => setTravelDate(e.target.value)} style={inputStyle} />
-
-        <label style={{ marginTop: 10 }}>Notas</label>
-        <textarea value={notes} onChange={e => setNotes(e.target.value)} style={{ ...inputStyle, height: 100 }} />
-
-        <button className="btn" type="submit" style={{ marginTop: 12 }}>Enviar reserva</button>
+    <div>
+      <h2>Reservar: {pkg.nombre}</h2>
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Nombre completo"
+          required
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Correo electrónico"
+          required
+        />
+        <input
+          type="number"
+          value={passengers}
+          onChange={(e) => setPassengers(Number(e.target.value))}
+          min={1}
+          required
+        />
+        <input
+          type="date"
+          value={travelDate}
+          onChange={(e) => setTravelDate(e.target.value)}
+          required
+        />
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Notas adicionales"
+        />
+        <button type="submit">Enviar reserva</button>
       </form>
-    </>
+    </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: 10,
-  borderRadius: 8,
-  border: "1px solid #e5e7eb"
-};

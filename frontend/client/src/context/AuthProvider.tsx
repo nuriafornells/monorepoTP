@@ -8,7 +8,7 @@ type Role = AuthContextType["role"];
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<string | null>(null);
   const [role, setRole] = useState<Role>(null);
-  const [token, setToken] = useState<string | null>(null); // ✅ agregado
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,21 +23,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const login = (email: string) => {
-     const storedToken = localStorage.getItem("token");
-     const storedRole = localStorage.getItem("role");
+  // ✅ Versión corregida: guarda token y rol como string
+  const login = (email: string, token: string, role: Role) => {
+    setUser(email);
+    setToken(token);
+    setRole(role);
 
-     setUser(email);
-     localStorage.setItem("user", email); // ✅ persistencia real
-
-     if (storedRole === "admin" || storedRole === "user") setRole(storedRole as Role);
-     if (storedToken) setToken(storedToken);
-    };
+    localStorage.setItem("user", email);
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role ?? ""); // ✅ evita error de tipo
+  };
 
   const logout = () => {
     setUser(null);
     setRole(null);
-    setToken(null); // ✅ limpiar token
+    setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
@@ -49,12 +49,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         role,
         token,
-        login,
+        login, // ✅ ahora con tres argumentos
         logout,
         isLoading,
         setToken,
         setRole,
-        setUser, // ✅ agregado
+        setUser,
       }}
     >
       {children}

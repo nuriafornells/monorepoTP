@@ -1,10 +1,13 @@
+// src/context/TravelContext.tsx
 import { createContext } from "react";
+import type { Package } from "../types";
 
-
-export type TravelDataType = {
+export type Reservation = {
   id: number;
-  destination: string;
-  price: number;
+  packageId: number;
+  name: string;
+  email: string;
+  date: string;
 };
 
 export type TravelContextType = {
@@ -14,20 +17,5 @@ export type TravelContextType = {
   setReservations: React.Dispatch<React.SetStateAction<Reservation[]>>;
 };
 
-export type Package = {
-  id: number;
-  title: string;
-  description: string;
-  priceUSD: number;
-  imageUrl: string;
-  published: boolean;
-};
-
-export type Reservation = {
-  id: number;
-  packageId: number;
-  name: string;
-  email: string;
-  date: string;
-};
+// Solo exportamos el contexto, sin componentes
 export const TravelContext = createContext<TravelContextType | undefined>(undefined);

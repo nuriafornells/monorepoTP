@@ -1,48 +1,48 @@
+// src/context/TravelProvider.tsx
 import React, { useState, useEffect } from "react";
 import { TravelContext } from "./TravelContext";
-import type { TravelDataType, Package, Reservation } from "./TravelContext";
+import type { Package } from "../types";
+import type { Reservation } from "./TravelContext";
+import axios from "../../axios";
 
 const TravelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [travelData, setTravelData] = useState<TravelDataType[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
 
   useEffect(() => {
-    const mockData: TravelDataType[] = [
-      { id: 1, destination: "Bariloche", price: 850 },
-      { id: 2, destination: "Río de Janeiro", price: 1200 },
-    ];
-    setTravelData(mockData);
+    const fetchPackages = async () => {
+      try {
+        const res = await axios.get<{ paquetes: Package[] }>("/paquetes");
+        if (Array.isArray(res.data.paquetes)) {
+          setPackages(res.data.paquetes);
+        } else {
+          console.warn("Formato inesperado en paquetes:", res.data);
+        }
+      } catch (error) {
+        console.error("Error al traer paquetes:", error);
+      }
+    };
 
-    const mockPackages: Package[] = [
-      {
-        id: 1,
-        title: "Aventura en Bariloche",
-        description: "Paquete de 5 días con excursiones",
-        priceUSD: 950,
-        imageUrl: "/images/bariloche.jpg",
-        published: true,
-      },
-    ];
-    setPackages(mockPackages);
+    const fetchReservations = async () => {
+      try {
+        const res = await axios.get<{ reservas: Reservation[] }>("/reservas");
+        if (Array.isArray(res.data.reservas)) {
+          setReservations(res.data.reservas);
+        } else {
+          console.warn("Formato inesperado en reservas:", res.data);
+        }
+      } catch (error) {
+        console.error("Error al traer reservas:", error);
+      }
+    };
 
-    const mockReservations: Reservation[] = [
-      {
-        id: 1,
-        packageId: 1,
-        name: "Nuri",
-        email: "nuri@example.com",
-        date: "2025-08-20",
-      },
-    ];
-    setReservations(mockReservations);
+    fetchPackages();
+    fetchReservations();
   }, []);
 
   return (
     <TravelContext.Provider
       value={{
-        travelData,
-        setTravelData,
         packages,
         setPackages,
         reservations,

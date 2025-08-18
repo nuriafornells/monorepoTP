@@ -5,7 +5,7 @@ const ReservationList = () => {
   const { reservations, packages } = useTravel();
 
   const getPackageTitle = (id: number) =>
-    packages.find(pkg => pkg.id === id)?.title || "Paquete desconocido";
+    packages.find(pkg => pkg.id === id)?.nombre || "Paquete desconocido";
 
   return (
     <div>

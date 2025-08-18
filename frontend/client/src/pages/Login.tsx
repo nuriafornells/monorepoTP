@@ -1,46 +1,50 @@
-import { useNavigate } from 'react-router-dom';
-import { useState, useContext } from "react";
-import api from "../api"; // Cliente axios configurado
-import axios from "axios"; // Para detectar errores HTTP
-import { AuthContext } from "../context/AuthContext"; // 👈 nuevo
+// src/pages/Login.tsx
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import api from "../api";
+import { useAuth } from "../hooks/useAuth";
+
+type Role = "admin" | "user";
+
+interface LoginResponse {
+  token: string;
+  role: Role;
+}
+
+function isAxiosErrorManual(error: unknown): error is {
+  response?: { data?: { error?: string } };
+  message: string;
+} {
+  return typeof error === "object" && error !== null && "message" in error;
+}
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useAuth(); // ✅ usamos login del contexto
   const navigate = useNavigate();
-  const auth = useContext(AuthContext); // 👈 nuevo
+
+  const getRedirectPath = (role: Role) =>
+    role === "admin" ? "/admin/dashboard" : "/packages";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const res = await api.post("/auth/login", { email, password });
-
-      // 🔍 Logs para debugging
-      console.log("✅ Login exitoso:", res);
-      console.log("📦 res.data:", res.data);
+      const res = await api.post<LoginResponse>("/auth/login", {
+        email,
+        password,
+      });
 
       const { token, role } = res.data;
 
-      // Guardar en localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", role);
-      localStorage.setItem("user", email);
+      login(email, token, role); // ✅ unificado y coherente
 
-      // Actualizar contexto 👇
-      auth?.setToken(token);
-      auth?.setRole(role);
-      auth?.setUser(email);
-
-      // Redirigir según rol
-      const isAdmin = role === "admin";
-      console.log("🔁 Redirigiendo a:", isAdmin ? "/admin/dashboard" : "/packages");
-      navigate(isAdmin ? "/admin/dashboard" : "/packages");
+      navigate(getRedirectPath(role));
     } catch (err: unknown) {
-      // 🔍 Log completo del error
       console.error("❌ Error en login:", err);
 
-      if (axios.isAxiosError(err)) {
+      if (isAxiosErrorManual(err)) {
         alert("Error: " + (err.response?.data?.error || err.message));
       } else {
         alert("Error inesperado al iniciar sesión");
@@ -55,14 +59,14 @@ const Login = () => {
         type="email"
         placeholder="Correo"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
         required
       />
       <input
         type="password"
         placeholder="Contraseña"
         value={password}
-        onChange={e => setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value)}
         required
       />
       <button type="submit">Ingresar</button>

@@ -9,12 +9,12 @@ export interface AuthContextType {
   user: string | null;
   role: Role;
   token: string | null;
-  login: (email: string) => void;
-  logout: () => void;
   isLoading: boolean;
-  setToken: (token: string | null) => void;
+  login: (email: string, token: string, role: Role) => void;
+  logout: () => void;
+  setUser: (user: string | null) => void;
   setRole: (role: Role) => void;
-  setUser: (user: string | null) => void; // ✅ agregado para consistencia
+  setToken: (token: string | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [role, setRole] = useState<Role>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadAuthFromStorage = () => {
     const storedUser = localStorage.getItem("user");
     const storedRole = localStorage.getItem("role");
     const storedToken = localStorage.getItem("token");
@@ -37,23 +37,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (storedUser) setUser(storedUser);
     if (storedRole === "admin" || storedRole === "user") setRole(storedRole as Role);
     if (storedToken) setToken(storedToken);
+  };
 
+  useEffect(() => {
+    loadAuthFromStorage();
     setIsLoading(false);
   }, []);
 
-  const login = (email: string) => {
-    const storedToken = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role");
-
+  const login = (email: string, token: string, role: Role) => {
     setUser(email);
-    if (storedRole === "admin" || storedRole === "user") setRole(storedRole as Role);
-    if (storedToken) setToken(storedToken);
+    setToken(token);
+    setRole(role);
+
+    localStorage.setItem("user", email);
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role as string);
   };
 
   const logout = () => {
     setUser(null);
     setRole(null);
     setToken(null);
+
     localStorage.removeItem("user");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
@@ -70,7 +75,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isLoading,
         setToken,
         setRole,
-        setUser, // ✅ agregado
+        setUser,
       }}
     >
       {children}

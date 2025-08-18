@@ -1,11 +1,16 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Navbar() {
   const { user, role, token, logout, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (isLoading) return null;
+
+  // 🛡️ Ocultar navbar en rutas públicas
+  const hiddenRoutes = ["/login", "/admin"];
+  if (hiddenRoutes.includes(location.pathname)) return null;
 
   const handleLogout = () => {
     logout();

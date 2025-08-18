@@ -5,33 +5,28 @@ const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
 const db = require('./config/db');
+const initModels = require('./models/initModels'); // ✅ carga modular
 
 // 📦 Rutas
 const authRoutes = require('./routes/authRoutes');
-console.log('📦 authRoutes importado en index.js');
-const paquetesRoutes = require('./routes/PaquetesRoutes'); // ✅ único import
-const adminRoutes = require('./routes/adminRoutes'); // 🛂 nuevo import
+const paquetesRoutes = require('./routes/PaquetesRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
-const app = express(); // ✅ primero se declara
+const app = express();
 
 // 🛡️ CORS habilitado para el frontend
 app.use(cors({
-  origin: "http://localhost:5173", // adaptá si usás otro puerto en el front
+  origin: "http://localhost:5173",
   credentials: true
 }));
 
-// ✅ Respuesta explícita a preflight requests
 app.options('*', cors());
-
 app.use(express.json());
 
 // ✅ Rutas únicas y bien definidas
 app.use('/api/auth', authRoutes);
-app.use('/api/paquetes', paquetesRoutes); // ✅ sin duplicaciones
-app.use('/api/admin', adminRoutes); // 🛂 ruta protegida para admins
-
-// 🧱 Modelos
-const Paquete = require('./models/Paquete')(db, require('sequelize').DataTypes);
+app.use('/api/paquetes', paquetesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 🧯 Middleware global de errores
 app.use(errorHandler);
@@ -46,12 +41,15 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, async () => {
   try {
     await db.authenticate();
-    const User = require('./models/User');
-    await db.sync({ force: false });
-    console.log('📦 Modelos sincronizados');
     console.log('✅ Conectado a MySQL');
+
+    const models = initModels(db); // 🧬 carga todos los modelos
+    await db.sync({ alter: true }); // o force: true si querés resetear
+
+    console.log('📦 Modelos sincronizados');
   } catch (error) {
     console.error('❌ Error al conectar a MySQL:', error.message);
   }
+
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });

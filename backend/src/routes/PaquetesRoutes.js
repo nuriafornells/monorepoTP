@@ -1,24 +1,36 @@
-const express = require('express');
-const router = express.Router();
-const verifyToken = require('../middlewares/verifyToken');
+const express = require("express");
+const verifyToken = require("../middlewares/verifyToken");
 
 const {
   getAllPackages,
+  getPackageById,
+  createPackage,
   updatePackage,
   togglePublish,
   deletePackage,
-} = require('../controllers/paquetes.controller');
+} = require("../controllers/paquetes.controller");
 
-// ✅ Obtener todos los paquetes (protegido)
-router.get('/', verifyToken, getAllPackages);
+const router = express.Router();
 
-// 🛠️ Actualizar paquete por ID (protegido)
-router.put('/:id', verifyToken, updatePackage);
+// Protegemos todas las rutas
+router.use(verifyToken);
 
-// 📢 Publicar/despublicar paquete (protegido)
-router.patch('/:id/publicar', verifyToken, togglePublish);
+// Crear nuevo paquete
+router.post("/", createPackage);
 
-// 🗑️ Eliminar paquete (protegido)
-router.delete('/:id', verifyToken, deletePackage);
+// Obtener todos los paquetes
+router.get("/", getAllPackages);
+
+// Obtener un paquete por ID
+router.get("/:id", getPackageById);
+
+// Actualizar paquete por ID
+router.put("/:id", updatePackage);
+
+// Publicar/despublicar paquete
+router.patch("/:id/publicar", togglePublish);
+
+// Eliminar paquete
+router.delete("/:id", deletePackage);
 
 module.exports = router;

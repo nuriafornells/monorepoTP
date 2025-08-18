@@ -1,6 +1,7 @@
 console.log('authController cargado');
 
-const User = require('../models/User');
+// ✅ BIEN
+const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
