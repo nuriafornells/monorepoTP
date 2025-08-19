@@ -1,0 +1,34 @@
+import { useEffect, useState } from "react";
+import axios from "../../axios";
+import PackageCard from "./PackageCard";
+import type { Package } from "../types";
+
+const PackageList = () => {
+  const [packages, setPackages] = useState<Package[]>([]);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        //Consumimos solo los publicados desde el backend
+        const res = await axios.get<{ paquetes: Package[] }>("/paquetes/publicos");
+        setPackages(res.data.paquetes);
+      } catch (error) {
+        console.error("Error al traer paquetes publicados:", error);
+      }
+    };
+    fetchPackages();
+  }, []);
+
+  return (
+    <div>
+      <h2>Paquetes disponibles</h2>
+      <div className="grid grid-3">
+        {packages.map(pkg => (
+          <PackageCard key={pkg.id} item={pkg} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default PackageList;
