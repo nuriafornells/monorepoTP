@@ -9,7 +9,7 @@ const PackageList = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        // 🟢 Consumimos solo los publicados desde el backend
+        //Consumimos solo los publicados desde el backend
         const res = await axios.get<{ paquetes: Package[] }>("/paquetes/publicos");
         setPackages(res.data.paquetes);
       } catch (error) {

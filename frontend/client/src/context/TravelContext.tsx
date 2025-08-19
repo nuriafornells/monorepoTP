@@ -17,5 +17,5 @@ export type TravelContextType = {
   setReservations: React.Dispatch<React.SetStateAction<Reservation[]>>;
 };
 
-// Solo exportamos el contexto, sin componentes
+// solo exportamos el contexto, sin componentes
 export const TravelContext = createContext<TravelContextType | undefined>(undefined);

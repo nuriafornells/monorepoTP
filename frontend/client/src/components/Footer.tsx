@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 export default function Footer() {
   const location = useLocation();
 
-  // 🛡️ Ocultar footer en rutas públicas
+  //Ocultar footer en rutas públicas
   const hiddenRoutes = ["/login", "/admin"];
   if (hiddenRoutes.includes(location.pathname)) return null;
 

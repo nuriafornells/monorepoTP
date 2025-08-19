@@ -10,13 +10,4 @@ export type Package = {
   slug?: string;
 };
 
-export type Reservation = {
-  id?: number;
-  packageId: number;
-  fullName: string;
-  email: string;
-  phone?: string;
-  passengers: number;
-  travelDate: string; // ISO yyyy-mm-dd
-  notes?: string;
-};
+
