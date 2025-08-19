@@ -9,7 +9,7 @@ type Role = "admin" | "user";
 interface LoginResponse {
   token: string;
   role: Role;
-  id: number; // 👈 ahora también recibimos el id del usuario
+  id: number; 
 }
 
 function isAxiosErrorManual(error: unknown): error is {
@@ -22,7 +22,7 @@ function isAxiosErrorManual(error: unknown): error is {
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth(); // ✅ usamos login del contexto
+  const { login } = useAuth(); // usamos login del contexto
   const navigate = useNavigate();
 
   const getRedirectPath = (role: Role) =>
@@ -39,7 +39,7 @@ const Login = () => {
 
       const { token, role, id } = res.data;
 
-      login(id, email, token, role); // ✅ ahora con el id incluido
+      login(id, email, token, role); // ahora con el id incluido
 
       navigate(getRedirectPath(role));
     } catch (err: unknown) {

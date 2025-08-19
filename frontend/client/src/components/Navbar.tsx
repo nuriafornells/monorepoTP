@@ -24,16 +24,16 @@ export default function Navbar() {
         style={{ display: "flex", alignItems: "center", gap: 16, height: 60 }}
       >
         <Link to="/" style={{ fontWeight: 800, color: "var(--primary)" }}>
-          Viajes Nuri
+          Viajes
         </Link>
 
         <div style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
           {(role === "user" || role === "admin") && (
-            <NavLink to="/packages">Paquetes</NavLink>
+            <NavLink to="/packages">PAQUETES</NavLink>
           )}
 
           {role === "admin" && (
-            <NavLink to="/admin/dashboard">Dashboard</NavLink>
+            <NavLink to="/admin/dashboard"> Administrador de paquetes</NavLink>
           )}
 
           {user && token ? (
@@ -46,7 +46,7 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <NavLink to="/login">🔐 Login</NavLink>
+            <NavLink to="/login">🔐 Iniciar Sesión</NavLink>
           )}
         </div>
       </nav>

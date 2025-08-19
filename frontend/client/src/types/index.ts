@@ -19,6 +19,6 @@ export type Reservation = {
   email: string;
   phone?: string;
   passengers: number;
-  travelDate: string; // ISO yyyy-mm-dd
+  travelDate: string; // yyyy-mm-dd
   notes?: string;
 };

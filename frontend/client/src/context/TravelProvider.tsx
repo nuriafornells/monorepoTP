@@ -11,7 +11,7 @@ const TravelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        // 🟢 Consumimos solo los publicados desde el endpoint público
+        // Consumimos solo los publicados desde el endpoint público
         const res = await axios.get<{ paquetes: Package[] }>("/paquetes/publicos");
         if (Array.isArray(res.data.paquetes)) {
           setPackages(res.data.paquetes);

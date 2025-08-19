@@ -5,7 +5,7 @@ import axios from "../../axios";
 import type { Package } from "../types";
 
 export default function PackageDetail() {
-  // Extraemos `id` en vez de `slug`
+  //id en vez de slug porque  así esta  backend
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [item, setItem] = useState<Package | null>(null);

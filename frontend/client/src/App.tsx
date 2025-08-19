@@ -34,10 +34,10 @@ const router = createBrowserRouter([
           // Ruta list: mantiene el listado de paquetes
           { path: "packages", element: <Packages /> },
 
-          // Ahora usamos `id` en lugar de `slug`
+          // Ahora`id` en lugar de `slug`
           { path: "packages/:id", element: <PackageDetail /> },
 
-          // También actualizamos la reserva para usar `id`
+          
           { path: "reserve/:id", element: <Reservation /> }
         ]
       },

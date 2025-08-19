@@ -15,13 +15,13 @@ export default function AdminLogin() {
     if (email === "admin@viajes.com" && pass === "admin123") {
       const token = "admin-token-123";
       const role = "admin";
-      const id = 999; // ✅ ID ficticio para el admin
+      const id = 999; // id inventado para admin
 
       localStorage.setItem("role", role);
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify({ id, email }));
 
-      login(id, email, token, role); // ✅ ahora con id incluido
+      login(id, email, token, role); // ahora con id incluido
       navigate("/admin/dashboard");
     } else {
       alert("Credenciales incorrectas");

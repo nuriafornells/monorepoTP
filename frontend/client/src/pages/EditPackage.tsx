@@ -8,7 +8,7 @@ type Props = {
   mode?: "edit" | "create";
 };
 
-// ✅ Tipo local que permite "" en campos numéricos
+// Tipo local que permite "" en campos numéricos
 type FormState = {
   id?: number;
   nombre: string;

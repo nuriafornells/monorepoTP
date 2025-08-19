@@ -18,9 +18,9 @@ export default function Home() {
   return (
     <>
       <section style={{ padding: "2rem 0" }}>
-        <h1 style={{ marginBottom: 8 }}>Descubrí tu próximo destino</h1>
+        <h1 style={{ marginBottom: 8 }}>¿Donde queres viajar?</h1>
         <p style={{ color: "var(--muted)" }}>
-          Paquetes curados para que viajes fácil. Reservá en minutos.
+          ¡Reservá ya!
         </p>
         <div style={{ marginTop: 12 }}>
           <Link className="btn" to="/packages">Ver todos los paquetes</Link>
@@ -28,7 +28,7 @@ export default function Home() {
       </section>
 
       <section style={{ marginTop: 24 }}>
-        <h2>Destacados</h2>
+        <h2>aca puedo poner destacados u otra cosa </h2>
         <div className="grid grid-3" style={{ marginTop: 12 }}>
           {featured.map(item => (
             <PackageCard key={item.id} item={item} />

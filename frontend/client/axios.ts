@@ -5,7 +5,7 @@ const instance = axios.create({
   baseURL: "http://localhost:3001/api" 
 });
 
-// 🛡️ Interceptor de request: agrega token automáticamente
+// Interceptor de request: agrega token automáticamente
 instance.interceptors.request.use(config => {
   const token = localStorage.getItem("token");
 
@@ -17,7 +17,7 @@ instance.interceptors.request.use(config => {
   return config;
 });
 
-// 🚨 Interceptor de response: manejo global de errores con toast
+// Interceptor de response: manejo global de errores con toast
 instance.interceptors.response.use(
   response => response,
   error => {
@@ -27,7 +27,7 @@ instance.interceptors.response.use(
       toast.error("Sesión expirada. Iniciá sesión nuevamente.");
       localStorage.removeItem("token");
       setTimeout(() => {
-        window.location.href = "/login"; // adaptá si tu ruta de login es otra
+        window.location.href = "/login"; 
       }, 3000); // espera a que el toast se muestre
     }
 

@@ -21,7 +21,7 @@ export default function MainLayout() {
 
   return (
     <>
-      <Navbar /> {/* ✅ Ahora el navbar sabe el rol */}
+      <Navbar /> {/*el navbar sabe el rol */}
       <main className="container" style={{ paddingTop: 16 }}>
         <Outlet />
       </main>

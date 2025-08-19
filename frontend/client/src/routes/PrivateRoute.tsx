@@ -9,9 +9,9 @@ const PrivateRoute = ({ requiredRole }: PrivateRouteProps) => {
   const { user, role, token, isLoading } = useAuth();
   const location = useLocation();
 
-  if (isLoading) return <div>Cargando sesión...</div>; // 🌀 Spinner opcional
+  if (isLoading) return <div>Cargando sesión...</div>; // ver de poner spinner
 
-  // 🛡️ Evitar redirección infinita si ya estás en /login
+  // Evita redirección infinita si ya estás en login que pasaba antes
   if ((!user || !token) && location.pathname !== "/login") {
     return <Navigate to="/login" />;
   }
