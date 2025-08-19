@@ -1,3 +1,4 @@
+// src/components/Navbar.tsx
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -8,7 +9,6 @@ export default function Navbar() {
 
   if (isLoading) return null;
 
-  // 🛡️ Ocultar navbar en rutas públicas
   const hiddenRoutes = ["/login", "/admin"];
   if (hiddenRoutes.includes(location.pathname)) return null;
 
@@ -39,7 +39,7 @@ export default function Navbar() {
           {user && token ? (
             <>
               <span style={{ fontSize: 14, color: "#555" }}>
-                👤 <strong>{user}</strong> <em>({role})</em>
+                👤 <strong>{user.email}</strong> <em>({role})</em>
               </span>
               <button className="btn danger" onClick={handleLogout}>
                 Cerrar sesión

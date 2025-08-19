@@ -1,13 +1,12 @@
 console.log('authController cargado');
 
-// ✅ BIEN
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // LOGIN
 const login = async (req, res, next) => {
-   console.log('📥 Body recibido en login:', req.body);
+  console.log('📥 Body recibido en login:', req.body);
   const { email, password } = req.body;
 
   try {
@@ -30,7 +29,7 @@ const login = async (req, res, next) => {
       return next(err);
     }
 
-    const { id, role } = user; // ✅ acceso directo sin .get()
+    const { id, role } = user;
     console.log('🧠 Rol del usuario:', role);
 
     const token = jwt.sign(
@@ -39,7 +38,11 @@ const login = async (req, res, next) => {
       { expiresIn: '1h' }
     );
 
-    res.json({ token, role });
+    res.json({
+      token,
+      role,
+      id, // ✅ ahora el frontend recibe el id del usuario
+    });
   } catch (err) {
     console.error("❌ Error interno en login:", err);
     err.statusCode = err.statusCode || 500;

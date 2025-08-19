@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
-import type { AuthContextType } from "./AuthContext";
+import type { AuthContextType, AuthUser } from "./AuthContext";
 import type { ReactNode } from "react";
 
 type Role = AuthContextType["role"];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [role, setRole] = useState<Role>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,22 +16,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storedRole = localStorage.getItem("role");
     const storedToken = localStorage.getItem("token");
 
-    if (storedUser) setUser(storedUser);
-    if (storedRole === "admin" || storedRole === "user") setRole(storedRole as Role);
-    if (storedToken) setToken(storedToken);
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch {
+        console.warn("No se pudo parsear el usuario");
+      }
+    }
+
+    if (storedRole === "admin" || storedRole === "user") {
+      setRole(storedRole as Role);
+    }
+
+    if (storedToken) {
+      setToken(storedToken);
+    }
 
     setIsLoading(false);
   }, []);
 
-  // ✅ Versión corregida: guarda token y rol como string
-  const login = (email: string, token: string, role: Role) => {
-    setUser(email);
+  const login = (id: number, email: string, token: string, role: Role) => {
+    const userData: AuthUser = { id, email };
+    setUser(userData);
     setToken(token);
     setRole(role);
 
-    localStorage.setItem("user", email);
+    localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
-    localStorage.setItem("role", role ?? ""); // ✅ evita error de tipo
+    localStorage.setItem("role", role ?? "");
   };
 
   const logout = () => {
@@ -49,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         role,
         token,
-        login, // ✅ ahora con tres argumentos
+        login,
         logout,
         isLoading,
         setToken,

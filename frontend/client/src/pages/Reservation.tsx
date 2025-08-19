@@ -1,29 +1,27 @@
 // src/pages/Reservation.tsx
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../../axios";
 import { useTravel } from "../hooks/useTravel";
+import { AuthContext } from "../context/AuthContext";
 import type { Package } from "../types";
 
 export default function Reservation() {
-  // 1. Hooks siempre al inicio
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { packages } = useTravel();
+  const { user, token } = useContext(AuthContext)!;
 
-  // 2. Estados declarados sin condiciones
   const [fullName, setFullName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [passengers, setPassengers] = useState<number>(1);
   const [travelDate, setTravelDate] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
-  // 3. Buscamos el paquete usando `id`
   const pkg: Package | undefined = packages?.find(
     (p) => p.id === Number(id)
   );
 
-  // 4. Early return si no existe: aquí sí usamos `navigate`
   if (!pkg) {
     return (
       <div>
@@ -35,20 +33,28 @@ export default function Reservation() {
     );
   }
 
-  // 5. Función de envío con guard interno para TS
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // TS ve este guard antes de usar `pkg`
-    if (!pkg) return;
+    if (!pkg || !user?.id || !travelDate) {
+      alert("Faltan datos para enviar la reserva ❌");
+      return;
+    }
+
+    const payload = {
+      packageId: pkg.id,
+      date: travelDate,
+      userId: user.id,
+    };
+
+    console.log("🧪 Enviando reserva:", payload);
 
     try {
-      await axios.post("/reservas", {
-        packageId: pkg.id,
-        name: fullName,
-        email,
-        passengers,
-        date: travelDate,
-        notes,
+      console.log("🧪 Payload:", payload);
+      console.log("🔐 Token:", token);
+      await axios.post("http://localhost:3001/api/reservations", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       alert("Reserva enviada correctamente ✅");
@@ -63,7 +69,6 @@ export default function Reservation() {
     }
   }
 
-  // 6. Render final
   return (
     <div>
       <h2>Reservar: {pkg.nombre}</h2>
@@ -73,21 +78,18 @@ export default function Reservation() {
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder="Nombre completo"
-          required
         />
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Correo electrónico"
-          required
         />
         <input
           type="number"
           value={passengers}
           onChange={(e) => setPassengers(Number(e.target.value))}
           min={1}
-          required
         />
         <input
           type="date"

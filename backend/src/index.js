@@ -11,6 +11,7 @@ const initModels = require('./models/initModels'); // ✅ carga modular
 const authRoutes = require('./routes/authRoutes');
 const paquetesRoutes = require('./routes/PaquetesRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const reservationRoutes = require('./routes/reservationRoutes'); // 🆕 nueva ruta
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/paquetes', paquetesRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/reservations', reservationRoutes); // 🆕 ruta activa
 
 // 🧯 Middleware global de errores
 app.use(errorHandler);

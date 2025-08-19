@@ -3,6 +3,7 @@ const verifyToken = require("../middlewares/verifyToken");
 
 const {
   getAllPackages,
+  getPublishedPackages, // 🆕 nuevo endpoint
   getPackageById,
   createPackage,
   updatePackage,
@@ -12,13 +13,16 @@ const {
 
 const router = express.Router();
 
-// Protegemos todas las rutas
+// 🟢 Endpoint público para cliente (sin token)
+router.get("/publicos", getPublishedPackages);
+
+// 🔐 Protegemos todas las rutas siguientes
 router.use(verifyToken);
 
 // Crear nuevo paquete
 router.post("/", createPackage);
 
-// Obtener todos los paquetes
+// Obtener todos los paquetes (admin)
 router.get("/", getAllPackages);
 
 // Obtener un paquete por ID

@@ -1,14 +1,27 @@
 const sequelize = require('../config/db');
 const { Paquete } = require('../models/initModels')(sequelize);
 
-// 🟢 Obtener todos los paquetes
+// 🟢 Obtener todos los paquetes (admin)
 const getAllPackages = async (req, res) => {
   try {
-    const paquetes = await Paquete.findAll();
+    const paquetes = await Paquete.findAll(); // sin filtro
     res.status(200).json({ paquetes });
   } catch (error) {
     console.error("Error en getAllPackages:", error);
     res.status(500).json({ error: 'Error al obtener paquetes' });
+  }
+};
+
+// 🟢 Obtener solo paquetes publicados (cliente)
+const getPublishedPackages = async (req, res) => {
+  try {
+    const paquetes = await Paquete.findAll({
+      where: { publicado: true }
+    });
+    res.status(200).json({ paquetes });
+  } catch (error) {
+    console.error("Error en getPublishedPackages:", error);
+    res.status(500).json({ error: 'Error al obtener paquetes publicados' });
   }
 };
 
@@ -82,6 +95,7 @@ const deletePackage = async (req, res) => {
 
 module.exports = {
   getAllPackages,
+  getPublishedPackages,
   getPackageById,
   createPackage,
   updatePackage,

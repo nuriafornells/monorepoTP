@@ -1,11 +1,14 @@
+
 const jwt = require("jsonwebtoken");
 
 // 🛡️ Rutas públicas que no requieren token
-const publicRoutes = ["/auth/login", "/auth/register"];
+const publicRoutes = ["/api/auth/login", "/api/auth/register"];
 
 const verifyToken = (req, res, next) => {
+  console.log("🔐 Header recibido:", req.headers.authorization);
+  console.log("📍 Ruta solicitada:", req.originalUrl);
   // ✅ Si la ruta es pública, no exigimos token
-  if (publicRoutes.includes(req.path)) {
+  if (publicRoutes.includes(req.originalUrl)) {
     return next();
   }
 

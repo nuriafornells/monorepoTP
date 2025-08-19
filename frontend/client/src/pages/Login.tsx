@@ -9,6 +9,7 @@ type Role = "admin" | "user";
 interface LoginResponse {
   token: string;
   role: Role;
+  id: number; // 👈 ahora también recibimos el id del usuario
 }
 
 function isAxiosErrorManual(error: unknown): error is {
@@ -36,9 +37,9 @@ const Login = () => {
         password,
       });
 
-      const { token, role } = res.data;
+      const { token, role, id } = res.data;
 
-      login(email, token, role); // ✅ unificado y coherente
+      login(id, email, token, role); // ✅ ahora con el id incluido
 
       navigate(getRedirectPath(role));
     } catch (err: unknown) {

@@ -5,14 +5,19 @@ import type { ReactNode } from "react";
 
 export type Role = "admin" | "user" | null;
 
+export interface AuthUser {
+  id: number;
+  email: string;
+}
+
 export interface AuthContextType {
-  user: string | null;
+  user: AuthUser | null;
   role: Role;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, token: string, role: Role) => void;
+  login: (id: number, email: string, token: string, role: Role) => void;
   logout: () => void;
-  setUser: (user: string | null) => void;
+  setUser: (user: AuthUser | null) => void;
   setRole: (role: Role) => void;
   setToken: (token: string | null) => void;
 }
@@ -25,7 +30,7 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [role, setRole] = useState<Role>(null);
   const [token, setToken] = useState<string | null>(null);
 
@@ -34,9 +39,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const storedRole = localStorage.getItem("role");
     const storedToken = localStorage.getItem("token");
 
-    if (storedUser) setUser(storedUser);
-    if (storedRole === "admin" || storedRole === "user") setRole(storedRole as Role);
-    if (storedToken) setToken(storedToken);
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch {
+        console.warn("No se pudo parsear el usuario");
+      }
+    }
+
+    if (storedRole === "admin" || storedRole === "user") {
+      setRole(storedRole as Role);
+    }
+
+    if (storedToken) {
+      setToken(storedToken);
+    }
   };
 
   useEffect(() => {
@@ -44,12 +62,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(false);
   }, []);
 
-  const login = (email: string, token: string, role: Role) => {
-    setUser(email);
+  const login = (id: number, email: string, token: string, role: Role) => {
+    const userData = { id, email };
+    setUser(userData);
     setToken(token);
     setRole(role);
 
-    localStorage.setItem("user", email);
+    localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
     localStorage.setItem("role", role as string);
   };

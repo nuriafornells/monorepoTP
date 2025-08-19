@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminLogin() {
-  const [user, setUser] = useState("");
+  const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -12,18 +12,19 @@ export default function AdminLogin() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // 🔐 Simulación de login real
-     if (user === "admin@viajes.com" && pass === "admin123") {
+    if (email === "admin@viajes.com" && pass === "admin123") {
       const token = "admin-token-123";
       const role = "admin";
+      const id = 999; // ✅ ID ficticio para el admin
 
       localStorage.setItem("role", role);
       localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify({ id, email }));
 
-      login(user, token, role); // ✅ ahora con los tres argumentos
+      login(id, email, token, role); // ✅ ahora con id incluido
       navigate("/admin/dashboard");
-  }   else {
-       alert("Credenciales incorrectas");
+    } else {
+      alert("Credenciales incorrectas");
     }
   }
 
@@ -33,8 +34,8 @@ export default function AdminLogin() {
       <form onSubmit={onSubmit} className="card" style={{ padding: 16 }}>
         <label>Usuario</label>
         <input
-          value={user}
-          onChange={e => setUser(e.target.value)}
+          value={email}
+          onChange={e => setEmail(e.target.value)}
           style={inputStyle}
         />
         <label style={{ marginTop: 10 }}>Contraseña</label>

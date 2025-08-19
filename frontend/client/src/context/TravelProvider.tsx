@@ -1,4 +1,3 @@
-// src/context/TravelProvider.tsx
 import React, { useState, useEffect } from "react";
 import { TravelContext } from "./TravelContext";
 import type { Package } from "../types";
@@ -12,14 +11,15 @@ const TravelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const res = await axios.get<{ paquetes: Package[] }>("/paquetes");
+        // 🟢 Consumimos solo los publicados desde el endpoint público
+        const res = await axios.get<{ paquetes: Package[] }>("/paquetes/publicos");
         if (Array.isArray(res.data.paquetes)) {
           setPackages(res.data.paquetes);
         } else {
           console.warn("Formato inesperado en paquetes:", res.data);
         }
       } catch (error) {
-        console.error("Error al traer paquetes:", error);
+        console.error("Error al traer paquetes publicados:", error);
       }
     };
 

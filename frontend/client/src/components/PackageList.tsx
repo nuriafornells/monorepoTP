@@ -1,4 +1,3 @@
-// src/components/PackageList.tsx
 import { useEffect, useState } from "react";
 import axios from "../../axios";
 import PackageCard from "./PackageCard";
@@ -10,22 +9,21 @@ const PackageList = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const res = await axios.get<Package[]>("/paquetes"); // ✅ Tipado explícito
-        setPackages(res.data); // ✅ Ya no es 'unknown'
+        // 🟢 Consumimos solo los publicados desde el backend
+        const res = await axios.get<{ paquetes: Package[] }>("/paquetes/publicos");
+        setPackages(res.data.paquetes);
       } catch (error) {
-        console.error("Error al traer paquetes:", error);
+        console.error("Error al traer paquetes publicados:", error);
       }
     };
     fetchPackages();
   }, []);
 
-  const publishedPackages = packages.filter(pkg => pkg.publicado); // ✅ Asegurate que el campo se llame así en el tipo
-
   return (
     <div>
       <h2>Paquetes disponibles</h2>
       <div className="grid grid-3">
-        {publishedPackages.map(pkg => (
+        {packages.map(pkg => (
           <PackageCard key={pkg.id} item={pkg} />
         ))}
       </div>
