@@ -24,7 +24,7 @@ export default function Navbar() {
         style={{ display: "flex", alignItems: "center", gap: 16, height: 60 }}
       >
         <Link to="/" style={{ fontWeight: 800, color: "var(--primary)" }}>
-          Viajes
+          VIAJES EXPRESS
         </Link>
 
         <div style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
