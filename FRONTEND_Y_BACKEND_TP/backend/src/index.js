@@ -1,11 +1,12 @@
 const dotenv = require('dotenv');
 dotenv.config();
+// reflect-metadata is useful for some MikroORM metadata providers
+require('reflect-metadata');
 
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
-const db = require('./config/db');
-const initModels = require('./models/initModels'); // ✅ carga modular
+// Sequelize artifacts removed; we use MikroORM now
 
 // 📦 Rutas
 const authRoutes = require('./routes/authRoutes');
@@ -24,11 +25,7 @@ app.use(cors({
 app.options('*', cors());
 app.use(express.json());
 
-// ✅ Rutas únicas y bien definidas
-app.use('/api/auth', authRoutes);
-app.use('/api/paquetes', paquetesRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/reservations', reservationRoutes); // 🆕 ruta activa
+// Routes will be mounted after initializing ORM so req.em exists in middlewares/controllers
 
 // 🧯 Middleware global de errores
 app.use(errorHandler);
@@ -40,18 +37,30 @@ app.get('/', (req, res) => {
 
 // 🚀 Inicio del servidor
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, async () => {
+(async () => {
   try {
-    await db.authenticate();
-    console.log('✅ Conectado a MySQL');
+    // Init MikroORM (we migrated from Sequelize)
+    const { initORM } = require('./config/orm');
+    const orm = await initORM();
+    console.log('✅ MikroORM inicializado');
 
-    const models = initModels(db); // 🧬 carga todos los modelos
-    await db.sync({ alter: true }); // o force: true si querés resetear
+  // Attach request-scoped EM
+  const ormMiddleware = require('./middlewares/ormMiddleware');
+  app.use(ormMiddleware(orm));
 
-    console.log('📦 Modelos sincronizados');
+    // Mount routes that rely on req.em
+    app.use('/api/auth', authRoutes);
+    app.use('/api/paquetes', paquetesRoutes);
+    app.use('/api/admin', adminRoutes);
+    app.use('/api/reservations', reservationRoutes);
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+    });
   } catch (error) {
-    console.error('❌ Error al conectar a MySQL:', error.message);
+    console.error('❌ Error al iniciar el servidor:');
+    console.error(error);
+    if (error && error.stack) console.error(error.stack);
+    process.exit(1);
   }
-
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-});
+})();

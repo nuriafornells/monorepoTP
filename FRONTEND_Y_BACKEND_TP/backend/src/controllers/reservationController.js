@@ -1,7 +1,4 @@
-const { Reservation } = require("../models");
-
 const createReservation = async (req, res) => {
-  
   try {
     const { packageId, date, userId } = req.body;
 
@@ -9,14 +6,18 @@ const createReservation = async (req, res) => {
       return res.status(400).json({ message: "Faltan datos para la reserva" });
     }
 
-    const nueva = await Reservation.create({
-      packageId,
-      date,
-      userId,
-      
-    }
-  );
-  
+    const em = req.em;
+    if (!em) return res.status(500).json({ message: 'ORM no inicializado en la request' });
+
+    const paquete = await em.findOne('Paquete', packageId);
+    const user = await em.findOne('User', userId);
+    if (!paquete || !user) return res.status(400).json({ message: 'Paquete o usuario inválido' });
+
+    const repo = em.getRepository('Reservation');
+    const now = new Date();
+    const nueva = repo.create({ paquete, user, date: new Date(date), createdAt: now, updatedAt: now });
+    await em.persistAndFlush(nueva);
+
     res.status(201).json(nueva);
   } catch (error) {
     console.error("❌ Error al crear reserva:", error);

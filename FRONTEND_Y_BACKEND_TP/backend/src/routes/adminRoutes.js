@@ -8,7 +8,8 @@ router.use(verifyToken);
 
 // Ruta de bienvenida al panel admin
 router.get("/", (req, res) => {
-  if (req.user.role !== "admin") {
+  const role = req.userEntity?.role ?? req.user?.role;
+  if (role !== "admin") {
     return res.status(403).json({ error: "Acceso denegado: solo admins" });
   }
 
@@ -17,7 +18,8 @@ router.get("/", (req, res) => {
 
 // Ruta protegida para ver paquetes VIP
 router.get("/paquetes", (req, res) => {
-  if (req.user.role !== "admin") {
+  const role = req.userEntity?.role ?? req.user?.role;
+  if (role !== "admin") {
     return res.status(403).json({ error: "Acceso denegado: solo admins" });
   }
 

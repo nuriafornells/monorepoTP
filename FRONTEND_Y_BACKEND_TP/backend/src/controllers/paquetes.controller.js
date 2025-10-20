@@ -1,13 +1,13 @@
-const sequelize = require('../config/db');
-const { Paquete } = require('../models/initModels')(sequelize);
+// Using MikroORM repository via request-scoped EntityManager (req.em)
 
 // 🟢 Obtener todos los paquetes (admin)
 const getAllPackages = async (req, res) => {
   try {
-    const paquetes = await Paquete.findAll(); // sin filtro
+    const repo = req.em.getRepository('Paquete');
+    const paquetes = await repo.findAll();
     res.status(200).json({ paquetes });
   } catch (error) {
-    console.error("Error en getAllPackages:", error);
+    console.error('Error en getAllPackages:', error);
     res.status(500).json({ error: 'Error al obtener paquetes' });
   }
 };
@@ -15,12 +15,11 @@ const getAllPackages = async (req, res) => {
 // 🟢 Obtener solo paquetes publicados (cliente)
 const getPublishedPackages = async (req, res) => {
   try {
-    const paquetes = await Paquete.findAll({
-      where: { publicado: true }
-    });
+    const repo = req.em.getRepository('Paquete');
+    const paquetes = await repo.find({ publicado: true });
     res.status(200).json({ paquetes });
   } catch (error) {
-    console.error("Error en getPublishedPackages:", error);
+    console.error('Error en getPublishedPackages:', error);
     res.status(500).json({ error: 'Error al obtener paquetes publicados' });
   }
 };
@@ -29,11 +28,12 @@ const getPublishedPackages = async (req, res) => {
 const getPackageById = async (req, res) => {
   const { id } = req.params;
   try {
-    const paquete = await Paquete.findByPk(id);
+    const repo = req.em.getRepository('Paquete');
+    const paquete = await repo.findOne(id);
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
     res.status(200).json({ paquete });
   } catch (error) {
-    console.error("Error en getPackageById:", error);
+    console.error('Error en getPackageById:', error);
     res.status(500).json({ error: 'Error al obtener paquete por ID' });
   }
 };
@@ -42,10 +42,13 @@ const getPackageById = async (req, res) => {
 const createPackage = async (req, res) => {
   const { nombre, destino, precio, duracion, publicado = false } = req.body;
   try {
-    const paquete = await Paquete.create({ nombre, destino, precio, duracion, publicado });
+    const repo = req.em.getRepository('Paquete');
+  const now = new Date();
+  const paquete = repo.create({ nombre, destino, precio, duracion, publicado, createdAt: now, updatedAt: now });
+  await req.em.persistAndFlush(paquete);
     return res.status(201).json({ paquete });
   } catch (error) {
-    console.error("Error en createPackage:", error);
+    console.error('Error en createPackage:', error);
     return res.status(500).json({ error: 'Error al crear paquete' });
   }
 };
@@ -55,12 +58,17 @@ const updatePackage = async (req, res) => {
   const { id } = req.params;
   const { nombre, precio, destino, duracion } = req.body;
   try {
-    const paquete = await Paquete.findByPk(id);
+    const repo = req.em.getRepository('Paquete');
+    const paquete = await repo.findOne(id);
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
-    await paquete.update({ nombre, precio, destino, duracion });
+    paquete.nombre = nombre ?? paquete.nombre;
+    paquete.precio = precio ?? paquete.precio;
+    paquete.destino = destino ?? paquete.destino;
+    paquete.duracion = duracion ?? paquete.duracion;
+    await req.em.persistAndFlush(paquete);
     res.status(204).send();
   } catch (error) {
-    console.error("Error en updatePackage:", error);
+    console.error('Error en updatePackage:', error);
     res.status(500).json({ error: 'Error al actualizar paquete' });
   }
 };
@@ -69,12 +77,14 @@ const updatePackage = async (req, res) => {
 const togglePublish = async (req, res) => {
   const { id } = req.params;
   try {
-    const paquete = await Paquete.findByPk(id);
+    const repo = req.em.getRepository('Paquete');
+    const paquete = await repo.findOne(id);
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
-    await paquete.update({ publicado: !paquete.publicado });
+    paquete.publicado = !paquete.publicado;
+    await req.em.persistAndFlush(paquete);
     res.status(200).json(paquete);
   } catch (error) {
-    console.error("Error en togglePublish:", error);
+    console.error('Error en togglePublish:', error);
     res.status(500).json({ error: 'Error al cambiar estado de publicación' });
   }
 };
@@ -83,12 +93,13 @@ const togglePublish = async (req, res) => {
 const deletePackage = async (req, res) => {
   const { id } = req.params;
   try {
-    const paquete = await Paquete.findByPk(id);
+    const repo = req.em.getRepository('Paquete');
+    const paquete = await repo.findOne(id);
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
-    await paquete.destroy();
+    await req.em.removeAndFlush(paquete);
     res.status(204).send();
   } catch (error) {
-    console.error("Error en deletePackage:", error);
+    console.error('Error en deletePackage:', error);
     res.status(500).json({ error: 'Error al eliminar paquete' });
   }
 };
