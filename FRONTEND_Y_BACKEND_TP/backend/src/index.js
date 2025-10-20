@@ -12,6 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const paquetesRoutes = require('./routes/PaquetesRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const reservationRoutes = require('./routes/reservationRoutes'); // 🆕 nueva ruta
+const destinosRoutes = require('./routes/destinos.routes');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/paquetes', paquetesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reservations', reservationRoutes); // 🆕 ruta activa
+app.use('/api/destinos', destinosRoutes);
 
 // 🧯 Middleware global de errores
 app.use(errorHandler);
@@ -46,7 +48,8 @@ app.listen(PORT, async () => {
     console.log('✅ Conectado a MySQL');
 
     const models = initModels(db); // 🧬 carga todos los modelos
-    await db.sync({ alter: true }); // o force: true si querés resetear
+    await db.sync({ force: true });
+
 
     console.log('📦 Modelos sincronizados');
   } catch (error) {

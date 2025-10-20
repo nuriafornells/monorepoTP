@@ -2,7 +2,7 @@ console.log('authRoutes cargado');
 
 const express = require('express');
 const router = express.Router();
-const { login, register } = require('../controllers/AuthController');
+const { login, register } = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken'); // 👈 Importás el middleware
 
 // 🔐 Rutas públicas
