@@ -3,9 +3,11 @@ const { defineConfig } = require('@mikro-orm/mysql');
 
 module.exports = defineConfig({
   entities: [
-    require(path.resolve(__dirname, 'src/entities/Paquete.js')),
     require(path.resolve(__dirname, 'src/entities/User.js')),
+    require(path.resolve(__dirname, 'src/entities/Paquete.js')),
     require(path.resolve(__dirname, 'src/entities/Reservation.js')),
+    require(path.resolve(__dirname, 'src/entities/Hotel.js')),
+    require(path.resolve(__dirname, 'src/entities/Destino.js')),
   ],
   dbName: process.env.DB_NAME || 'DestinosDB',
   driverOptions: {

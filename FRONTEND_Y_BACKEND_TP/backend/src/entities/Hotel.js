@@ -1,25 +1,24 @@
 const { EntitySchema } = require('@mikro-orm/core');
 
 module.exports = new EntitySchema({
-  name: 'Reservation',
-  tableName: 'Reservations',
+  name: 'Hotel',
+  tableName: 'Hotels',
   properties: {
     id: { type: 'number', primary: true, autoincrement: true },
+    nombre: { type: 'string', length: 255 },
+    ubicacion: { type: 'string', length: 255 },
+    categoria: { type: 'string', nullable: true },
 
-    fechaReserva: { type: 'date' }, // ← nombre alineado con la tabla
-
-    status: { type: 'string', default: 'pending' },
-
-    user: {
+    destino: {
       kind: 'm:1',
-      entity: () => require('./User'),
-      inversedBy: 'reservations',
+      entity: () => require('./Destino'),
+      inversedBy: 'hoteles',
     },
 
-    paquete: {
-      kind: 'm:1',
+    paquetes: {
+      kind: '1:m',
       entity: () => require('./Paquete'),
-      inversedBy: 'reservations',
+      mappedBy: 'hotel',
     },
 
     createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
