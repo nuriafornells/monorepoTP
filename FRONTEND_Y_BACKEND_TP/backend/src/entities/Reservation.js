@@ -7,9 +7,18 @@ module.exports = new EntitySchema({
     id: { type: 'number', primary: true, autoincrement: true },
     date: { type: 'date' },
     status: { type: 'string', default: 'pending' },
-    user: { reference: 'm:1', entity: 'User', inversedBy: 'reservations' },
-    paquete: { reference: 'm:1', entity: 'Paquete', inversedBy: 'reservations' },
-    createdAt: { type: 'date', nullable: true },
-    updatedAt: { type: 'date', nullable: true },
+    user: {
+  kind: 'm:1',
+  entity: () => require('./User'),
+  inversedBy: 'reservations',
+},
+paquete: {
+  kind: 'm:1',
+  entity: () => require('./Paquete'),
+  inversedBy: 'reservations',
+},
+
+     createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
+     updatedAt: { type: 'date', fieldName: 'updatedAt', nullable: true },
   },
 });

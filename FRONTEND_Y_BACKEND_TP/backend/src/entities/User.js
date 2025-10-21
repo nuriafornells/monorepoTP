@@ -9,8 +9,12 @@ module.exports = new EntitySchema({
     email: { type: 'string', unique: true, length: 255 },
     password: { type: 'string' },
     role: { type: 'string', default: 'user' },
-    reservations: { reference: '1:m', entity: 'Reservation', mappedBy: 'user' },
-    createdAt: { type: 'date', nullable: false },
-    updatedAt: { type: 'date', nullable: false },
+    reservations: {
+  kind: '1:m',
+  entity: () => require('./Reservation'),
+  mappedBy: 'user',
+},
+    createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
+    updatedAt: { type: 'date', fieldName: 'updatedAt', nullable: true },
   },
 });

@@ -1,14 +1,16 @@
 const path = require('path');
+const { defineConfig } = require('@mikro-orm/mysql');
 
-module.exports = {
-  // require entity schema files directly to avoid discovery issues in CJS
+module.exports = defineConfig({
   entities: [
-    require(path.resolve(__dirname, 'src', 'entities', 'Paquete.js')),
-    require(path.resolve(__dirname, 'src', 'entities', 'User.js')),
-    require(path.resolve(__dirname, 'src', 'entities', 'Reservation.js')),
+    require(path.resolve(__dirname, 'src/entities/Paquete.js')),
+    require(path.resolve(__dirname, 'src/entities/User.js')),
+    require(path.resolve(__dirname, 'src/entities/Reservation.js')),
   ],
-  dbName: process.env.DB_NAME || 'DesinosDB',
-  type: 'mysql',
+  dbName: process.env.DB_NAME || 'DestinosDB',
+  driverOptions: {
+    connection: { ssl: false }, // opcional
+  },
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   host: process.env.DB_HOST || 'localhost',
@@ -17,4 +19,4 @@ module.exports = {
   migrations: {
     path: './migrations',
   },
-};
+});

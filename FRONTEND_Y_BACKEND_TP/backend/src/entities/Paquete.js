@@ -10,7 +10,11 @@ module.exports = new EntitySchema({
     duracion: { type: 'number' },
     precio: { type: 'number' },
     publicado: { type: 'boolean', default: false },
-    reservations: { reference: '1:m', entity: 'Reservation', mappedBy: 'paquete' },
+    reservations: {
+  kind: '1:m',                        
+  entity: () => require('./Reservation'), 
+  mappedBy: 'paquete',
+},
     createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
     updatedAt: { type: 'date', fieldName: 'updatedAt', nullable: true },
   },
