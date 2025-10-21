@@ -1,67 +1,36 @@
-// src/pages/PackageDetail.tsx
-import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "../../axios";
+import { useParams } from "react-router-dom";
+import api from "../api"; // tu instancia de axios
 import type { Package } from "../types";
 
 export default function PackageDetail() {
-  //id en vez de slug porque  así esta  backend
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [item, setItem] = useState<Package | null>(null);
+  const { id } = useParams();
+  const [paquete, setPaquete] = useState<Package | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchPackage = async () => {
-      if (!id) return setItem(null);
-
+    const fetchDetail = async () => {
       try {
-        const res = await axios.get<{ paquete: Package }>(`/paquetes/${id}`);
-        setItem(res.data.paquete);
-      } catch {
-        setItem(null);
+        const res = await api.get<{ paquete: Package }>(`/paquetes/${id}`);
+        setPaquete(res.data.paquete);
+      } catch (err) {
+        console.error("Error al obtener detalle:", err);
+        setError("No se pudo cargar el paquete");
       }
     };
-    fetchPackage();
+    fetchDetail();
   }, [id]);
 
-  // Solo mostramos detalle si existe y está publicado
-  if (!item) {
-    return (
-      <div>
-        <p>No encontramos este paquete.</p>
-        <button className="btn" onClick={() => navigate("/packages")}>
-          Volver
-        </button>
-      </div>
-    );
-  }
-
-  if (!item.publicado) {
-    return (
-      <div>
-        <p>No encontramos este paquete.</p>
-        <button className="btn" onClick={() => navigate("/packages")}>
-          Volver
-        </button>
-      </div>
-    );
-  }
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (!paquete) return <p>Cargando...</p>;
 
   return (
     <div className="card">
-      {item.imageUrl && <img src={item.imageUrl} alt={item.nombre} />}
-      <div className="card-body">
-        <div className="badge">{item.destino}</div>
-        <h1>{item.nombre}</h1>
-        <p style={{ color: "var(--muted)" }}>{item.description}</p>
-        <p>
-          <strong>Duración:</strong> {item.duracion} días
-        </p>
-        <p className="price">USD {item.precio}</p>
-        <Link className="btn" to={`/reserve/${item.id}`}>
-          Reservar
-        </Link>
-      </div>
+      <h2>{paquete.nombre}</h2>
+      <p><strong>Destino:</strong> {paquete.destino}</p>
+      <p><strong>Duración:</strong> {paquete.duracion} días</p>
+      <p><strong>Precio:</strong> USD {paquete.precio}</p>
+      <p><strong>Publicado:</strong> {paquete.publicado ? "Sí" : "No"}</p>
     </div>
   );
 }

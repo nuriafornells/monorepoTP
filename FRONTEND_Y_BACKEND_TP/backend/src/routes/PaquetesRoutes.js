@@ -1,40 +1,29 @@
-const express = require("express");
-const verifyToken = require("../middlewares/verifyToken");
+const express = require('express');
+const verifyToken = require('../middlewares/verifyToken');
 
 const {
   getAllPackages,
-  getPublishedPackages, // 🆕 nuevo endpoint
+  getPublishedPackages,
   getPackageById,
   createPackage,
   updatePackage,
   togglePublish,
   deletePackage,
-} = require("../controllers/paquetes.controller");
+} = require('../controllers/paquetes.controller');
 
 const router = express.Router();
 
-// 🟢 Endpoint público para cliente (sin token)
-router.get("/publicos", getPublishedPackages);
+// endpoint público para clientes
+router.get('/publicos', getPublishedPackages);
 
-// 🔐 Protegemos todas las rutas siguientes
+// protegemos las rutas siguientes
 router.use(verifyToken);
 
-// Crear nuevo paquete
-router.post("/", createPackage);
-
-// Obtener todos los paquetes (admin)
-router.get("/", getAllPackages);
-
-// Obtener un paquete por ID
-router.get("/:id", getPackageById);
-
-// Actualizar paquete por ID
-router.put("/:id", updatePackage);
-
-// Publicar/despublicar paquete
-router.patch("/:id/publicar", togglePublish);
-
-// Eliminar paquete
-router.delete("/:id", deletePackage);
+router.post('/', createPackage);
+router.get('/', getAllPackages);
+router.get('/:id', getPackageById);
+router.put('/:id', updatePackage);
+router.patch('/:id/publicar', togglePublish);
+router.delete('/:id', deletePackage);
 
 module.exports = router;

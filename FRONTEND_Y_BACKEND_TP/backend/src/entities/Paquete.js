@@ -11,7 +11,7 @@ module.exports = new EntitySchema({
     precio: { type: 'number' },
     publicado: { type: 'boolean', default: false },
     reservations: { reference: '1:m', entity: 'Reservation', mappedBy: 'paquete' },
-    createdAt: { type: 'date', nullable: true },
-    updatedAt: { type: 'date', nullable: true },
+    createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
+    updatedAt: { type: 'date', fieldName: 'updatedAt', nullable: true },
   },
 });

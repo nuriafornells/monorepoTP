@@ -1,9 +1,14 @@
-const sequelize = require('../config/db');
-const { Paquete } = require('../models/initModels')(sequelize);
+require('dotenv').config();
+require('reflect-metadata');
+
+const { initORM } = require('../config/orm');
 
 (async () => {
   try {
-    await sequelize.sync({ alter: true });
+    const orm = await initORM();
+    const em = orm.em.fork();
+
+    const repo = em.getRepository('Paquete');
 
     const paquetes = [
       {
@@ -12,6 +17,8 @@ const { Paquete } = require('../models/initModels')(sequelize);
         duracion: 5,
         precio: 45000,
         publicado: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         nombre: 'Mendoza Gourmet',
@@ -19,6 +26,8 @@ const { Paquete } = require('../models/initModels')(sequelize);
         duracion: 3,
         precio: 38000,
         publicado: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         nombre: 'Iguazú Naturaleza',
@@ -26,17 +35,20 @@ const { Paquete } = require('../models/initModels')(sequelize);
         duracion: 4,
         precio: 42000,
         publicado: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ];
 
     for (const data of paquetes) {
-      await Paquete.create(data);
+      const nuevo = repo.create(data);
+      await em.persistAndFlush(nuevo);
     }
 
-    console.log('✅ Paquetes insertados correctamente');
+    console.log('Paquetes insertados correctamente');
     process.exit();
   } catch (error) {
-    console.error('❌ Error al insertar paquetes:', error);
+    console.error('Error al insertar paquetes:', error);
     process.exit(1);
   }
 })();

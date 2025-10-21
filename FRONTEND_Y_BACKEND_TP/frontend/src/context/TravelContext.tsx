@@ -4,10 +4,16 @@ import type { Package } from "../types";
 
 export type Reservation = {
   id: number;
-  packageId: number;
-  name: string;
-  email: string;
   date: string;
+  status: string;
+  user: {
+    id: number;
+    email: string;
+  };
+  paquete: {
+    id: number;
+    nombre: string;
+  };
 };
 
 export type TravelContextType = {

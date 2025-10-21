@@ -1,22 +1,15 @@
 const jwt = require('jsonwebtoken');
 
 const verifyAdmin = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ mensaje: 'Token no proporcionado' });
+  if (!authHeader.startsWith('Bearer ')) return res.status(400).json({ mensaje: 'Formato de token inválido' });
 
-  if (!token) {
-    return res.status(401).json({ mensaje: 'Token no proporcionado' });
-  }
-
+  const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // prefer user entity if attached by verifyToken
     const role = req.userEntity?.role ?? decoded.role;
-
-    if (role !== 'admin') {
-      return res.status(403).json({ mensaje: 'Acceso denegado: solo admins' });
-    }
-
+    if (role !== 'admin') return res.status(403).json({ mensaje: 'Acceso denegado: solo admins' });
     req.user = decoded;
     next();
   } catch (err) {

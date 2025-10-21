@@ -13,12 +13,15 @@ export type Package = {
 };
 
 export type Reservation = {
-  id?: number;
-  packageId: number;
-  fullName: string;
-  email: string;
-  phone?: string;
-  passengers: number;
-  travelDate: string; // yyyy-mm-dd
-  notes?: string;
+  id: number;
+  date: string;
+  status: string;
+  user: {
+    id: number;
+    email: string;
+  };
+  paquete: {
+    id: number;
+    nombre: string;
+  };
 };

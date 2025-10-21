@@ -10,4 +10,16 @@ export type Package = {
   slug?: string;
 };
 
-
+export type Reservation = {
+  id: number;
+  date: string;
+  status: string;
+  user: {
+    id: number;
+    email: string;
+  };
+  paquete: {
+    id: number;
+    nombre: string;
+  };
+};
