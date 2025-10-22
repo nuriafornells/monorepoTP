@@ -1,84 +1,94 @@
-import React, { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import { useTravel } from "../hooks/useTravel";
+import { useState } from "react";
+import DatePicker from "react-datepicker";
+import { useAuth } from "../context/AuthContext";
+import axios from "../axios";
 
-const ReservationForm = () => {
-  const { packages, reservations, setReservations } = useTravel();
-  const auth = useContext(AuthContext); // 👈 ahora lo guardamos como 'auth'
+type Props = {
+  packageId: number;
+};
 
-  const [form, setForm] = useState({
-    packageId: packages[0]?.id || 1,
-    date: "",
-  });
-  const [error, setError] = useState("");
+export default function ReservationForm({ packageId }: Props) {
+  const { user, token } = useAuth();
+  const [range, setRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [cantidad, setCantidad] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
-    if (!auth || !auth.user || !auth.token) {
-      setError("Usuario no válido o no logueado");
+    if (!user || !token) {
+      setError("Debes iniciar sesión para reservar.");
+      return;
+    }
+    if (!range[0] || !range[1]) {
+      setError("Selecciona un rango de fechas válido.");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/reservations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.token}`,
+      setLoading(true);
+      setError(null);
+      setSuccess(false);
+
+      await axios.post(
+        "/reservations",
+        {
+          packageId,
+          userId: user.id,
+          fechaInicio: range[0],
+          fechaFin: range[1],
+          cantidadPersonas: cantidad,
         },
-        body: JSON.stringify({
-          packageId: form.packageId,
-          date: form.date,
-          userId: auth.user.id,
-        }),
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error del backend:", errorData);
-        setError(errorData.message || "Error en la reserva");
-        return;
+      setSuccess(true);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error desconocido");
       }
-
-      const created = await response.json();
-      setReservations([...reservations, created]);
-      setForm({ ...form, date: "" });
-    } catch (err) {
-      console.error("Error en la reserva:", err);
-      setError("Error en la reserva");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Reservar paquete</h2>
+    <form onSubmit={handleSubmit} style={{ marginTop: 24 }}>
+      <h3>Reservar este paquete</h3>
 
-      <select
-        value={form.packageId}
-        onChange={(e) =>
-          setForm({ ...form, packageId: Number(e.target.value) })
-        }
-      >
-        {packages.map((pkg) => (
-          <option key={pkg.id} value={pkg.id}>
-            {pkg.nombre}
-          </option>
-        ))}
-      </select>
-
-      <input
-        type="date"
-        value={form.date}
-        onChange={(e) => setForm({ ...form, date: e.target.value })}
+      <label>Fechas</label>
+      <DatePicker
+        selectsRange
+        startDate={range[0]}
+        endDate={range[1]}
+        onChange={(update) => setRange(update)}
+        isClearable
+        dateFormat="yyyy-MM-dd"
+        placeholderText="Selecciona rango de fechas"
       />
 
-      <button type="submit">Reservar</button>
+      <label style={{ marginTop: 12 }}>Cantidad de personas</label>
+      <input
+        type="number"
+        min={1}
+        value={cantidad}
+        onChange={(e) => setCantidad(Number(e.target.value))}
+        required
+      />
 
       {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && <p style={{ color: "green" }}>Reserva creada con éxito ✅</p>}
+
+      <button type="submit" className="btn" disabled={loading}>
+        {loading ? "Reservando…" : "Confirmar reserva"}
+      </button>
     </form>
   );
-};
-
-export default ReservationForm;
+}

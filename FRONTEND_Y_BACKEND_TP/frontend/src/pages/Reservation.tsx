@@ -1,7 +1,7 @@
 // src/pages/Reservation.tsx
 import React, { useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "../../axios";
+import axios from "../axios";
 import { useTravel } from "../hooks/useTravel";
 import { AuthContext } from "../context/AuthContext";
 import type { Package } from "../types";

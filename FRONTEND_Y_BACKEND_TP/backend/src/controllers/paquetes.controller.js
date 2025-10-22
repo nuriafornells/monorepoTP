@@ -1,3 +1,4 @@
+// src/controllers/paquetes.controller.js
 const getAllPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
@@ -24,7 +25,7 @@ const getPackageById = async (req, res) => {
   const { id } = req.params;
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquete = await repo.findOne(id);
+    const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
     return res.status(200).json({ paquete });
   } catch (error) {
@@ -34,11 +35,31 @@ const getPackageById = async (req, res) => {
 };
 
 const createPackage = async (req, res) => {
-  const { nombre, destino, precio, duracion, publicado = false } = req.body;
+  const { nombre, precio, duracion, hotelId, publicado = false, descripcion, fechaInicio, fechaFin } = req.body;
   try {
-    const repo = req.em.getRepository('Paquete');
+    if (!hotelId) {
+      return res.status(400).json({ error: 'hotelId es requerido' });
+    }
+
+    const em = req.em;
+    const hotel = await em.findOne('Hotel', hotelId);
+    if (!hotel) return res.status(400).json({ error: 'Hotel no encontrado' });
+
+    const repo = em.getRepository('Paquete');
     const now = new Date();
-    const paquete = repo.create({ nombre, destino, precio, duracion, publicado, createdAt: now, updatedAt: now });
+    const paquete = repo.create({
+      nombre,
+      precio,
+      duracion,
+      descripcion: descripcion ?? null,
+      fechaInicio: fechaInicio ? new Date(fechaInicio) : null,
+      fechaFin: fechaFin ? new Date(fechaFin) : null,
+      publicado,
+      hotel,
+      createdAt: now,
+      updatedAt: now,
+    });
+
     await req.em.persistAndFlush(paquete);
     return res.status(201).json({ paquete });
   } catch (error) {
@@ -49,16 +70,26 @@ const createPackage = async (req, res) => {
 
 const updatePackage = async (req, res) => {
   const { id } = req.params;
-  const { nombre, precio, destino, duracion } = req.body;
+  const { nombre, precio, duracion, hotelId, publicado, descripcion, fechaInicio, fechaFin } = req.body;
+
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquete = await repo.findOne(id);
+    const paquete = await repo.findOne(id, { populate: ['hotel'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
+
+    if (hotelId) {
+      const hotel = await req.em.findOne('Hotel', hotelId);
+      if (!hotel) return res.status(400).json({ error: 'Hotel no encontrado' });
+      paquete.hotel = hotel;
+    }
 
     paquete.nombre = nombre ?? paquete.nombre;
     paquete.precio = precio ?? paquete.precio;
-    paquete.destino = destino ?? paquete.destino;
     paquete.duracion = duracion ?? paquete.duracion;
+    paquete.descripcion = descripcion ?? paquete.descripcion;
+    paquete.fechaInicio = fechaInicio ? new Date(fechaInicio) : paquete.fechaInicio;
+    paquete.fechaFin = fechaFin ? new Date(fechaFin) : paquete.fechaFin;
+    if (typeof publicado === 'boolean') paquete.publicado = publicado;
     paquete.updatedAt = new Date();
 
     await req.em.persistAndFlush(paquete);
@@ -75,6 +106,7 @@ const togglePublish = async (req, res) => {
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id);
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
+
     paquete.publicado = !paquete.publicado;
     paquete.updatedAt = new Date();
     await req.em.persistAndFlush(paquete);
@@ -90,7 +122,18 @@ const deletePackage = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id);
-    if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
+    if (!paquete) {
+      return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
+
+    // Verificamos si hay reservas asociadas
+    const reservas = await req.em.find('Reservation', { paquete: id }, { limit: 1 });
+    if (reservas.length > 0) {
+      return res.status(409).json({
+        error: 'No se puede eliminar el paquete porque tiene reservas asociadas',
+      });
+    }
+
     await req.em.removeAndFlush(paquete);
     return res.status(204).send();
   } catch (error) {

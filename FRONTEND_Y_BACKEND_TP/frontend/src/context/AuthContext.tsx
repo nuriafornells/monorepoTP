@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import type { ReactNode } from "react";
 
 export type Role = "admin" | "user" | null;
@@ -101,3 +100,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
+
+// 👇 Hook para consumir el contexto en cualquier componente
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth debe usarse dentro de un AuthProvider");
+  }
+  return ctx;
+}

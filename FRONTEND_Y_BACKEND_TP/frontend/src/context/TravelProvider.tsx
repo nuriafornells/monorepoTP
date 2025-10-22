@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TravelContext } from "./TravelContext";
 import type { Package } from "../types";
 import type { Reservation } from "./TravelContext";
-import axios from "../../axios";
+import axios from "../axios";
 
 const TravelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [packages, setPackages] = useState<Package[]>([]);

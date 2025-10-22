@@ -35,6 +35,9 @@ export default function Navbar() {
           {role === "admin" && (
             <NavLink to="/admin/dashboard"> Administrador de paquetes</NavLink>
           )}
+          {role === "admin" && (
+             <NavLink to="/admin/dashboard/reservas">Reservas</NavLink>
+          )}
 
           {user && token ? (
             <>

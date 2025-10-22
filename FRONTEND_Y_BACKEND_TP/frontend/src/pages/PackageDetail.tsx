@@ -1,36 +1,66 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import api from "../api"; // tu instancia de axios
-import type { Package } from "../types";
+import { useParams, Link } from "react-router-dom";
+import { useTravel } from "../hooks/useTravel";
+import type { Paquete } from "../types";
+import ReservationForm from "../components/ReservationForm";
 
 export default function PackageDetail() {
-  const { id } = useParams();
-  const [paquete, setPaquete] = useState<Package | null>(null);
-  const [error, setError] = useState("");
+  const { id } = useParams<{ id: string }>();
+  const { packages } = useTravel();
 
-  useEffect(() => {
-    const fetchDetail = async () => {
-      try {
-        const res = await api.get<{ paquete: Package }>(`/paquetes/${id}`);
-        setPaquete(res.data.paquete);
-      } catch (err) {
-        console.error("Error al obtener detalle:", err);
-        setError("No se pudo cargar el paquete");
-      }
-    };
-    fetchDetail();
-  }, [id]);
+  const paquete: Paquete | undefined = packages?.find(
+    (p) => p.id === Number(id)
+  );
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!paquete) return <p>Cargando...</p>;
+  if (!paquete) {
+    return <p>Paquete no encontrado.</p>;
+  }
 
   return (
-    <div className="card">
-      <h2>{paquete.nombre}</h2>
-      <p><strong>Destino:</strong> {paquete.destino}</p>
-      <p><strong>Duración:</strong> {paquete.duracion} días</p>
-      <p><strong>Precio:</strong> USD {paquete.precio}</p>
-      <p><strong>Publicado:</strong> {paquete.publicado ? "Sí" : "No"}</p>
+    <div className="package-detail">
+      {paquete.imageUrl && (
+        <img
+          src={paquete.imageUrl}
+          alt={paquete.nombre}
+          style={{ width: "100%", borderRadius: 8, marginBottom: 16 }}
+        />
+      )}
+
+      <h1>{paquete.nombre}</h1>
+
+      <div className="badge">
+        {paquete.hotel?.destino?.nombre ?? "Destino no disponible"}
+      </div>
+
+      <p style={{ color: "var(--muted)" }}>
+        {paquete.descripcion ?? "Sin descripción"}
+      </p>
+
+      <ul>
+        <li>
+          <strong>Duración:</strong> {paquete.duracion} días
+        </li>
+        <li>
+          <strong>Hotel:</strong> {paquete.hotel?.nombre} (
+          {paquete.hotel?.ubicacion})
+        </li>
+        <li>
+          <strong>Categoría:</strong> {paquete.hotel?.categoria}
+        </li>
+        <li>
+          <strong>Destino:</strong> {paquete.hotel?.destino?.nombre}
+        </li>
+      </ul>
+
+      <h2 style={{ marginTop: 16 }}>Precio: USD {paquete.precio}</h2>
+
+      {/* Formulario de reserva */}
+      <ReservationForm packageId={paquete.id} />
+
+      <div style={{ marginTop: 24 }}>
+        <Link className="btn" to="/packages">
+          ← Volver a paquetes
+        </Link>
+      </div>
     </div>
   );
 }

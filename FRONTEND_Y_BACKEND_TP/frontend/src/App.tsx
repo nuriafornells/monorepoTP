@@ -12,6 +12,8 @@ import Reservation from "./pages/Reservation";
 import AdminDashboard from "./pages/AdminDashboard";
 import EditPackage from "./pages/EditPackage";
 import Unauthorized from "./pages/Unauthorized";
+import "react-datepicker/dist/react-datepicker.css";
+import AdminReservations from "./pages/AdminReservations";
 
 const router = createBrowserRouter([
   {
@@ -43,20 +45,24 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "admin/dashboard",
-        element: <PrivateRoute requiredRole="admin" />,
-        children: [
+         path: "admin/dashboard",
+         element: <PrivateRoute requiredRole="admin" />,
+         children: [
           { index: true, element: <AdminDashboard /> },
-          {
-            path: "editar/:id",
-            element: <EditPackage mode="edit" />
-          },
-          {
-            path: "crear",
-            element: <EditPackage mode="create" />
-          }
-        ]
-      },
+         {
+           path: "editar/:id",
+           element: <EditPackage mode="edit" />
+         },
+      {
+      path: "crear",
+      element: <EditPackage mode="create" />
+    },
+    {
+      path: "reservas", 
+      element: <AdminReservations />
+    }
+  ]
+   },
 
       { path: "unauthorized", element: <Unauthorized /> }
     ]

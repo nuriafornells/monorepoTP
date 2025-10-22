@@ -1,26 +1,33 @@
-import { useTravel } from "../hooks/useTravel";
+import { useAuth } from "../context/AuthContext";
+import { useReservations } from "../hooks/useReservations";
+import type { Reservation } from "../types/index";
 
-const ReservationList = () => {
-  const { reservations } = useTravel();
+export default function ReservationList() {
+  const { token } = useAuth();
+  const { reservations, loading } = useReservations(token);
+
+  if (loading) return <p>Cargando reservas...</p>;
 
   return (
     <div>
-      <h2>Reservas hechas</h2>
-      {reservations.length === 0 ? (
-        <p>No hiciste ninguna reserva todavía.</p>
-      ) : (
-        <ul>
-          {reservations.map((res) => (
-            <li key={res.id} style={{ marginBottom: 12 }}>
-              <strong>{res.paquete?.nombre || "Paquete desconocido"}</strong> — Fecha:{" "}
-              {new Date(res.date).toLocaleDateString()} — Estado: {res.status} — Usuario:{" "}
-              {res.user?.email || "Desconocido"}
-            </li>
-          ))}
-        </ul>
-      )}
+      <h2>Mis Reservas</h2>
+      {reservations.length === 0 && <p>No tenés reservas aún.</p>}
+      <ul>
+        {reservations.map((r: Reservation) => (
+          <li key={r.id}>
+            <strong>{r.paquete.nombre}</strong>{" "}
+            - {r.paquete.hotel.destino.nombre}
+            <br />
+            Hotel: {r.paquete.hotel.nombre} ({r.paquete.hotel.ubicacion})
+            <br />
+            Fecha: {new Date(r.fechaReserva).toLocaleDateString()}
+            <br />
+            Personas: {r.cantidadPersonas}
+            <br />
+            Estado: {r.status}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
-
-export default ReservationList;
+}

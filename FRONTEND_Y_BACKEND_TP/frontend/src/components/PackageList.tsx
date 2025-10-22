@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import axios from "../../axios";
+import axios from "../axios";
 import PackageCard from "./PackageCard";
-import type { Package } from "../types";
+import type {Paquete} from "../types";
 
 const PackageList = () => {
-  const [packages, setPackages] = useState<Package[]>([]);
+  const [packages, setPackages] = useState<Paquete[]>([]);
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
         //Consumimos solo los publicados desde el backend
-        const res = await axios.get<{ paquetes: Package[] }>("/paquetes/publicos");
+        const res = await axios.get<{ paquetes: Paquete[] }>("/paquetes/publicos");
         setPackages(res.data.paquetes);
       } catch (error) {
         console.error("Error al traer paquetes publicados:", error);

@@ -1,20 +1,38 @@
-// src/components/PackageCard.tsx
 import { Link } from "react-router-dom";
-import type { Package } from "../types";
+import type { Paquete } from "../types";
 
-type Props = { item: Package };
+type Props = { item: Paquete };
 
 export default function PackageCard({ item }: Props) {
   return (
     <div className="card">
+      {/* Imagen opcional */}
       {item.imageUrl && <img src={item.imageUrl} alt={item.nombre} />}
+
       <div className="card-body">
-        <div className="badge">{item.destino}</div>
+        {/* Destino seguro */}
+        <div className="badge">
+          {item.hotel?.destino?.nombre ?? "Destino no disponible"}
+        </div>
+
         <h3>{item.nombre}</h3>
-        <p style={{ color: "var(--muted)" }}>{item.description}</p>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+        {/* Descripción opcional */}
+        {item.descripcion && (
+          <p style={{ color: "var(--muted)" }}>{item.descripcion}</p>
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <span className="price">USD {item.precio}</span>
-          <Link className="btn" to={`/packages/${item.id}`}>Ver detalle</Link>
+          <Link className="btn" to={`/packages/${item.id}`}>
+            Ver detalle
+          </Link>
         </div>
       </div>
     </div>

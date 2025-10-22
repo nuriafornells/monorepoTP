@@ -10,12 +10,16 @@ export default function Packages() {
   const list = useMemo(() => {
     const term = q.toLowerCase().trim();
     const source = packages ?? [];
-    return source.filter(
-      (p) =>
+
+    return source.filter((p) => {
+      const nombre = p.nombre ?? "";
+      const destino = p.hotel?.destino?.nombre ?? ""; // 👈 accedemos seguro
+      return (
         p.publicado &&
-        (p.nombre.toLowerCase().includes(term) ||
-         p.destino.toLowerCase().includes(term))
-    );
+        (nombre.toLowerCase().includes(term) ||
+          destino.toLowerCase().includes(term))
+      );
+    });
   }, [q, packages]);
 
   return (

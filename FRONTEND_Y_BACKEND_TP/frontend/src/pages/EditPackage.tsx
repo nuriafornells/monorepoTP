@@ -1,18 +1,16 @@
-// src/pages/EditPackage.tsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "../../axios";
-import type { Package } from "../types";
+import axios from "../axios";
+import type { Paquete, Destino, Hotel } from "../types";
 
 type Props = {
   mode?: "edit" | "create";
 };
 
-// Tipo local que permite "" en campos numéricos
 type FormState = {
   id?: number;
   nombre: string;
-  destino: string;
+  hotelId: number | "";
   precio: number | "";
   duracion: number | "";
   publicado?: boolean;
@@ -22,13 +20,46 @@ export default function EditPackage({ mode = "edit" }: Props) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState<FormState | null>(null);
+  const [destinos, setDestinos] = useState<Destino[]>([]);
+  const [hoteles, setHoteles] = useState<Hotel[]>([]);
+  const [selectedDestinoId, setSelectedDestinoId] = useState<number | "">("");
 
+  // Cargar destinos al montar
+  useEffect(() => {
+    axios.get<{ destinos: Destino[] }>("/destinos").then((res) => {
+      setDestinos(res.data.destinos);
+    });
+  }, []);
+
+  // Cargar hoteles cuando cambia el destino
+  useEffect(() => {
+    if (selectedDestinoId !== "") {
+      axios
+        .get<{ hoteles: Hotel[] }>(`/hoteles?destinoId=${selectedDestinoId}`)
+        .then((res) => {
+          setHoteles(res.data.hoteles);
+        });
+    } else {
+      setHoteles([]);
+    }
+  }, [selectedDestinoId]);
+
+  // Cargar paquete si estamos en modo edición
   useEffect(() => {
     if (mode === "edit" && id) {
       const fetchPackage = async () => {
         try {
-          const res = await axios.get<{ paquete: Package }>(`/paquetes/${id}`);
-          setForm(res.data.paquete);
+          const res = await axios.get<{ paquete: Paquete }>(`/paquetes/${id}`);
+          const p = res.data.paquete;
+          setForm({
+            id: p.id,
+            nombre: p.nombre,
+            hotelId: p.hotel?.id ?? "",
+            precio: p.precio,
+            duracion: p.duracion,
+            publicado: p.publicado,
+          });
+          setSelectedDestinoId(p.hotel?.destino?.id ?? "");
         } catch (error) {
           console.error("Error al traer paquete:", error);
         }
@@ -37,7 +68,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
     } else if (mode === "create") {
       setForm({
         nombre: "",
-        destino: "",
+        hotelId: "",
         precio: "",
         duracion: "",
         publicado: false,
@@ -45,13 +76,15 @@ export default function EditPackage({ mode = "edit" }: Props) {
     }
   }, [id, mode]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!form) return;
     const { name, value } = e.target;
     setForm({
       ...form,
       [name]:
         name === "precio" || name === "duracion"
+          ? value === "" ? "" : Number(value)
+          : name === "hotelId"
           ? value === "" ? "" : Number(value)
           : value,
     });
@@ -63,14 +96,14 @@ export default function EditPackage({ mode = "edit" }: Props) {
       if (mode === "edit") {
         await axios.put(`/paquetes/${form!.id}`, {
           nombre: form!.nombre,
-          destino: form!.destino,
+          hotelId: form!.hotelId,
           precio: form!.precio,
           duracion: form!.duracion,
         });
       } else {
         await axios.post("/paquetes", {
           nombre: form!.nombre,
-          destino: form!.destino,
+          hotelId: form!.hotelId,
           precio: Number(form!.precio),
           duracion: Number(form!.duracion),
           publicado: false,
@@ -91,10 +124,39 @@ export default function EditPackage({ mode = "edit" }: Props) {
       style={{ maxWidth: 600, margin: "0 auto" }}
     >
       <h2>{mode === "edit" ? "Editar paquete" : "Crear nuevo paquete"}</h2>
+
       <label>Nombre</label>
       <input name="nombre" value={form.nombre} onChange={handleChange} required />
+
       <label>Destino</label>
-      <input name="destino" value={form.destino} onChange={handleChange} required />
+      <select
+        value={selectedDestinoId}
+        onChange={(e) => setSelectedDestinoId(Number(e.target.value))}
+        required
+      >
+        <option value="">Seleccionar destino…</option>
+        {destinos.map((d) => (
+          <option key={d.id} value={d.id}>
+            {d.nombre}
+          </option>
+        ))}
+      </select>
+
+      <label>Hotel</label>
+      <select
+        name="hotelId"
+        value={form.hotelId}
+        onChange={handleChange}
+        required
+      >
+        <option value="">Seleccionar hotel…</option>
+        {hoteles.map((h) => (
+          <option key={h.id} value={h.id}>
+            {h.nombre} ({h.ubicacion})
+          </option>
+        ))}
+      </select>
+
       <label>Duración (días)</label>
       <input
         name="duracion"
@@ -103,6 +165,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
         onChange={handleChange}
         required
       />
+
       <label>Precio (USD)</label>
       <input
         name="precio"
@@ -111,6 +174,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
         onChange={handleChange}
         required
       />
+
       <button className="btn" type="submit">
         {mode === "edit" ? "Guardar cambios" : "Crear paquete"}
       </button>

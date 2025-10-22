@@ -1,27 +1,37 @@
-// src/types/index.ts
-export type Package = {
+export interface Reservation {
   id: number;
-  title: string;
-  slug: string; // para la URL
-  destination: string;
-  description: string;
-  priceUSD: number;
-  days: number;
-  nights: number;
-  published: boolean;
-  imageUrl: string;
-};
-
-export type Reservation = {
-  id: number;
-  date: string;
+  fechaReserva: string;
+  cantidadPersonas: number;
   status: string;
-  user: {
-    id: number;
-    email: string;
-  };
-  paquete: {
+  paquete: Paquete;
+  user: { id: number; email: string };
+}
+
+export interface Paquete {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  duracion: number;
+  publicado: boolean;
+  hotel: {
     id: number;
     nombre: string;
+    ubicacion: string;
+    categoria: string;
+    destino: { id: number; nombre: string };
   };
+  imageUrl?: string;
+}
+export type Destino = {
+  id: number;
+  nombre: string;
+};
+
+export type Hotel = {
+  id: number;
+  nombre: string;
+  ubicacion: string;
+  categoria?: string;
+  destino: Destino;
 };

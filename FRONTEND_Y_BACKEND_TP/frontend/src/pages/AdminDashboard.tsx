@@ -1,17 +1,17 @@
 // src/pages/AdminDashboard.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../axios";
-import type { Package } from "../types";
+import axios from "../axios";
+import type { Paquete} from "../types";
 
 export default function AdminDashboard() {
-  const [paquetes, setPaquetes] = useState<Package[]>([]);
+  const [paquetes, setPaquetes] = useState<Paquete[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPaquetes = async () => {
       try {
-        const res = await axios.get<{ paquetes: Package[] }>("/paquetes");
+        const res = await axios.get<{ paquetes: Paquete[] }>("/paquetes");
         setPaquetes(res.data.paquetes);
       } catch (error) {
         console.error("Error al traer paquetes:", error);
@@ -31,7 +31,7 @@ export default function AdminDashboard() {
 
   const handleTogglePublicacion = async (id: number) => {
     try {
-      const res = await axios.patch<Package>(`/paquetes/${id}/publicar`);
+      const res = await axios.patch<Paquete>(`/paquetes/${id}/publicar`);
       setPaquetes((prev) =>
         prev.map((p) => (p.id === id ? res.data : p))
       );
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
               <tr key={p.id}>
                 <td style={td}>{p.id}</td>
                 <td style={td}>{p.nombre}</td>
-                <td style={td}>{p.destino}</td>
+                <td style={td}>{p.hotel?.destino?.nombre ?? "—"}</td>
                 <td style={td}>${p.precio}</td>
                 <td style={td}>{p.publicado ? "Sí" : "No"}</td>
                 <td style={td}>
