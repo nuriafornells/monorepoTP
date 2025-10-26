@@ -2,7 +2,7 @@ const { EntitySchema } = require('@mikro-orm/core');
 
 module.exports = new EntitySchema({
   name: 'Destino',
-  tableName: 'Destinos',
+  tableName: 'destinos',
   properties: {
     id: { type: 'number', primary: true, autoincrement: true },
     nombre: { type: 'string', length: 255 },

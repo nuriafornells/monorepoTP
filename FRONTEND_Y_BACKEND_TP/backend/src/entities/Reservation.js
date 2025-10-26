@@ -3,7 +3,7 @@ const { EntitySchema } = require('@mikro-orm/core');
 
 module.exports = new EntitySchema({
   name: 'Reservation',
-  tableName: 'Reservations',
+  tableName: 'reservations',
   properties: {
     id: { type: 'number', primary: true, autoincrement: true },
     fechaReserva: { type: 'date', nullable: true, fieldName: 'fechaReserva' },

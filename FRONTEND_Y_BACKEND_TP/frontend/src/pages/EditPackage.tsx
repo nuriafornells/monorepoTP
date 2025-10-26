@@ -14,6 +14,7 @@ type FormState = {
   precio: number | "";
   duracion: number | "";
   publicado?: boolean;
+  fotoURL?: string;
 };
 
 export default function EditPackage({ mode = "edit" }: Props) {
@@ -58,6 +59,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
             precio: p.precio,
             duracion: p.duracion,
             publicado: p.publicado,
+            fotoURL: p.fotoURL ?? "",
           });
           setSelectedDestinoId(p.hotel?.destino?.id ?? "");
         } catch (error) {
@@ -72,6 +74,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
         precio: "",
         duracion: "",
         publicado: false,
+        fotoURL: "",
       });
     }
   }, [id, mode]);
@@ -99,6 +102,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
           hotelId: form!.hotelId,
           precio: form!.precio,
           duracion: form!.duracion,
+          fotoURL: form!.fotoURL,
         });
       } else {
         await axios.post("/paquetes", {
@@ -107,6 +111,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
           precio: Number(form!.precio),
           duracion: Number(form!.duracion),
           publicado: false,
+          fotoURL: form!.fotoURL,
         });
       }
       navigate("/admin/dashboard");
@@ -174,6 +179,35 @@ export default function EditPackage({ mode = "edit" }: Props) {
         onChange={handleChange}
         required
       />
+
+      <label>Foto URL</label>
+      <input
+        name="fotoURL"
+        type="url"
+        value={form.fotoURL}
+        onChange={handleChange}
+        placeholder="http://localhost:3001/images/nombre-imagen.jpg"
+      />
+
+      {form.fotoURL && (
+        <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+          <p>Vista previa:</p>
+          <img 
+            src={form.fotoURL} 
+            alt="Vista previa" 
+            style={{ 
+              width: '200px', 
+              height: '120px', 
+              objectFit: 'cover', 
+              borderRadius: '4px' 
+            }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
+        </div>
+      )}
 
       <button className="btn" type="submit">
         {mode === "edit" ? "Guardar cambios" : "Crear paquete"}

@@ -21,6 +21,9 @@ app.use(cors({
 app.options('*', cors());
 app.use(express.json());
 
+// Serve static files from public folder
+app.use('/images', express.static('public'));
+
 // Middleware de errores al final, rutas montadas antes de él
 app.get('/', (req, res) => res.send('Backend funcionando'));
 

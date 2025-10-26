@@ -17,11 +17,17 @@ export default function PackageDetail() {
 
   return (
     <div className="package-detail">
-      {paquete.imageUrl && (
+      {paquete.fotoURL && (
         <img
-          src={paquete.imageUrl}
+          src={paquete.fotoURL}
           alt={paquete.nombre}
-          style={{ width: "100%", borderRadius: 8, marginBottom: 16 }}
+          style={{ 
+            width: "100%", 
+            height: "300px",
+            objectFit: "cover",
+            borderRadius: 8, 
+            marginBottom: 16 
+          }}
         />
       )}
 

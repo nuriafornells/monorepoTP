@@ -21,7 +21,7 @@ export interface Paquete {
     categoria: string;
     destino: { id: number; nombre: string };
   };
-  imageUrl?: string;
+  fotoURL?: string;
 }
 export type Destino = {
   id: number;

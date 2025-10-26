@@ -7,7 +7,18 @@ export default function PackageCard({ item }: Props) {
   return (
     <div className="card">
       {/* Imagen opcional */}
-      {item.imageUrl && <img src={item.imageUrl} alt={item.nombre} />}
+      {item.fotoURL && (
+        <img 
+          src={item.fotoURL} 
+          alt={item.nombre}
+          style={{
+            width: '100%',
+            height: '200px',
+            objectFit: 'cover',
+            borderRadius: '8px 8px 0 0'
+          }}
+        />
+      )}
 
       <div className="card-body">
         {/* Destino seguro */}

@@ -2,7 +2,7 @@ const { EntitySchema } = require('@mikro-orm/core');
 
 module.exports = new EntitySchema({
   name: 'Paquete',
-  tableName: 'Paquetes',
+  tableName: 'paquetes',
   properties: {
     id: { type: 'number', primary: true, autoincrement: true },
     nombre: { type: 'string', length: 255 },
@@ -12,6 +12,7 @@ module.exports = new EntitySchema({
     fechaInicio: { type: 'date', nullable: true },
     fechaFin: { type: 'date', nullable: true },
     publicado: { type: 'boolean', default: false },
+    fotoURL: { type: 'string', length: 500, nullable: true, fieldName: 'fotoURL' },
 
     hotel: {
       kind: 'm:1',
