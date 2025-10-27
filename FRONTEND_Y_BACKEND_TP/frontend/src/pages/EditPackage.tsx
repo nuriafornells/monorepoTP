@@ -10,6 +10,7 @@ type Props = {
 type FormState = {
   id?: number;
   nombre: string;
+  destinoId: number | "";
   hotelId: number | "";
   precio: number | "";
   duracion: number | "";
@@ -22,8 +23,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
   const navigate = useNavigate();
   const [form, setForm] = useState<FormState | null>(null);
   const [destinos, setDestinos] = useState<Destino[]>([]);
-  const [hoteles, setHoteles] = useState<Hotel[]>([]);
-  const [selectedDestinoId, setSelectedDestinoId] = useState<number | "">("");
+  const [hoteles, setHoteles] = useState<Hotel[]>([]);;
 
   // Cargar destinos al montar
   useEffect(() => {
@@ -32,18 +32,14 @@ export default function EditPackage({ mode = "edit" }: Props) {
     });
   }, []);
 
-  // Cargar hoteles cuando cambia el destino
+  // Cargar todos los hoteles
   useEffect(() => {
-    if (selectedDestinoId !== "") {
-      axios
-        .get<{ hoteles: Hotel[] }>(`/hoteles?destinoId=${selectedDestinoId}`)
-        .then((res) => {
-          setHoteles(res.data.hoteles);
-        });
-    } else {
-      setHoteles([]);
-    }
-  }, [selectedDestinoId]);
+    axios
+      .get<{ hoteles: Hotel[] }>('/hoteles')
+      .then((res) => {
+        setHoteles(res.data.hoteles);
+      });
+  }, []);
 
   // Cargar paquete si estamos en modo edición
   useEffect(() => {
@@ -55,13 +51,13 @@ export default function EditPackage({ mode = "edit" }: Props) {
           setForm({
             id: p.id,
             nombre: p.nombre,
+            destinoId: p.destino?.id ?? "",
             hotelId: p.hotel?.id ?? "",
             precio: p.precio,
             duracion: p.duracion,
             publicado: p.publicado,
             fotoURL: p.fotoURL ?? "",
           });
-          setSelectedDestinoId(p.hotel?.destino?.id ?? "");
         } catch (error) {
           console.error("Error al traer paquete:", error);
         }
@@ -70,6 +66,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
     } else if (mode === "create") {
       setForm({
         nombre: "",
+        destinoId: "",
         hotelId: "",
         precio: "",
         duracion: "",
@@ -87,7 +84,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
       [name]:
         name === "precio" || name === "duracion"
           ? value === "" ? "" : Number(value)
-          : name === "hotelId"
+          : name === "hotelId" || name === "destinoId"
           ? value === "" ? "" : Number(value)
           : value,
     });
@@ -99,6 +96,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
       if (mode === "edit") {
         await axios.put(`/paquetes/${form!.id}`, {
           nombre: form!.nombre,
+          destinoId: form!.destinoId,
           hotelId: form!.hotelId,
           precio: form!.precio,
           duracion: form!.duracion,
@@ -107,6 +105,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
       } else {
         await axios.post("/paquetes", {
           nombre: form!.nombre,
+          destinoId: Number(form!.destinoId),
           hotelId: form!.hotelId,
           precio: Number(form!.precio),
           duracion: Number(form!.duracion),
@@ -135,8 +134,9 @@ export default function EditPackage({ mode = "edit" }: Props) {
 
       <label>Destino</label>
       <select
-        value={selectedDestinoId}
-        onChange={(e) => setSelectedDestinoId(Number(e.target.value))}
+        name="destinoId"
+        value={form.destinoId}
+        onChange={handleChange}
         required
       >
         <option value="">Seleccionar destino…</option>
@@ -180,20 +180,23 @@ export default function EditPackage({ mode = "edit" }: Props) {
         required
       />
 
-      <label>Foto URL</label>
+      <label>Foto (nombre del archivo)</label>
       <input
         name="fotoURL"
-        type="url"
+        type="text"
         value={form.fotoURL}
         onChange={handleChange}
-        placeholder="http://localhost:3001/images/nombre-imagen.jpg"
+        placeholder="ejemplo: italy.jpg"
       />
+      <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '2px' }}>
+        Ingresa solo el nombre del archivo. Ejemplo: italy.jpg, paris.png, etc.
+      </small>
 
       {form.fotoURL && (
         <div style={{ marginTop: '10px', marginBottom: '10px' }}>
           <p>Vista previa:</p>
           <img 
-            src={form.fotoURL} 
+            src={form.fotoURL.startsWith('http') ? form.fotoURL : `http://localhost:3001/images/${form.fotoURL}`}
             alt="Vista previa" 
             style={{ 
               width: '200px', 
@@ -206,6 +209,9 @@ export default function EditPackage({ mode = "edit" }: Props) {
               target.style.display = 'none';
             }}
           />
+          <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+            URL: {form.fotoURL.startsWith('http') ? form.fotoURL : `http://localhost:3001/images/${form.fotoURL}`}
+          </p>
         </div>
       )}
 

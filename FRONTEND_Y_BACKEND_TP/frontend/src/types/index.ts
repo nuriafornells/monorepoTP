@@ -14,12 +14,12 @@ export interface Paquete {
   precio: number;
   duracion: number;
   publicado: boolean;
+  destino: { id: number; nombre: string };
   hotel: {
     id: number;
     nombre: string;
     ubicacion: string;
     categoria: string;
-    destino: { id: number; nombre: string };
   };
   fotoURL?: string;
 }
@@ -33,5 +33,4 @@ export type Hotel = {
   nombre: string;
   ubicacion: string;
   categoria?: string;
-  destino: Destino;
 };

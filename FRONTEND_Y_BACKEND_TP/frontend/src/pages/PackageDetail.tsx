@@ -34,7 +34,7 @@ export default function PackageDetail() {
       <h1>{paquete.nombre}</h1>
 
       <div className="badge">
-        {paquete.hotel?.destino?.nombre ?? "Destino no disponible"}
+        {paquete.destino?.nombre ?? "Destino no disponible"}
       </div>
 
       <p style={{ color: "var(--muted)" }}>
@@ -53,7 +53,7 @@ export default function PackageDetail() {
           <strong>Categoría:</strong> {paquete.hotel?.categoria}
         </li>
         <li>
-          <strong>Destino:</strong> {paquete.hotel?.destino?.nombre}
+          <strong>Destino:</strong> {paquete.destino?.nombre}
         </li>
       </ul>
 

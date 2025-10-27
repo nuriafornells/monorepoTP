@@ -13,7 +13,7 @@ export default function Packages() {
 
     return source.filter((p) => {
       const nombre = p.nombre ?? "";
-      const destino = p.hotel?.destino?.nombre ?? ""; // 👈 accedemos seguro
+      const destino = p.destino?.nombre ?? ""; // 👈 accedemos seguro
       return (
         p.publicado &&
         (nombre.toLowerCase().includes(term) ||

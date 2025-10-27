@@ -1,8 +1,20 @@
 // src/controllers/paquetes.controller.js
+
+// Helper function to construct full URL from filename
+const constructImageURL = (filename) => {
+  if (!filename) return null;
+  // If it's already a full URL, return as is
+  if (filename.startsWith('http://') || filename.startsWith('https://')) {
+    return filename;
+  }
+  // If it's just a filename, construct the full URL with /images/ path
+  return `http://localhost:3001/images/${filename}`;
+};
+
 const getAllPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquetes = await repo.findAll();
+    const paquetes = await repo.findAll({ populate: ['hotel', 'destino'] });
     return res.status(200).json({ paquetes });
   } catch (error) {
     console.error('Error en getAllPackages:', error);
@@ -13,7 +25,7 @@ const getAllPackages = async (req, res) => {
 const getPublishedPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquetes = await repo.find({ publicado: true });
+    const paquetes = await repo.find({ publicado: true }, { populate: ['hotel', 'destino'] });
     return res.status(200).json({ paquetes });
   } catch (error) {
     console.error('Error en getPublishedPackages:', error);
@@ -25,7 +37,7 @@ const getPackageById = async (req, res) => {
   const { id } = req.params;
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
+    const paquete = await repo.findOne(id, { populate: ['hotel', 'destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
     return res.status(200).json({ paquete });
   } catch (error) {
@@ -35,18 +47,26 @@ const getPackageById = async (req, res) => {
 };
 
 const createPackage = async (req, res) => {
-  const { nombre, precio, duracion, hotelId, publicado = false, descripcion, fechaInicio, fechaFin } = req.body;
+  const { nombre, precio, duracion, hotelId, destinoId, publicado = false, descripcion, fechaInicio, fechaFin, fotoURL } = req.body;
   try {
     if (!hotelId) {
       return res.status(400).json({ error: 'hotelId es requerido' });
+    }
+    if (!destinoId) {
+      return res.status(400).json({ error: 'destinoId es requerido' });
     }
 
     const em = req.em;
     const hotel = await em.findOne('Hotel', hotelId);
     if (!hotel) return res.status(400).json({ error: 'Hotel no encontrado' });
+    
+    const destino = await em.findOne('Destino', destinoId);
+    if (!destino) return res.status(400).json({ error: 'Destino no encontrado' });
 
     const repo = em.getRepository('Paquete');
     const now = new Date();
+    const fullImageURL = constructImageURL(fotoURL);
+    
     const paquete = repo.create({
       nombre,
       precio,
@@ -55,6 +75,8 @@ const createPackage = async (req, res) => {
       fechaInicio: fechaInicio ? new Date(fechaInicio) : null,
       fechaFin: fechaFin ? new Date(fechaFin) : null,
       publicado,
+      fotoURL: fullImageURL,
+      destino,
       hotel,
       createdAt: now,
       updatedAt: now,
@@ -70,17 +92,23 @@ const createPackage = async (req, res) => {
 
 const updatePackage = async (req, res) => {
   const { id } = req.params;
-  const { nombre, precio, duracion, hotelId, publicado, descripcion, fechaInicio, fechaFin } = req.body;
+  const { nombre, precio, duracion, hotelId, destinoId, publicado, descripcion, fechaInicio, fechaFin, fotoURL } = req.body;
 
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquete = await repo.findOne(id, { populate: ['hotel'] });
+    const paquete = await repo.findOne(id, { populate: ['hotel', 'destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
 
     if (hotelId) {
       const hotel = await req.em.findOne('Hotel', hotelId);
       if (!hotel) return res.status(400).json({ error: 'Hotel no encontrado' });
       paquete.hotel = hotel;
+    }
+
+    if (destinoId) {
+      const destino = await req.em.findOne('Destino', destinoId);
+      if (!destino) return res.status(400).json({ error: 'Destino no encontrado' });
+      paquete.destino = destino;
     }
 
     paquete.nombre = nombre ?? paquete.nombre;
@@ -90,6 +118,12 @@ const updatePackage = async (req, res) => {
     paquete.fechaInicio = fechaInicio ? new Date(fechaInicio) : paquete.fechaInicio;
     paquete.fechaFin = fechaFin ? new Date(fechaFin) : paquete.fechaFin;
     if (typeof publicado === 'boolean') paquete.publicado = publicado;
+    
+    // Construct full URL from filename if provided
+    if (fotoURL !== undefined) {
+      paquete.fotoURL = constructImageURL(fotoURL);
+    }
+    
     paquete.updatedAt = new Date();
 
     await req.em.persistAndFlush(paquete);

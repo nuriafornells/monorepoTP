@@ -83,7 +83,7 @@ export default function AdminDashboard() {
               <tr key={p.id}>
                 <td style={td}>{p.id}</td>
                 <td style={td}>{p.nombre}</td>
-                <td style={td}>{p.hotel?.destino?.nombre ?? "—"}</td>
+                <td style={td}>{p.destino?.nombre ?? "—"}</td>
                 <td style={td}>${p.precio}</td>
                 <td style={td}>{p.publicado ? "Sí" : "No"}</td>
                 <td style={td}>

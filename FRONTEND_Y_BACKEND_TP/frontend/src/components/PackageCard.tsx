@@ -23,7 +23,7 @@ export default function PackageCard({ item }: Props) {
       <div className="card-body">
         {/* Destino seguro */}
         <div className="badge">
-          {item.hotel?.destino?.nombre ?? "Destino no disponible"}
+          {item.destino?.nombre ?? "Destino no disponible"}
         </div>
 
         <h3>{item.nombre}</h3>

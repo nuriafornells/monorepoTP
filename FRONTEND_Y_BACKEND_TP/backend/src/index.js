@@ -9,6 +9,8 @@ const authRoutes = require('./routes/authRoutes');
 const paquetesRoutes = require('./routes/PaquetesRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
+const destinosRoutes = require('./routes/destinosRoutes');
+const hotelsRoutes = require('./routes/hotelsRoutes');
 
 const { initORM } = require('./config/orm');
 
@@ -43,6 +45,9 @@ const PORT = process.env.PORT || 3001;
     app.use('/api/paquetes', paquetesRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/reservations', reservationRoutes);
+    app.use('/api/destinos', destinosRoutes);
+    app.use('/api/hoteles', hotelsRoutes);
+    app.use('/api', destinosRoutes);
 
     // handler de errores después de montar rutas
     app.use(errorHandler);

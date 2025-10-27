@@ -48,7 +48,7 @@ const getReservations = async (req, res) => {
     const where = req.user?.role === 'admin' ? {} : { user: req.user?.id };
 
     const reservas = await repo.find(where, {
-      populate: ['paquete', 'paquete.hotel', 'paquete.hotel.destino', 'user'],
+      populate: ['paquete', 'paquete.hotel', 'paquete.destino', 'user'],
     });
 
     return res.status(200).json({ reservas });

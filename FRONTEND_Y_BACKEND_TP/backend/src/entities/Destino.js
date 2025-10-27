@@ -7,9 +7,9 @@ module.exports = new EntitySchema({
     id: { type: 'number', primary: true, autoincrement: true },
     nombre: { type: 'string', length: 255 },
 
-    hoteles: {
+    paquetes: {
       kind: '1:m',
-      entity: () => require('./Hotel'),
+      entity: () => require('./Paquete'),
       mappedBy: 'destino',
     },
 

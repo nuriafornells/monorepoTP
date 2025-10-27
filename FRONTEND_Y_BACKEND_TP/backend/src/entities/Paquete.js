@@ -14,6 +14,12 @@ module.exports = new EntitySchema({
     publicado: { type: 'boolean', default: false },
     fotoURL: { type: 'string', length: 500, nullable: true, fieldName: 'fotoURL' },
 
+    destino: {
+      kind: 'm:1',
+      entity: () => require('./Destino'),
+      inversedBy: 'paquetes',
+    },
+
     hotel: {
       kind: 'm:1',
       entity: () => require('./Hotel'),

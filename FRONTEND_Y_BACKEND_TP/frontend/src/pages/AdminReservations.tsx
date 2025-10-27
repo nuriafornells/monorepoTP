@@ -6,8 +6,9 @@ type Reserva = {
   id: number;
   paquete: {
     nombre: string;
+    destino: { nombre: string };
     hotel: {
-      destino: { nombre: string };
+      nombre: string;
     };
   };
   user: {
@@ -97,7 +98,7 @@ export default function AdminReservations() {
               <tr key={r.id}>
                 <td>{r.id}</td>
                 <td>{r.paquete?.nombre}</td>
-                <td>{r.paquete?.hotel?.destino?.nombre}</td>
+                <td>{r.paquete?.destino?.nombre}</td>
                 <td>{r.user?.email}</td>
                 <td>
                   {r.fechaInicio && r.fechaFin
