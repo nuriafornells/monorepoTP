@@ -1,4 +1,5 @@
 // src/routes/uploadRoutes.js
+
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -10,10 +11,9 @@ const storage = multer.diskStorage({
     cb(null, 'public/'); // Upload files to public folder
   },
   filename: (req, file, cb) => {
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
+  },
 });
 
 const upload = multer({
@@ -22,13 +22,12 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Only allow image files
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
       cb(new Error('Only image files are allowed!'), false);
     }
-  }
+  },
 });
 
 // Upload endpoint
@@ -38,13 +37,13 @@ router.post('/upload', upload.single('image'), (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return the URL to access the uploaded file
-    const fileUrl = `http://localhost:3001/${req.file.filename}`;
-    
+    // Return the URL to access the uploaded file using the /images static mapping
+    const fileUrl = `http://localhost:3001/images/${req.file.filename}`;
+
     res.json({
       message: 'File uploaded successfully',
       filename: req.file.filename,
-      url: fileUrl
+      url: fileUrl,
     });
   } catch (error) {
     console.error('Upload error:', error);

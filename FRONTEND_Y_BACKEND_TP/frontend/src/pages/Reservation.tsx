@@ -1,34 +1,30 @@
 // src/pages/Reservation.tsx
-import React, { useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "../axios";
-import { useTravel } from "../hooks/useTravel";
-import { AuthContext } from "../context/AuthContext";
-import type { Package } from "../types";
+import React, { useState, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from '../axios';
+import { useTravel } from '../hooks/useTravel';
+import { AuthContext } from '../context/AuthContext';
+import type { Paquete } from '../types';
 
 export default function Reservation() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { packages } = useTravel();
-  const { user, token } = useContext(AuthContext)!;
+  const { user } = useContext(AuthContext)!;
 
-  const [fullName, setFullName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [fullName, setFullName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [passengers, setPassengers] = useState<number>(1);
-  const [travelDate, setTravelDate] = useState<string>("");
-  const [notes, setNotes] = useState<string>("");
+  const [travelDate, setTravelDate] = useState<string>('');
+  const [notes, setNotes] = useState<string>('');
 
-  const pkg: Package | undefined = packages?.find(
-    (p) => p.id === Number(id)
-  );
+  const pkg: Paquete | undefined = packages?.find((p) => p.id === Number(id));
 
   if (!pkg) {
     return (
       <div>
         <p>Paquete no encontrado ❌</p>
-        <button className="btn" onClick={() => navigate("/packages")}>
-          Volver
-        </button>
+        <button className="btn" onClick={() => navigate('/packages')}>Volver</button>
       </div>
     );
   }
@@ -36,7 +32,7 @@ export default function Reservation() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!pkg || !user?.id || !travelDate) {
-      alert("Faltan datos para enviar la reserva ❌");
+      alert('Faltan datos para enviar la reserva ❌');
       return;
     }
 
@@ -44,28 +40,22 @@ export default function Reservation() {
       packageId: pkg.id,
       date: travelDate,
       userId: user.id,
+      cantidadPersonas: passengers,
+      notas: notes || null,
     };
 
-    console.log("🧪 Enviando reserva:", payload);
-
     try {
-      console.log("🧪 Payload:", payload);
-      console.log("🔐 Token:", token);
-      await axios.post("http://localhost:3001/api/reservations", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      alert("Reserva enviada correctamente ✅");
-      setFullName("");
-      setEmail("");
+      await axios.post('/reservations', payload);
+      alert('Reserva enviada correctamente ✅');
+      setFullName('');
+      setEmail('');
       setPassengers(1);
-      setTravelDate("");
-      setNotes("");
+      setTravelDate('');
+      setNotes('');
+      navigate('/packages');
     } catch (error) {
-      console.error("Error al enviar reserva:", error);
-      alert("Hubo un problema al enviar la reserva ❌");
+      console.error('Error al enviar reserva:', error);
+      alert('Hubo un problema al enviar la reserva ❌');
     }
   }
 
@@ -102,7 +92,7 @@ export default function Reservation() {
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notas adicionales"
         />
-        <button type="submit">Enviar reserva</button>
+        <button type="submit" className="btn">Enviar reserva</button>
       </form>
     </div>
   );

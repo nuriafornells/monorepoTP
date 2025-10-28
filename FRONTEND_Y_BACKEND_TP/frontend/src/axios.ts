@@ -6,7 +6,6 @@ const instance = axios.create({
   baseURL: 'http://localhost:3001/api',
 });
 
-// Interceptor request
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   config.headers = config.headers ?? {};

@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import type { Reservation } from "../types/index";
+// src/hooks/useReservations.ts
+import { useEffect, useState } from 'react';
+import type { Reservation } from '../types';
+import axios from '../axios';
 
 export function useReservations(token: string | null) {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -7,19 +9,20 @@ export function useReservations(token: string | null) {
 
   useEffect(() => {
     if (!token) return;
+
     const fetchReservations = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/reservations", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = (await res.json()) as Reservation[]; // 👈 forzamos el tipo correcto
-        setReservations(data);
+        const res = await axios.get<{ reservas?: Reservation[] } | Reservation[]>('/reservations');
+        const payload = res.data;
+        const lista = Array.isArray(payload) ? payload : payload.reservas ?? [];
+        setReservations(lista);
       } catch (err) {
-        console.error("Error al obtener reservas", err);
+        console.error('Error al obtener reservas', err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchReservations();
   }, [token]);
 

@@ -1,18 +1,15 @@
 // src/index.js
 require('dotenv').config();
 require('reflect-metadata');
-
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
-
 const authRoutes = require('./routes/authRoutes');
 const paquetesRoutes = require('./routes/PaquetesRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const destinosRoutes = require('./routes/destinos.routes');
 const hotelsRoutes = require('./routes/hotels.routes');
-
 const { initORM } = require('./config/orm');
 
 const app = express();
@@ -22,15 +19,17 @@ app.use(cors({
   credentials: true,
 }));
 app.options('*', cors());
+
 app.use(express.json());
 
-// Serve static files from public folder
+// Serve static files from public folder at /images
 app.use('/images', express.static('public'));
 
 // Health
 app.get('/', (req, res) => res.send('Backend funcionando'));
 
 const PORT = process.env.PORT || 3001;
+
 (async () => {
   try {
     const orm = await initORM();

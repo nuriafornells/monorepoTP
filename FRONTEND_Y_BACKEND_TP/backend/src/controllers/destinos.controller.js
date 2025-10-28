@@ -1,4 +1,4 @@
-const express = require('express');
+// src/controllers/destinos.controller.js
 
 const getDestinos = async (req, res) => {
   try {
@@ -14,10 +14,11 @@ const getDestinos = async (req, res) => {
 const getHoteles = async (req, res) => {
   try {
     const repo = req.em.getRepository('Hotel');
-    const { destinoId } = req.query;
-    
-    let filter = {};
-    const hoteles = await repo.findAll();
+    const destinoId = req.query.destinoId ? Number(req.query.destinoId) : null;
+
+    const where = destinoId ? { destino: destinoId } : {};
+    const hoteles = await repo.find(where, { populate: ['destino'] });
+
     return res.status(200).json({ hoteles });
   } catch (error) {
     console.error('Error en getHoteles:', error);
