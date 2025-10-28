@@ -1,6 +1,8 @@
 export interface Reservation {
   id: number;
-  fechaReserva: string;
+  fechaReserva?: string | null;
+  fechaInicio?: string | null;
+  fechaFin?: string | null;
   cantidadPersonas: number;
   status: string;
   paquete: Paquete;
@@ -14,15 +16,11 @@ export interface Paquete {
   precio: number;
   duracion: number;
   publicado: boolean;
-  destino: { id: number; nombre: string };
-  hotel: {
-    id: number;
-    nombre: string;
-    ubicacion: string;
-    categoria: string;
-  };
+  destino?: { id: number; nombre: string } | null;
+  hotel: Hotel;
   fotoURL?: string;
 }
+
 export type Destino = {
   id: number;
   nombre: string;
@@ -33,4 +31,5 @@ export type Hotel = {
   nombre: string;
   ubicacion: string;
   categoria?: string;
+  destino?: Destino | null;
 };

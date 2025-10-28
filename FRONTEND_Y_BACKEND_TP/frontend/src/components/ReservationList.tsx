@@ -1,33 +1,53 @@
-import { useAuth } from "../context/AuthContext";
-import { useReservations } from "../hooks/useReservations";
-import type { Reservation } from "../types/index";
+import React, { useContext } from 'react';
+import { TravelContext } from '../context/TravelContext';
+import type { Reservation } from '../types';
 
-export default function ReservationList() {
-  const { token } = useAuth();
-  const { reservations, loading } = useReservations(token);
+// helper seguro para fechas
+function formatMaybeDate(date?: string | null): string {
+  if (!date) return '-';
+  const d = new Date(date);
+  return isNaN(d.getTime()) ? '-' : d.toLocaleDateString();
+}
 
-  if (loading) return <p>Cargando reservas...</p>;
+const ReservationList: React.FC = () => {
+  const travelCtx = useContext(TravelContext);
+  if (!travelCtx) return <p>Error de contexto</p>;
+  const { reservations } = travelCtx;
 
   return (
     <div>
-      <h2>Mis Reservas</h2>
-      {reservations.length === 0 && <p>No tenés reservas aún.</p>}
-      <ul>
-        {reservations.map((r: Reservation) => (
-          <li key={r.id}>
-            <strong>{r.paquete.nombre}</strong>{" "}
-            - {r.paquete.hotel.destino.nombre}
-            <br />
-            Hotel: {r.paquete.hotel.nombre} ({r.paquete.hotel.ubicacion})
-            <br />
-            Fecha: {new Date(r.fechaReserva).toLocaleDateString()}
-            <br />
-            Personas: {r.cantidadPersonas}
-            <br />
-            Estado: {r.status}
-          </li>
-        ))}
-      </ul>
+      <h2>Reservas</h2>
+      {reservations.length === 0 ? (
+        <p>No hay reservas registradas.</p>
+      ) : (
+        <ul>
+          {reservations.map((r: Reservation) => {
+            const destinoNombre = r.paquete?.hotel?.destino?.nombre ?? 'Destino no disponible';
+            const hotelNombre = r.paquete?.hotel?.nombre ?? 'Hotel no disponible';
+            const fechaReserva = formatMaybeDate((r as any).fechaReserva ?? (r as any).date ?? null);
+            const fechaInicio = formatMaybeDate((r as any).fechaInicio ?? null);
+            const fechaFin = formatMaybeDate((r as any).fechaFin ?? null);
+            const fechaDisplay =
+              fechaInicio !== '-' && fechaFin !== '-' ? `${fechaInicio} - ${fechaFin}` : fechaReserva;
+
+            return (
+              <li key={r.id}>
+                <strong>{r.paquete.nombre}</strong> - {destinoNombre}
+                <br />
+                Hotel: {hotelNombre} ({r.paquete.hotel.ubicacion})
+                <br />
+                Fecha: {fechaDisplay}
+                <br />
+                Personas: {r.cantidadPersonas}
+                <br />
+                Estado: {(r as any).status ?? 'pendiente'}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
-}
+};
+
+export default ReservationList;

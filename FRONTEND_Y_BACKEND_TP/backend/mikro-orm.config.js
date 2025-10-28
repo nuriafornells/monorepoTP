@@ -9,9 +9,9 @@ module.exports = defineConfig({
     require(path.resolve(__dirname, 'src/entities/Hotel.js')),
     require(path.resolve(__dirname, 'src/entities/Destino.js')),
   ],
-  dbName: process.env.DB_NAME || 'DestinosDB',
+  dbName: process.env.DB_NAME || 'pruebo2dsw',
   driverOptions: {
-    connection: { ssl: false }, // opcional
+    connection: { ssl: false },
   },
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
