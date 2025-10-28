@@ -9,16 +9,12 @@ module.exports = new EntitySchema({
     descripcion: { type: 'string', nullable: true },
     duracion: { type: 'number' },
     precio: { type: 'number' },
-    fechaInicio: { type: 'date', nullable: true },
-    fechaFin: { type: 'date', nullable: true },
+    fechaInicio: { type: 'date', nullable: true, fieldName: 'fechaInicio' },
+    fechaFin: { type: 'date', nullable: true, fieldName: 'fechaFin' },
     publicado: { type: 'boolean', default: false },
     fotoURL: { type: 'string', length: 500, nullable: true, fieldName: 'fotoURL' },
 
-    destino: {
-      kind: 'm:1',
-      entity: () => require('./Destino'),
-      inversedBy: 'paquetes',
-    },
+  
 
     hotel: {
       kind: 'm:1',

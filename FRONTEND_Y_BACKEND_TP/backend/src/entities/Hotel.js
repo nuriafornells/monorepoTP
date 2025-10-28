@@ -9,6 +9,13 @@ module.exports = new EntitySchema({
     ubicacion: { type: 'string', length: 255 },
     categoria: { type: 'string', nullable: true },
 
+    destino: {
+      kind: 'm:1',
+      entity: () => require('./Destino'),
+      inversedBy: 'hoteles',
+      nullable: true,
+    },
+
     paquetes: {
       kind: '1:m',
       entity: () => require('./Paquete'),
