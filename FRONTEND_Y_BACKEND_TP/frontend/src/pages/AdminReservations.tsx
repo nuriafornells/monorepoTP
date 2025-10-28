@@ -7,18 +7,14 @@ type Reserva = {
   paquete: {
     nombre: string;
     destino: { nombre: string };
-    hotel: {
-      nombre: string;
-    };
+    hotel: { nombre: string };
   };
-  user: {
-    email: string;
-  };
+  user: { email: string };
   fechaInicio?: string;
   fechaFin?: string;
   fechaReserva?: string;
   cantidadPersonas: number;
-  estado: string;
+  status: string; // 👈 usar status en vez de estado
 };
 
 export default function AdminReservations() {
@@ -30,13 +26,10 @@ export default function AdminReservations() {
   useEffect(() => {
     const fetchReservas = async () => {
       try {
-        const res = await axios.get("/reservations", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await axios.get<{ reservas: Reserva[] }>("/reservations", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        const data = res.data as Reserva[] | { reservas: Reserva[] };
-        setReservas(Array.isArray(data) ? data : data.reservas);
+        setReservas(res.data.reservas);
       } catch (err) {
         console.error("Error al traer reservas:", err);
       } finally {
@@ -49,14 +42,26 @@ export default function AdminReservations() {
     }
   }, [role, token]);
 
+  const actualizarEstado = async (id: number, nuevoEstado: string) => {
+    try {
+      const res = await axios.patch<{ reserva: Reserva }>(
+        `/reservations/${id}/status`,
+        { status: nuevoEstado }
+      );
+      const actualizada = res.data.reserva;
+      setReservas((prev) => prev.map((r) => (r.id === id ? actualizada : r)));
+    } catch (error) {
+      console.error("Error al actualizar estado:", error);
+      alert("No se pudo actualizar el estado.");
+    }
+  };
+
   if (role !== "admin") {
     return <p>Acceso denegado: solo para administradores.</p>;
   }
 
   const reservasFiltradas =
-    filtro === "todas"
-      ? reservas
-      : reservas.filter((r) => r.estado === filtro);
+    filtro === "todas" ? reservas : reservas.filter((r) => r.status === filtro);
 
   return (
     <div className="container">
@@ -71,8 +76,8 @@ export default function AdminReservations() {
         >
           <option value="todas">Todas</option>
           <option value="pendiente">Pendiente</option>
-          <option value="confirmada">Confirmada</option>
-          <option value="cancelada">Cancelada</option>
+          <option value="aceptada">Aceptada</option>
+          <option value="rechazada">Rechazada</option>
         </select>
       </div>
 
@@ -91,6 +96,7 @@ export default function AdminReservations() {
               <th>Fechas</th>
               <th>Personas</th>
               <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -98,7 +104,7 @@ export default function AdminReservations() {
               <tr key={r.id}>
                 <td>{r.id}</td>
                 <td>{r.paquete?.nombre}</td>
-                <td>{r.paquete?.destino?.nombre}</td>
+                <td>{r.paquete?.destino?.nombre ?? "—"}</td>
                 <td>{r.user?.email}</td>
                 <td>
                   {r.fechaInicio && r.fechaFin
@@ -106,7 +112,25 @@ export default function AdminReservations() {
                     : r.fechaReserva?.slice(0, 10) ?? "—"}
                 </td>
                 <td>{r.cantidadPersonas}</td>
-                <td>{r.estado}</td>
+                <td>{r.status}</td>
+                <td>
+                  {r.status === "pendiente" && (
+                    <>
+                      <button
+                        className="btn"
+                        onClick={() => actualizarEstado(r.id, "aceptada")}
+                      >
+                        ✅ Aceptar
+                      </button>{" "}
+                      <button
+                        className="btn danger"
+                        onClick={() => actualizarEstado(r.id, "rechazada")}
+                      >
+                        ❌ Rechazar
+                      </button>
+                    </>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

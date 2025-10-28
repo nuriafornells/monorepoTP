@@ -73,4 +73,29 @@ const getReservations = async (req, res) => {
   }
 };
 
-module.exports = { createReservation, getReservations };
+const updateReservationStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!['pendiente', 'aceptada', 'rechazada'].includes(status)) {
+    return res.status(400).json({ error: 'Estado inválido' });
+  }
+
+  try {
+    const repo = req.em.getRepository('Reservation');
+    const reserva = await repo.findOne(id, { populate: ['user', 'paquete'] });
+    if (!reserva) return res.status(404).json({ error: 'Reserva no encontrada' });
+
+    reserva.status = status;
+    reserva.updatedAt = new Date();
+
+    await req.em.persistAndFlush(reserva);
+
+    return res.status(200).json({ reserva });
+  } catch (error) {
+    console.error('Error al actualizar estado de reserva:', error);
+    return res.status(500).json({ error: 'Error al actualizar reserva' });
+  }
+};
+
+module.exports = { createReservation, getReservations, updateReservationStatus };
