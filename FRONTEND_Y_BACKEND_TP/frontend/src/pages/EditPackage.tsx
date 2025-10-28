@@ -1,5 +1,3 @@
-// src/pages/EditPackage.tsx
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../axios';
@@ -26,21 +24,25 @@ export default function EditPackage({ mode = 'edit' }: Props) {
   const [destinos, setDestinos] = useState<Destino[]>([]);
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
 
+  // ✅ Cargar destinos
   useEffect(() => {
-    axios.get<{ destinos: Destino[] }>('/destinos')
+    axios.get<{ destinos: Destino[] }>('/destinos/destinos')
       .then((res) => setDestinos(res.data.destinos))
       .catch((e) => console.error('Error al cargar destinos:', e));
   }, []);
 
+  // ✅ Cargar hoteles filtrados por destino
   useEffect(() => {
     const load = async () => {
       try {
         if (!form?.destinoId) {
-          const res = await axios.get<{ hoteles: Hotel[] }>('/hoteles');
+          const res = await axios.get<{ hoteles: Hotel[] }>('/destinos/hoteles');
           setHoteles(res.data.hoteles);
           return;
         }
-        const res = await axios.get<{ hoteles: Hotel[] }>(`/hoteles?destinoId=${form.destinoId}`);
+        const res = await axios.get<{ hoteles: Hotel[] }>(
+          `/destinos/hoteles?destinoId=${form.destinoId}`
+        );
         setHoteles(res.data.hoteles);
       } catch (e) {
         console.error('Error al cargar hoteles:', e);
@@ -49,6 +51,7 @@ export default function EditPackage({ mode = 'edit' }: Props) {
     load();
   }, [form?.destinoId]);
 
+  // ✅ Cargar paquete en modo edición
   useEffect(() => {
     if (mode === 'edit' && id) {
       const fetchPackage = async () => {
@@ -142,23 +145,49 @@ export default function EditPackage({ mode = 'edit' }: Props) {
       <label>Destino</label>
       <select name="destinoId" value={form.destinoId ?? ''} onChange={handleChange} required>
         <option value="">Seleccionar destino…</option>
-        {destinos.map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+        {destinos.map((d) => (
+          <option key={d.id} value={d.id}>
+            {d.nombre}
+          </option>
+        ))}
       </select>
 
       <label>Hotel</label>
       <select name="hotelId" value={form.hotelId ?? ''} onChange={handleChange} required>
         <option value="">Seleccionar hotel…</option>
-        {hoteles.map((h) => <option key={h.id} value={h.id}>{h.nombre} ({h.ubicacion})</option>)}
+        {hoteles.map((h) => (
+          <option key={h.id} value={h.id}>
+            {h.nombre} ({h.ubicacion})
+          </option>
+        ))}
       </select>
 
       <label>Duración (días)</label>
-      <input name="duracion" type="number" value={form.duracion ?? ''} onChange={handleChange} required />
+      <input
+        name="duracion"
+        type="number"
+        value={form.duracion ?? ''}
+        onChange={handleChange}
+        required
+      />
 
       <label>Precio (USD)</label>
-      <input name="precio" type="number" value={form.precio ?? ''} onChange={handleChange} required />
+      <input
+        name="precio"
+        type="number"
+        value={form.precio ?? ''}
+        onChange={handleChange}
+        required
+      />
 
       <label>Foto (nombre del archivo)</label>
-      <input name="fotoURL" type="text" value={form.fotoURL} onChange={handleChange} placeholder="ejemplo: italy.jpg" />
+      <input
+        name="fotoURL"
+        type="text"
+        value={form.fotoURL}
+        onChange={handleChange}
+        placeholder="ejemplo: italy.jpg"
+      />
       <small style={{ color: '#666', fontSize: 12, display: 'block', marginTop: 2 }}>
         Ingresa solo el nombre del archivo. Ejemplo: italy.jpg, paris.png, etc.
       </small>
@@ -167,18 +196,29 @@ export default function EditPackage({ mode = 'edit' }: Props) {
         <div style={{ marginTop: 10, marginBottom: 10 }}>
           <p>Vista previa:</p>
           <img
-            src={form.fotoURL.startsWith('http') ? form.fotoURL : `http://localhost:3001/images/${form.fotoURL}`}
+            src={
+              form.fotoURL.startsWith('http')
+                ? form.fotoURL
+                : `http://localhost:3001/images/${form.fotoURL}`
+            }
             alt="Vista previa"
             style={{ width: 200, height: 120, objectFit: 'cover', borderRadius: 4 }}
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
           />
           <p style={{ fontSize: 12, color: '#666', marginTop: 5 }}>
-            URL: {form.fotoURL.startsWith('http') ? form.fotoURL : `http://localhost:3001/images/${form.fotoURL}`}
+            URL:{' '}
+            {form.fotoURL.startsWith('http')
+              ? form.fotoURL
+              : `http://localhost:3001/images/${form.fotoURL}`}
           </p>
         </div>
       )}
 
-      <button className="btn" type="submit">{mode === 'edit' ? 'Guardar cambios' : 'Crear paquete'}</button>
+      <button className="btn" type="submit">
+        {mode === 'edit' ? 'Guardar cambios' : 'Crear paquete'}
+      </button>
     </form>
   );
 }
