@@ -24,23 +24,23 @@ const ReservationList: React.FC = () => {
           {reservations.map((r: Reservation) => {
             const destinoNombre = r.paquete?.hotel?.destino?.nombre ?? 'Destino no disponible';
             const hotelNombre = r.paquete?.hotel?.nombre ?? 'Hotel no disponible';
-            const fechaReserva = formatMaybeDate((r as any).fechaReserva ?? (r as any).date ?? null);
-            const fechaInicio = formatMaybeDate((r as any).fechaInicio ?? null);
-            const fechaFin = formatMaybeDate((r as any).fechaFin ?? null);
+            const fechaReserva = formatMaybeDate(r.fechaReserva ?? null);
+            const fechaInicio = formatMaybeDate(r.fechaInicio ?? null);
+            const fechaFin = formatMaybeDate(r.fechaFin ?? null);
             const fechaDisplay =
               fechaInicio !== '-' && fechaFin !== '-' ? `${fechaInicio} - ${fechaFin}` : fechaReserva;
 
             return (
               <li key={r.id}>
-                <strong>{r.paquete.nombre}</strong> - {destinoNombre}
+                <strong>{r.paquete?.nombre ?? 'Paquete no disponible'}</strong> - {destinoNombre}
                 <br />
-                Hotel: {hotelNombre} ({r.paquete.hotel.ubicacion})
+                Hotel: {hotelNombre} ({r.paquete?.hotel?.ubicacion ?? '-'})
                 <br />
                 Fecha: {fechaDisplay}
                 <br />
                 Personas: {r.cantidadPersonas}
                 <br />
-                Estado: {(r as any).status ?? 'pendiente'}
+                Estado: {r.status ?? 'pendiente'}
               </li>
             );
           })}

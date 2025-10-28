@@ -3,7 +3,6 @@ const createReservation = async (req, res) => {
   try {
     const { packageId, date, userId, cantidadPersonas, fechaInicio, fechaFin } = req.body;
 
-    // Si usás rango de fechas, aceptá fechaInicio/fechaFin; si no, aceptá date (única fecha)
     if (!packageId || (!date && !(fechaInicio && fechaFin)) || !userId || !cantidadPersonas) {
       return res.status(400).json({ message: 'Faltan datos para la reserva' });
     }
@@ -18,7 +17,6 @@ const createReservation = async (req, res) => {
     const repo = em.getRepository('Reservation');
     const now = new Date();
 
-    // Si recibís range, guardá fechaInicio/fechaFin; si recibís date, guardá fechaReserva
     const nueva = repo.create({
       paquete,
       user,

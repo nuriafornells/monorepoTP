@@ -1,3 +1,4 @@
+// src/axios.ts
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -5,7 +6,7 @@ const instance = axios.create({
   baseURL: 'http://localhost:3001/api',
 });
 
-// Interceptor de request : agrega token automáticamente
+// Interceptor request
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   config.headers = config.headers ?? {};
@@ -15,7 +16,7 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
-// Interceptor de response: manejo global de errores con toast
+// Interceptor response
 instance.interceptors.response.use(
   (response) => response,
   (error) => {

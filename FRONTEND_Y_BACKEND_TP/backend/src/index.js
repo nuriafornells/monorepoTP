@@ -1,3 +1,4 @@
+// src/index.js
 require('dotenv').config();
 require('reflect-metadata');
 
@@ -9,7 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const paquetesRoutes = require('./routes/PaquetesRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
-const destinosRoutes = require('./routes/destinos.Routes');
+const destinosRoutes = require('./routes/destinos.routes');
 const hotelsRoutes = require('./routes/hotels.routes');
 
 const { initORM } = require('./config/orm');
@@ -30,7 +31,6 @@ app.use('/images', express.static('public'));
 app.get('/', (req, res) => res.send('Backend funcionando'));
 
 const PORT = process.env.PORT || 3001;
-
 (async () => {
   try {
     const orm = await initORM();
@@ -40,7 +40,7 @@ const PORT = process.env.PORT || 3001;
     const ormMiddleware = require('./middlewares/ormMiddleware');
     app.use(ormMiddleware(orm));
 
-    // rutas montadas bajo /api (sin espacios)
+    // rutas montadas bajo /api
     app.use('/api/auth', authRoutes);
     app.use('/api/paquetes', paquetesRoutes);
     app.use('/api/admin', adminRoutes);
@@ -55,7 +55,7 @@ const PORT = process.env.PORT || 3001;
       console.log(`Servidor corriendo en puerto ${PORT}`);
     });
   } catch (error) {
-    console.error('Error al iniciar el servidor : ', error);
+    console.error('Error al iniciar el servidor:', error);
     if (error && error.stack) console.error(error.stack);
     process.exit(1);
   }

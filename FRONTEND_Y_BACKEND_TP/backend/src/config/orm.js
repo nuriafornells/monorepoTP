@@ -1,3 +1,4 @@
+// src/config/orm.js
 const { MikroORM } = require('@mikro-orm/core');
 const config = require('../../mikro-orm.config');
 
