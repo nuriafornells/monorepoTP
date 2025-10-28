@@ -1,3 +1,5 @@
+// src/pages/EditPackage.tsx
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../axios';
@@ -19,6 +21,7 @@ type FormState = {
 export default function EditPackage({ mode = 'edit' }: Props) {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [form, setForm] = useState<FormState | null>(null);
   const [destinos, setDestinos] = useState<Destino[]>([]);
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
@@ -30,15 +33,20 @@ export default function EditPackage({ mode = 'edit' }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!form?.destinoId) {
-      axios.get<{ hoteles: Hotel[] }>('/hoteles')
-        .then((res) => setHoteles(res.data.hoteles))
-        .catch((e) => console.error('Error al cargar hoteles:', e));
-      return;
-    }
-    axios.get<{ hoteles: Hotel[] }>(`/hoteles?destinoId=${form.destinoId}`)
-      .then((res) => setHoteles(res.data.hoteles))
-      .catch((e) => console.error('Error al cargar hoteles por destino:', e));
+    const load = async () => {
+      try {
+        if (!form?.destinoId) {
+          const res = await axios.get<{ hoteles: Hotel[] }>('/hoteles');
+          setHoteles(res.data.hoteles);
+          return;
+        }
+        const res = await axios.get<{ hoteles: Hotel[] }>(`/hoteles?destinoId=${form.destinoId}`);
+        setHoteles(res.data.hoteles);
+      } catch (e) {
+        console.error('Error al cargar hoteles:', e);
+      }
+    };
+    load();
   }, [form?.destinoId]);
 
   useEffect(() => {
@@ -78,15 +86,14 @@ export default function EditPackage({ mode = 'edit' }: Props) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!form) return;
     const { name, value } = e.target;
-
     setForm({
       ...form,
       [name]:
         name === 'precio' || name === 'duracion'
           ? value === '' ? null : Number(value)
           : name === 'hotelId' || name === 'destinoId'
-            ? value === '' ? null : Number(value)
-            : value,
+          ? value === '' ? null : Number(value)
+          : value,
     });
   };
 
@@ -94,6 +101,7 @@ export default function EditPackage({ mode = 'edit' }: Props) {
     e.preventDefault();
     try {
       if (!form) return;
+
       if (mode === 'edit') {
         await axios.put(`/paquetes/${form.id}`, {
           nombre: form.nombre,
@@ -114,6 +122,7 @@ export default function EditPackage({ mode = 'edit' }: Props) {
           fotoURL: form.fotoURL,
         });
       }
+
       navigate('/admin/dashboard');
     } catch (error) {
       console.error('Error al guardar paquete:', error);

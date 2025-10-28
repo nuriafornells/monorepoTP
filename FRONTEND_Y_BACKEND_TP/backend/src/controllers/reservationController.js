@@ -1,4 +1,5 @@
 // src/controllers/reservationController.js
+
 const createReservation = async (req, res) => {
   try {
     const { packageId, date, userId, cantidadPersonas, fechaInicio, fechaFin } = req.body;
@@ -30,6 +31,7 @@ const createReservation = async (req, res) => {
     });
 
     await em.persistAndFlush(nueva);
+
     return res.status(201).json(nueva);
   } catch (error) {
     console.error('Error al crear reserva:', error);
@@ -43,13 +45,28 @@ const getReservations = async (req, res) => {
     if (!em) return res.status(500).json({ message: 'ORM no inicializado en la request' });
 
     const repo = em.getRepository('Reservation');
+
     const where = req.user?.role === 'admin' ? {} : { user: req.user?.id };
 
+    // Traemos hotel y hotel.destino (no existe Paquete.destino directo)
     const reservas = await repo.find(where, {
-      populate: ['paquete', 'paquete.hotel', 'paquete.destino', 'user'],
+      populate: ['paquete', 'paquete.hotel', 'paquete.hotel.destino', 'user'],
     });
 
-    return res.status(200).json({ reservas });
+    // Planchamos destino dentro de paquete para que el front lo tenga en r.paquete.destino
+    const safe = reservas.map((r) => {
+      const plain = r.toJSON ? r.toJSON() : { ...r };
+      const destino = plain.paquete?.hotel?.destino ?? null;
+      return {
+        ...plain,
+        paquete: {
+          ...plain.paquete,
+          destino,
+        },
+      };
+    });
+
+    return res.status(200).json({ reservas: safe });
   } catch (error) {
     console.error('Error al obtener reservas:', error);
     return res.status(500).json({ message: 'Hubo un problema al obtener reservas' });

@@ -1,11 +1,12 @@
+// src/App.tsx
+
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import TravelProvider from "./context/TravelProvider";
-
 import MainLayout from "./layouts/MainLayout";
 import PrivateRoute from "./routes/PrivateRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import AdminLogin from "./pages/AdminLogin";
+// import AdminLogin from "./pages/AdminLogin"; // eliminado
 import Packages from "./pages/Packages";
 import PackageDetail from "./pages/PackageDetail";
 import Reservation from "./pages/Reservation";
@@ -18,55 +19,35 @@ import AdminReservations from "./pages/AdminReservations";
 const router = createBrowserRouter([
   {
     path: "/login",
-    element: <Login />
+    element: <Login />,
   },
-  {
-    path: "/admin",
-    element: <AdminLogin />
-  },
+  // { path: "/admin", element: <AdminLogin /> }, // eliminado: usar Login real
   {
     path: "/",
     element: <MainLayout />,
     children: [
       { index: true, element: <Home /> },
-
       {
         element: <PrivateRoute />,
         children: [
-          // Ruta list: mantiene el listado de paquetes
           { path: "packages", element: <Packages /> },
-
-          // Ahora`id` en lugar de `slug`
           { path: "packages/:id", element: <PackageDetail /> },
-
-          
-          { path: "reserve/:id", element: <Reservation /> }
-        ]
+          { path: "reserve/:id", element: <Reservation /> },
+        ],
       },
-
       {
-         path: "admin/dashboard",
-         element: <PrivateRoute requiredRole="admin" />,
-         children: [
+        path: "admin/dashboard",
+        element: <PrivateRoute requiredRole="admin" />,
+        children: [
           { index: true, element: <AdminDashboard /> },
-         {
-           path: "editar/:id",
-           element: <EditPackage mode="edit" />
-         },
-      {
-      path: "crear",
-      element: <EditPackage mode="create" />
-    },
-    {
-      path: "reservas", 
-      element: <AdminReservations />
-    }
-  ]
-   },
-
-      { path: "unauthorized", element: <Unauthorized /> }
-    ]
-  }
+          { path: "editar/:id", element: <EditPackage mode="edit" /> },
+          { path: "crear", element: <EditPackage mode="create" /> },
+          { path: "reservas", element: <AdminReservations /> },
+        ],
+      },
+      { path: "unauthorized", element: <Unauthorized /> },
+    ],
+  },
 ]);
 
 export default function App() {

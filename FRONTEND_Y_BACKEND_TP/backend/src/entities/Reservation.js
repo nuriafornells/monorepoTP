@@ -1,4 +1,5 @@
 // src/entities/Reservation.js
+
 const { EntitySchema } = require('@mikro-orm/core');
 
 module.exports = new EntitySchema({
@@ -6,10 +7,15 @@ module.exports = new EntitySchema({
   tableName: 'reservations',
   properties: {
     id: { type: 'number', primary: true, autoincrement: true },
+
+    // camelCase para alinear con la DB
     fechaReserva: { type: 'date', nullable: true, fieldName: 'fechaReserva' },
-    fechaInicio: { type: 'date', nullable: true, fieldName: 'fecha_inicio' },
-    fechaFin: { type: 'date', nullable: true, fieldName: 'fecha_fin' },
+    fechaInicio: { type: 'date', nullable: true, fieldName: 'fechaInicio' },
+    fechaFin: { type: 'date', nullable: true, fieldName: 'fechaFin' },
+
     cantidadPersonas: { type: 'number', fieldName: 'cantidadPersonas' },
+
+    // la DB usa 'estado' y queda así
     status: { type: 'string', default: 'pendiente', fieldName: 'estado' },
 
     user: {
@@ -18,12 +24,14 @@ module.exports = new EntitySchema({
       inversedBy: 'reservations',
       reference: true,
     },
+
     paquete: {
       kind: 'm:1',
       entity: () => require('./Paquete'),
       inversedBy: 'reservations',
       reference: true,
     },
+
     createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
     updatedAt: { type: 'date', fieldName: 'updatedAt', nullable: true },
   },

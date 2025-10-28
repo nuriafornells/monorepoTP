@@ -1,8 +1,9 @@
 // src/pages/AdminDashboard.tsx
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../axios";
-import type { Paquete} from "../types";
+import type { Paquete } from "../types";
 
 export default function AdminDashboard() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([]);
@@ -21,20 +22,45 @@ export default function AdminDashboard() {
   }, []);
 
   const handleEliminar = async (id: number) => {
-    try {
-      await axios.delete(`/paquetes/${id}`);
-      setPaquetes((prev) => prev.filter((p) => p.id !== id));
-    } catch (error) {
+  try {
+    await axios.delete(`/paquetes/${id}`);
+    setPaquetes((prev) => prev.filter((p) => p.id !== id));
+  } catch (error: unknown) {
+    // Validamos que error sea un objeto con response.status
+    const status =
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as { response?: { status?: number } }).response?.status === 'number'
+        ? (error as { response: { status: number } }).response.status
+        : null;
+
+    if (status === 409) {
+      const ok = confirm(
+        "El paquete tiene reservas asociadas. ¿Quieres eliminar las reservas y el paquete? Esta acción es irreversible."
+      );
+      if (ok) {
+        try {
+          await axios.delete(`/paquetes/${id}?force=true`);
+          setPaquetes((prev) => prev.filter((p) => p.id !== id));
+        } catch (error2: unknown) {
+          console.error("Error al forzar eliminación del paquete:", error2);
+          alert("No se pudo forzar la eliminación.");
+        }
+      }
+    } else {
       console.error("Error al eliminar paquete:", error);
+      alert("Error al eliminar paquete.");
     }
-  };
+  }
+};
 
   const handleTogglePublicacion = async (id: number) => {
     try {
-      const res = await axios.patch<Paquete>(`/paquetes/${id}/publicar`);
-      setPaquetes((prev) =>
-        prev.map((p) => (p.id === id ? res.data : p))
-      );
+      // backend responde { paquete: Paquete }
+      const res = await axios.patch<{ paquete: Paquete }>(`/paquetes/${id}/publicar`);
+      const nuevo = res.data.paquete;
+      setPaquetes((prev) => prev.map((p) => (p.id === id ? nuevo : p)));
     } catch (error) {
       console.error("Error al cambiar publicación:", error);
     }
@@ -96,10 +122,7 @@ export default function AdminDashboard() {
                   >
                     {p.publicado ? "Despublicar" : "Publicar"}
                   </button>{" "}
-                  <button
-                    className="btn danger"
-                    onClick={() => handleEliminar(p.id)}
-                  >
+                  <button className="btn danger" onClick={() => handleEliminar(p.id)}>
                     Eliminar
                   </button>
                 </td>
@@ -113,7 +136,4 @@ export default function AdminDashboard() {
 }
 
 const th: React.CSSProperties = { textAlign: "left", padding: 12 };
-const td: React.CSSProperties = {
-  padding: 12,
-  borderTop: "1px solid #e5e7eb",
-};
+const td: React.CSSProperties = { padding: 12, borderTop: "1px solid #e5e7eb" };

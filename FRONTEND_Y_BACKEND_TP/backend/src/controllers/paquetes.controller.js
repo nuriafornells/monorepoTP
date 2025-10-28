@@ -12,16 +12,10 @@ const getAllPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
     const paquetes = await repo.findAll({ populate: ['hotel', 'hotel.destino'] });
-
     const safe = paquetes.map((p) => {
-      // serializar para que no queden proxies de MikroORM y exponer destino
       const plain = p.toJSON ? p.toJSON() : { ...p };
-      return {
-        ...plain,
-        destino: plain.hotel?.destino ?? null,
-      };
+      return { ...plain, destino: plain.hotel?.destino ?? null };
     });
-
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
     console.error('Error en getAllPackages:', error);
@@ -33,15 +27,10 @@ const getPublishedPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
     const paquetes = await repo.find({ publicado: true }, { populate: ['hotel', 'hotel.destino'] });
-
     const safe = paquetes.map((p) => {
       const plain = p.toJSON ? p.toJSON() : { ...p };
-      return {
-        ...plain,
-        destino: plain.hotel?.destino ?? null,
-      };
+      return { ...plain, destino: plain.hotel?.destino ?? null };
     });
-
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
     console.error('Error en getPublishedPackages:', error);
@@ -55,13 +44,8 @@ const getPackageById = async (req, res) => {
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
-
     const plain = paquete.toJSON ? paquete.toJSON() : { ...paquete };
-    const resp = {
-      ...plain,
-      destino: plain.hotel?.destino ?? null,
-    };
-
+    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
     return res.status(200).json({ paquete: resp });
   } catch (error) {
     console.error('Error en getPackageById:', error);
@@ -73,6 +57,7 @@ const createPackage = async (req, res) => {
   const { nombre, precio, duracion, hotelId, publicado = false, descripcion, fechaInicio, fechaFin, fotoURL } = req.body;
   try {
     if (!hotelId) return res.status(400).json({ error: 'hotelId es requerido' });
+
     const em = req.em;
     const hotel = await em.findOne('Hotel', hotelId);
     if (!hotel) return res.status(400).json({ error: 'Hotel no encontrado' });
@@ -99,10 +84,7 @@ const createPackage = async (req, res) => {
 
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
-    const resp = {
-      ...plain,
-      destino: plain.hotel?.destino ?? null,
-    };
+    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
 
     return res.status(201).json({ paquete: resp });
   } catch (error) {
@@ -131,18 +113,17 @@ const updatePackage = async (req, res) => {
     paquete.descripcion = descripcion ?? paquete.descripcion;
     paquete.fechaInicio = fechaInicio ? new Date(fechaInicio) : paquete.fechaInicio;
     paquete.fechaFin = fechaFin ? new Date(fechaFin) : paquete.fechaFin;
+
     if (typeof publicado === 'boolean') paquete.publicado = publicado;
     if (fotoURL !== undefined) paquete.fotoURL = constructImageURL(fotoURL);
+
     paquete.updatedAt = new Date();
 
     await req.em.persistAndFlush(paquete);
 
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
-    const resp = {
-      ...plain,
-      destino: plain.hotel?.destino ?? null,
-    };
+    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
 
     return res.status(200).json({ paquete: resp });
   } catch (error) {
@@ -160,14 +141,12 @@ const togglePublish = async (req, res) => {
 
     paquete.publicado = !paquete.publicado;
     paquete.updatedAt = new Date();
+
     await req.em.persistAndFlush(paquete);
 
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
-    const resp = {
-      ...plain,
-      destino: plain.hotel?.destino ?? null,
-    };
+    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
 
     return res.status(200).json({ paquete: resp });
   } catch (error) {
@@ -178,17 +157,27 @@ const togglePublish = async (req, res) => {
 
 const deletePackage = async (req, res) => {
   const { id } = req.params;
+  const force = String(req.query.force || '').toLowerCase() === 'true';
+
   try {
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id);
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
 
     const reservas = await req.em.find('Reservation', { paquete: id }, { limit: 1 });
-    if (reservas.length > 0) {
-      return res.status(409).json({ error: 'No se puede eliminar el paquete porque tiene reservas asociadas' });
+
+    if (reservas.length > 0 && !force) {
+      return res.status(409).json({
+        error: 'No se puede eliminar el paquete porque tiene reservas asociadas. Usa ?force=true para forzar.',
+      });
+    }
+
+    if (reservas.length > 0 && force) {
+      await req.em.nativeDelete('Reservation', { paquete: id });
     }
 
     await req.em.removeAndFlush(paquete);
+
     return res.status(204).send();
   } catch (error) {
     console.error('Error en deletePackage:', error);
