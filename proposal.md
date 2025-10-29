@@ -26,9 +26,9 @@ MD en draw.io: https://drive.google.com/file/d/1fIw_y52k2I7hz1cHX3uEgDLWok7ewhlU
 # regularidad
 | req | Detalles |
 |:-|:-|
-|CRUD simple| 1. CRUD hotel <br> 2. CRUD destino|
-|CRUD dependiente|CRUD paquete_viaje {depende de} CRUD destino|
-|Listado + detalle| 1. Listado de paquetes de viaje disponibles filtrados por destino, muestra destino, precio, descripcion.Detalle hotel, duracion.|
+|CRUD simple| 1. CRUD usuario <br> 2. CRUD destino|
+|CRUD dependiente|CRUD paquete_viaje {depende de} CRUD hotel|
+|Listado + detalle| 1. Listado de paquetes de viaje disponibles filtrados por destino, muestra destino (por hotel), precio, descripcion.Detalle hotel, duracion.|
 |CUU/Epic|1. Hacer reserva|
 
 # aprobacion:
