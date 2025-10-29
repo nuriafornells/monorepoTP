@@ -6,31 +6,41 @@ type Props = { item: Paquete };
 export default function PackageCard({ item }: Props) {
   return (
     <div className="card">
-      {/* Imagen opcional */}
       {item.fotoURL && (
-        <img 
-          src={item.fotoURL} 
+        <img
+          src={item.fotoURL}
           alt={item.nombre}
           style={{
-            width: '100%',
-            height: '200px',
-            objectFit: 'cover',
-            borderRadius: '8px 8px 0 0'
+            width: "100%",
+            height: "160px", // ✅ más equilibrado para cards de 350px
+            objectFit: "cover",
+            borderRadius: "8px 8px 0 0",
           }}
         />
       )}
 
-      <div className="card-body">
-        {/* Destino seguro */}
-        <div className="badge">
+      <div className="card-body" style={{ padding: "1em" }}>
+        <div
+          className="badge"
+          style={{
+            backgroundColor: "#e0f2fe",
+            color: "#0369a1",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            fontSize: "0.85em",
+            marginBottom: "0.5em",
+            display: "inline-block",
+          }}
+        >
           {item.destino?.nombre ?? "Destino no disponible"}
         </div>
 
-        <h3>{item.nombre}</h3>
+        <h3 style={{ margin: "0.5em 0" }}>{item.nombre}</h3>
 
-        {/* Descripción opcional */}
         {item.descripcion && (
-          <p style={{ color: "var(--muted)" }}>{item.descripcion}</p>
+          <p style={{ color: "#6b7280", fontSize: "0.9em" }}>
+            {item.descripcion}
+          </p>
         )}
 
         <div
@@ -38,10 +48,16 @@ export default function PackageCard({ item }: Props) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            marginTop: "1em",
           }}
         >
-          <span className="price">USD {item.precio}</span>
-          <Link className="btn" to={`/packages/${item.id}`}>
+          <span
+            className="price"
+            style={{ fontWeight: "bold", fontSize: "1em", color: "#111" }}
+          >
+            USD {item.precio}
+          </span>
+          <Link to={`/packages/${item.id}`} className="btn">
             Ver detalle
           </Link>
         </div>

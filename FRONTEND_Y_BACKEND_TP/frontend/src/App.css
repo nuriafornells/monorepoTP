@@ -1,10 +1,15 @@
+/* 🌐 Layout principal */
 #root {
-  max-width: 1280px;
+  width: 100%;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  text-align: left; /* NO usar center */
+  display: block;   /* NO usar flex */
+  background-color: #f3f4f6;
 }
 
+/* 📷 Logo */
 .logo {
   height: 4em;
   padding: 1.5em;
@@ -35,7 +40,11 @@
 
 /* 📱 Mobile-first */
 .card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   padding: 1em;
+  margin-bottom: 2em;
 }
 
 /* Tablet (MD ≥641px) */
@@ -51,8 +60,8 @@
 /* Desktop (LG ≥1025px) */
 @media (min-width: 1025px) {
   .card {
-    padding: 3em;
-    max-width: 1000px;
+    padding: 2.5em;
+    max-width: 420px; /* 🔹 mayor ancho para desktop */
     margin: 0 auto;
   }
   .logo {
@@ -60,6 +69,7 @@
   }
 }
 
+/* 📘 Documentación */
 .read-the-docs {
   color: #888;
 }

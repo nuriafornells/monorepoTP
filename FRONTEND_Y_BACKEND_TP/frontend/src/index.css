@@ -24,17 +24,24 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #f3f4f6;
+  color: #111;
+  font-size: 15px;
+  padding: 1em;
+  display: block;
+  overflow-y: auto; /* ✅ permite scroll vertical */
 }
 
+/* Titulos */
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 2em;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
 }
 
+/* Botones */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -54,6 +61,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* 🌗 Modo claro */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -67,32 +75,27 @@ button:focus-visible {
   }
 }
 
-/* 📱 Responsividad global (mobile-first + breakpoints) */
-
-/* Tablet (MD ≥641px) */
+/* 📱 Responsividad global */
 @media (min-width: 641px) {
   body {
     font-size: 16px;
-    padding: 16px;
+    padding: 2em;
   }
 }
 
-/* Desktop (LG ≥1025px) */
 @media (min-width: 1025px) {
   body {
-    font-size: 18px;
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
+    font-size: 17px;
+    padding: 3em 4em;
+    max-width: none; /* ✅ elimina restricción de ancho */
   }
 }
 
-/* 🌐 Estilos globales reutilizables */
-
-/* Tablas responsivas */
+/* 🌐 Tablas responsivas */
 .table-container {
   overflow-x: auto;
-  display: block;
+  padding-bottom: 1em;
+  width: 100%;
 }
 .users-table {
   width: 100%;
@@ -103,36 +106,87 @@ button:focus-visible {
   text-align: left;
   padding: 12px;
   border-top: 1px solid #e5e7eb;
+  font-size: 0.95em;
 }
 .users-table thead tr {
-  background: #f1f5f9;
+  background: #f9fafb;
+  font-weight: 600;
 }
-@media (min-width: 641px) {
-  .table-container {
-    display: table;
-    width: 100%;
-  }
-}
+
+/* En desktop se centra un poco más, sin cortar */
 @media (min-width: 1025px) {
   .table-container {
     margin: 0 auto;
-    max-width: 1000px;
+    max-width: 1400px; /* 🔹 antes 1000px, ahora más ancho */
   }
 }
 
-/* Grilla de paquetes */
+/* 🌍 Grilla de paquetes */
 .packages-grid {
   display: grid;
-  grid-template-columns: 1fr; /* mobile */
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  padding: 8px;
+  width: 100%;
 }
+
 @media (min-width: 641px) {
   .packages-grid {
-    grid-template-columns: 1fr 1fr; /* tablet */
+    grid-template-columns: 1fr 1fr;
   }
 }
+
 @media (min-width: 1025px) {
   .packages-grid {
-    grid-template-columns: 1fr 1fr 1fr; /* desktop */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    justify-items: center;
   }
+}
+
+/* Cards */
+.card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 1em;
+  margin-bottom: 2em;
+  max-width: 380px; /* 🔹 antes 350px, para desktop */
+  width: 100%;
+}
+
+/* Botones */
+.btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.btn:hover {
+  background-color: #1e40af;
+}
+.btn.secondary {
+  background-color: #6b7280;
+}
+.btn.secondary:hover {
+  background-color: #4b5563;
+}
+.btn.danger {
+  background-color: #dc2626;
+}
+.btn.danger:hover {
+  background-color: #b91c1c;
+}
+
+/* Select */
+select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background-color: #fff;
+  font-size: 0.95em;
 }

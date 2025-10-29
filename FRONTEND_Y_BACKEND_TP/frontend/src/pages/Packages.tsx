@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { useTravel } from "../hooks/useTravel";
 import PackageCard from "../components/PackageCard";
 
@@ -13,7 +12,7 @@ export default function Packages() {
 
     return source.filter((p) => {
       const nombre = p.nombre ?? "";
-      const destino = p.destino?.nombre ?? ""; // 👈 accedemos seguro
+      const destino = p.destino?.nombre ?? "";
       return (
         p.publicado &&
         (nombre.toLowerCase().includes(term) ||
@@ -38,16 +37,12 @@ export default function Packages() {
         }}
       />
 
-      <div className="grid grid-3">
+      {/* 👇 usamos la clase global responsiva */}
+      <div className="packages-grid">
         {list.map((item) => (
-          <Link
-            key={item.id}
-            to={`/packages/${item.id}`}
-            style={{ textDecoration: "none" }}
-          >
-            <PackageCard item={item} />
-          </Link>
+          <PackageCard key={item.id} item={item} />
         ))}
+        {list.length === 0 && <p>No hay paquetes disponibles</p>}
       </div>
     </>
   );
