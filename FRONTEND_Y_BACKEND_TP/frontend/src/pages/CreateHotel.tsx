@@ -8,6 +8,7 @@ export default function CreateHotel() {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState("");
   const [ubicacion, setUbicacion] = useState("");
+  const [categoria, setCategoria] = useState("");
   const [destinoId, setDestinoId] = useState<number | null>(null);
   const [destinos, setDestinos] = useState<Destino[]>([]);
 
@@ -20,7 +21,7 @@ export default function CreateHotel() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post("/destinos/hoteles", { nombre, ubicacion, destinoId });
+      await api.post("/destinos/hoteles", { nombre, ubicacion, categoria, destinoId });
       alert("Hotel creado con éxito");
       navigate("/admin/dashboard");
     } catch (err) {
@@ -37,6 +38,18 @@ export default function CreateHotel() {
 
       <label>Ubicación</label>
       <input value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} required />
+
+      <label>Categoría</label>
+      <select value={categoria} onChange={(e) => setCategoria(e.target.value)} required>
+        <option value="">Seleccionar categoría…</option>
+        <option value="1 estrella">1 estrella</option>
+        <option value="2 estrellas">2 estrellas</option>
+        <option value="3 estrellas">3 estrellas</option>
+        <option value="4 estrellas">4 estrellas</option>
+        <option value="5 estrellas">5 estrellas</option>
+        <option value="Boutique">Boutique</option>
+        <option value="Resort">Resort</option>
+      </select>
 
       <label>Destino</label>
       <select value={destinoId ?? ""} onChange={(e) => setDestinoId(Number(e.target.value))} required>
