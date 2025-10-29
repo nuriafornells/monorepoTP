@@ -8,6 +8,7 @@ type Props = { mode?: 'edit' | 'create' };
 type FormState = {
   id?: number;
   nombre: string;
+  descripcion?: string;
   destinoId: number | null;
   hotelId: number | null;
   precio: number | null;
@@ -61,6 +62,7 @@ useEffect(() => {
           setForm({
             id: p.id,
             nombre: p.nombre,
+            descripcion: p.descripcion ?? '',
             destinoId: p.destino?.id ?? null,
             hotelId: p.hotel?.id ?? null,
             precio: p.precio ?? null,
@@ -76,6 +78,7 @@ useEffect(() => {
     } else if (mode === 'create') {
       setForm({
         nombre: '',
+        descripcion: '',
         destinoId: null,
         hotelId: null,
         precio: null,
@@ -86,7 +89,7 @@ useEffect(() => {
     }
   }, [id, mode]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     if (!form) return;
     const { name, value } = e.target;
     setForm({
@@ -108,6 +111,7 @@ useEffect(() => {
       if (mode === 'edit') {
         await api.put(`/paquetes/${form.id}`, {
           nombre: form.nombre,
+          descripcion: form.descripcion,
           destinoId: form.destinoId,
           hotelId: form.hotelId,
           precio: form.precio,
@@ -117,6 +121,7 @@ useEffect(() => {
       } else {
         await api.post('/paquetes', {
           nombre: form.nombre,
+          descripcion: form.descripcion,
           destinoId: form.destinoId,
           hotelId: form.hotelId,
           precio: form.precio,
@@ -141,6 +146,15 @@ useEffect(() => {
 
       <label>Nombre</label>
       <input name="nombre" value={form.nombre} onChange={handleChange} required />
+
+      <label>Descripción</label>
+      <textarea 
+        name="descripcion" 
+        value={form.descripcion ?? ''} 
+        onChange={handleChange} 
+        rows={3}
+        placeholder="Descripción del paquete..."
+      />
 
       <label>Destino</label>
       <select name="destinoId" value={form.destinoId ?? ''} onChange={handleChange} required>
