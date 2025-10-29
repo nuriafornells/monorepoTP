@@ -66,3 +66,73 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* 📱 Responsividad global (mobile-first + breakpoints) */
+
+/* Tablet (MD ≥641px) */
+@media (min-width: 641px) {
+  body {
+    font-size: 16px;
+    padding: 16px;
+  }
+}
+
+/* Desktop (LG ≥1025px) */
+@media (min-width: 1025px) {
+  body {
+    font-size: 18px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* 🌐 Estilos globales reutilizables */
+
+/* Tablas responsivas */
+.table-container {
+  overflow-x: auto;
+  display: block;
+}
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.users-table th,
+.users-table td {
+  text-align: left;
+  padding: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+.users-table thead tr {
+  background: #f1f5f9;
+}
+@media (min-width: 641px) {
+  .table-container {
+    display: table;
+    width: 100%;
+  }
+}
+@media (min-width: 1025px) {
+  .table-container {
+    margin: 0 auto;
+    max-width: 1000px;
+  }
+}
+
+/* Grilla de paquetes */
+.packages-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* mobile */
+  gap: 16px;
+}
+@media (min-width: 641px) {
+  .packages-grid {
+    grid-template-columns: 1fr 1fr; /* tablet */
+  }
+}
+@media (min-width: 1025px) {
+  .packages-grid {
+    grid-template-columns: 1fr 1fr 1fr; /* desktop */
+  }
+}

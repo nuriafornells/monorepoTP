@@ -95,57 +95,55 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      <div className="card" style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f1f5f9" }}>
-              <th style={th}>ID</th>
-              <th style={th}>Nombre</th>
-              <th style={th}>Destino</th>
-              <th style={th}>Precio</th>
-              <th style={th}>Publicado</th>
-              <th style={th}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paquetes.map((p) => (
-              <tr key={p.id}>
-                <td style={td}>{p.id}</td>
-                <td style={td}>{p.nombre}</td>
-                <td style={td}>{p.destino?.nombre ?? "—"}</td>
-                <td style={td}>${p.precio}</td>
-                <td style={td}>{p.publicado ? "Sí" : "No"}</td>
-                <td style={td}>
-                  <button className="btn" onClick={() => handleEditar(p.id)}>
-                    Editar
-                  </button>{" "}
-                  <button
-                    className="btn secondary"
-                    onClick={() => handleTogglePublicacion(p.id)}
-                  >
-                    {p.publicado ? "Despublicar" : "Publicar"}
-                  </button>{" "}
-                  <button
-                    className="btn danger"
-                    onClick={() => handleEliminar(p.id)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
+      {/* 👇 aplicamos clases globales responsivas */}
+      <div className="card">
+        <div className="table-container">
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Destino</th>
+                <th>Precio</th>
+                <th>Publicado</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paquetes.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.id}</td>
+                  <td>{p.nombre}</td>
+                  <td>{p.destino?.nombre ?? "—"}</td>
+                  <td>${p.precio}</td>
+                  <td>{p.publicado ? "Sí" : "No"}</td>
+                  <td>
+                    <button className="btn" onClick={() => handleEditar(p.id)}>
+                      Editar
+                    </button>{" "}
+                    <button
+                      className="btn secondary"
+                      onClick={() => handleTogglePublicacion(p.id)}
+                    >
+                      {p.publicado ? "Despublicar" : "Publicar"}
+                    </button>{" "}
+                    <button
+                      className="btn danger"
+                      onClick={() => handleEliminar(p.id)}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );
 }
 
-const th: React.CSSProperties = { textAlign: "left", padding: 12 };
-const td: React.CSSProperties = {
-  padding: 12,
-  borderTop: "1px solid #e5e7eb",
-};
 const btn: React.CSSProperties = {
   padding: "10px 16px",
   borderRadius: 8,

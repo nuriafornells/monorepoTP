@@ -60,32 +60,35 @@ export default function MyReservations() {
       {reservas.length === 0 ? (
         <p>No tenés reservas registradas.</p>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f1f5f9" }}>
-              <th style={{ textAlign: "left", padding: 12 }}>Paquete</th>
-              <th style={{ textAlign: "left", padding: 12 }}>Destino</th>
-              <th style={{ textAlign: "left", padding: 12 }}>Inicio</th>
-              <th style={{ textAlign: "left", padding: 12 }}>Fin</th>
-              <th style={{ textAlign: "left", padding: 12 }}>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservas.map((r) => (
-              <tr key={r.id}>
-                <td style={{ padding: 12 }}>{r.paquete.nombre}</td>
-                <td style={{ padding: 12 }}>{r.paquete.destino?.nombre ?? "-"}</td>
-                <td style={{ padding: 12 }}>{formatDate(r.fechaInicio)}</td>
-                <td style={{ padding: 12 }}>{formatDate(r.fechaFin)}</td>
-                <td style={{ padding: 12 }}>
-                  {r.status === "pendiente" && "⏳ Pendiente"}
-                  {r.status === "aceptada" && "✅ Aceptada"}
-                  {r.status === "rechazada" && "❌ Rechazada"}
-                </td>
+        // 👇 tabla responsiva con clases globales
+        <div className="table-container">
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>Paquete</th>
+                <th>Destino</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Estado</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {reservas.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.paquete.nombre}</td>
+                  <td>{r.paquete.destino?.nombre ?? "-"}</td>
+                  <td>{formatDate(r.fechaInicio)}</td>
+                  <td>{formatDate(r.fechaFin)}</td>
+                  <td>
+                    {r.status === "pendiente" && "⏳ Pendiente"}
+                    {r.status === "aceptada" && "✅ Aceptada"}
+                    {r.status === "rechazada" && "❌ Rechazada"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import api from '../api'; 
+import api from '../api';
+
 type User = {
   id: number;
   name?: string | null;
@@ -35,7 +36,6 @@ export default function UsersAdmin() {
       setUsers(prev => prev.filter(u => u.id !== id));
     } catch (e: unknown) {
       console.error('Error al eliminar usuario:', e);
-
       const maybeAxiosError = e as { response?: { status?: number } };
       const status = maybeAxiosError?.response?.status ?? null;
 
@@ -71,46 +71,46 @@ export default function UsersAdmin() {
   if (loading) return <p>Cargando usuarios…</p>;
 
   return (
-    <div className="card" style={{ overflowX: 'auto' }}>
+    <div className="card">
       <h2>Usuarios</h2>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ background: '#f1f5f9' }}>
-            <th style={{ textAlign: 'left', padding: 12 }}>ID</th>
-            <th style={{ textAlign: 'left', padding: 12 }}>Nombre</th>
-            <th style={{ textAlign: 'left', padding: 12 }}>Email</th>
-            <th style={{ textAlign: 'left', padding: 12 }}>Rol</th>
-            <th style={{ textAlign: 'left', padding: 12 }}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id}>
-              <td style={{ padding: 12, borderTop: '1px solid #e5e7eb' }}>{u.id}</td>
-              <td style={{ padding: 12, borderTop: '1px solid #e5e7eb' }}>{u.name ?? '-'}</td>
-              <td style={{ padding: 12, borderTop: '1px solid #e5e7eb' }}>{u.email}</td>
-              <td style={{ padding: 12, borderTop: '1px solid #e5e7eb' }}>
-                <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)}>
-                  <option value="user">user</option>
-                  <option value="admin">admin</option>
-                </select>
-              </td>
-              <td style={{ padding: 12, borderTop: '1px solid #e5e7eb' }}>
-                <button className="btn danger" onClick={() => handleDelete(u.id)}>
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          ))}
-          {users.length === 0 && (
+      <div className="table-container">
+        <table className="users-table">
+          <thead>
             <tr>
-              <td colSpan={5} style={{ padding: 12 }}>
-                No hay usuarios
-              </td>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Acciones</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map(u => (
+              <tr key={u.id}>
+                <td>{u.id}</td>
+                <td>{u.name ?? '-'}</td>
+                <td>{u.email}</td>
+                <td>
+                  <select value={u.role} onChange={e => handleRoleChange(u.id, e.target.value)}>
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </td>
+                <td>
+                  <button className="btn danger" onClick={() => handleDelete(u.id)}>
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {users.length === 0 && (
+              <tr>
+                <td colSpan={5}>No hay usuarios</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
