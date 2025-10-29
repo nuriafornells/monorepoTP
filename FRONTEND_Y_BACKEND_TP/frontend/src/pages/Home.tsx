@@ -10,31 +10,24 @@ export default function Home() {
   if (!context) return <p>Error de contexto ❌</p>;
 
   const { packages } = context;
-
-  const featured = packages
-    .filter(p => p.publicado)
-    .slice(0, 3);
+  const featured = packages.filter(p => p.publicado).slice(0, 3);
 
   return (
-    <>
-      <section style={{ padding: "2rem 0" }}>
-        <h1 style={{ marginBottom: 8 }}>¿Donde queres viajar?</h1>
-        <p style={{ color: "var(--muted)" }}>
-          ¡Reservá ya!
-        </p>
-        <div style={{ marginTop: 12 }}>
-          <Link className="btn" to="/packages">Ver todos los paquetes</Link>
-        </div>
+    <div className="page-container">
+      <section style={{ textAlign: "center", marginBottom: "2rem" }}>
+        <h1>¿Dónde querés viajar?</h1>
+        <p style={{ color: "var(--muted)" }}>¡Reservá ya!</p>
+        <Link className="btn" to="/packages">Ver todos los paquetes</Link>
       </section>
 
-      <section style={{ marginTop: 24 }}>
-        <h2>aca puedo poner destacados u otra cosa </h2>
-        <div className="grid grid-3" style={{ marginTop: 12 }}>
+      <section>
+        <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Destacados</h2>
+        <div className="packages-grid">
           {featured.map(item => (
             <PackageCard key={item.id} item={item} />
           ))}
         </div>
       </section>
-    </>
+    </div>
   );
 }

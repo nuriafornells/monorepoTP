@@ -2,6 +2,7 @@
    Versión corregida completa — incluye Navbar + contenedores + breakpoints
 */
 
+
 /* Variables básicas */
 :root {
   --bg: #f3f4f6;
@@ -12,16 +13,19 @@
   --shadow: rgba(15, 23, 42, 0.08);
 }
 
+
 /* Reset / base */
 * {
   box-sizing: border-box;
 }
+
 
 html,
 body,
 #root {
   min-height: 100%;
 }
+
 
 body {
   margin: 0;
@@ -35,6 +39,7 @@ body {
   overflow-y: auto;
 }
 
+
 /* 🌐 Navbar */
 .navbar {
   background: #ffffff;
@@ -46,6 +51,7 @@ body {
   z-index: 50;
 }
 
+
 .navbar-inner {
   display: flex;
   flex-wrap: wrap;
@@ -55,12 +61,14 @@ body {
   padding: 0.75rem 1rem;
 }
 
+
 .navbar-logo {
   font-weight: 800;
   color: var(--accent);
   text-decoration: none;
   flex-shrink: 0;
 }
+
 
 .navbar-links {
   display: flex;
@@ -70,10 +78,12 @@ body {
   margin-left: auto;
 }
 
+
 .navbar-user {
   font-size: 14px;
   color: #555;
 }
+
 
 @media (min-width: 768px) {
   .navbar-inner {
@@ -86,6 +96,7 @@ body {
   }
 }
 
+
 /* 🌍 Contenedores de página (admin / user) */
 .page-container,
 .admin-dashboard {
@@ -97,12 +108,14 @@ body {
   box-sizing: border-box;
 }
 
+
 @media (min-width: 768px) {
   .page-container,
   .admin-dashboard {
     padding: 2rem 2rem;
   }
 }
+
 
 /* Card */
 .card {
@@ -116,12 +129,14 @@ body {
   overflow: hidden;
 }
 
+
 @media (min-width: 1024px) {
   .card {
     padding: 1.5rem;
     max-width: 1100px;
   }
 }
+
 
 /* Tables */
 .table-container {
@@ -130,6 +145,7 @@ body {
   width: 100%;
   padding-bottom: 1rem;
 }
+
 
 .users-table {
   width: 100%;
@@ -140,6 +156,7 @@ body {
   overflow: hidden;
 }
 
+
 .users-table th,
 .users-table td {
   text-align: left;
@@ -149,10 +166,12 @@ body {
   white-space: nowrap;
 }
 
+
 .users-table thead tr {
   background: #f9fafb;
   font-weight: 600;
 }
+
 
 @media (max-width: 640px) {
   .users-table th,
@@ -161,6 +180,7 @@ body {
     padding: 8px;
   }
 }
+
 
 /* Buttons */
 button,
@@ -197,6 +217,7 @@ button:hover,
   background: #b91c1c;
 }
 
+
 /* Inputs / Selects */
 input,
 select,
@@ -210,6 +231,7 @@ textarea {
   color: #111827;
 }
 
+
 /* Headings */
 h1 {
   font-size: 1.6rem;
@@ -219,6 +241,7 @@ h2 {
   font-size: 1.3rem;
   margin-bottom: 0.75rem;
 }
+
 
 /* Utilities */
 .center {
@@ -235,6 +258,7 @@ h2 {
   white-space: nowrap;
 }
 
+
 /* Responsive packages grid (si la usás para homepage) */
 .packages-grid {
   display: grid;
@@ -242,6 +266,7 @@ h2 {
   gap: 20px;
   padding: 8px 0;
 }
+
 
 @media (min-width: 640px) {
   .packages-grid {
@@ -257,4 +282,7 @@ h2 {
   }
 }
 
+
 /* End of file */
+
+

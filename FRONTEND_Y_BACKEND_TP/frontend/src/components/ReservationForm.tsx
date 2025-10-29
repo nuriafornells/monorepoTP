@@ -29,7 +29,6 @@ export default function ReservationForm({ packageId }: Props) {
     try {
       setLoading(true);
       setError(null);
-      setSuccess(false);
 
       await api.post(
         "/reservations",
@@ -60,7 +59,15 @@ export default function ReservationForm({ packageId }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: 24 }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        marginTop: 24,
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
+    >
       <h3>Reservar este paquete</h3>
 
       <label>Fechas</label>
@@ -72,23 +79,32 @@ export default function ReservationForm({ packageId }: Props) {
         isClearable
         dateFormat="yyyy-MM-dd"
         placeholderText="Selecciona rango de fechas"
+        className="input-field"
       />
 
-      <label style={{ marginTop: 12 }}>Cantidad de personas</label>
+      <label>Cantidad de personas</label>
       <input
         type="number"
         min={1}
         value={cantidad}
         onChange={(e) => setCantidad(Number(e.target.value))}
         required
+        className="input-field"
       />
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>Reserva creada con éxito ✅ - En espera de confirmación.</p>}
+      {success && (
+        <p style={{ color: "green" }}>
+          Reserva creada con éxito ✅ - En espera de confirmación.
+        </p>
+      )}
 
-      <button type="submit" className="btn" disabled={loading}>
-        {loading ? "Reservando…" : "Confirmar reserva"}
-      </button>
+      {/* Solo mostrar el botón si aún no se envió */}
+      {!success && (
+        <button type="submit" className="btn" disabled={loading}>
+          {loading ? "Reservando…" : "Confirmar reserva"}
+        </button>
+      )}
     </form>
   );
 }
