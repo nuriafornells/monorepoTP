@@ -6,7 +6,8 @@
 * 52812 - Gerbaudo Milena Luz
 
 
-### Repositorios
+### Repositorios}
+* [monorepoTP] (https://github.com/nuriafornells/monorepoTP.git)
 * [frontend app](https://github.com/nuriafornells/monorepoTP/tree/main/FRONTEND_Y_BACKEND_TP/frontend)
 * [backend app](https://github.com/nuriafornells/monorepoTP/tree/main/FRONTEND_Y_BACKEND_TP/backend)
 
@@ -36,7 +37,7 @@ MD en draw.io: https://drive.google.com/file/d/1fIw_y52k2I7hz1cHX3uEgDLWok7ewhlU
 |:-|:-|
 |CRUD |1. CRUD usuario <br> 2. CRUD destino <br> 3. CRUD paquete_viaje <br> 4. CRUD hotel|
 |Listado + detalle| 1. Listado de paquetes de viaje disponibles filtrados por destino, muestra destino, precio, descripcion.Detalle muestra fechaInicio, fechaFin y hotel. <br> 2. Listado de reservas a confirmar, muestra datos usuario, estado de reserva,idReserva, cantidad y fecha|
-|CUU/Epic| 1. Hacer reserva <br> 2. Confirmar o cancelar reserva <br> 3. Hacer reseña|
+|CUU/Epic| 1. Hacer reserva <br> 2. Confirmar o cancelar reserva <br> 3. Registrarse|
 
 
 
