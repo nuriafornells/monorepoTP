@@ -19,50 +19,30 @@ export default function Navbar() {
   };
 
   return (
-    <header style={{ background: "white", borderBottom: "1px solid #e5e7eb" }}>
-      <nav
-        className="container"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          height: 60,
-        }}
-      >
-        <Link
-          to="/"
-          style={{ fontWeight: 800, color: "var(--primary)" }}
-        >
+    <header className="navbar">
+      <nav className="navbar-inner">
+        <Link to="/" className="navbar-logo">
           VIAJES EXPRESS
         </Link>
 
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            marginLeft: "auto",
-            alignItems: "center",
-          }}
-        >
+        <div className="navbar-links">
           {(role === "user" || role === "admin") && (
-            <NavLink to="/packages">PAQUETES</NavLink>
+            <NavLink to="/packages">Paquetes</NavLink>
           )}
 
           {role === "admin" && (
             <>
               <NavLink to="/admin/dashboard">Administrador de paquetes</NavLink>
               <NavLink to="/admin/dashboard/reservas">Reservas</NavLink>
-              <NavLink to="/admin/dashboard/users">Usuarios</NavLink> {/* ✅ NUEVO */}
+              <NavLink to="/admin/dashboard/users">Usuarios</NavLink>
             </>
           )}
 
-          {role === "user" && (
-              <NavLink to="/mis-reservas">Mis reservas</NavLink>
-          )}
+          {role === "user" && <NavLink to="/mis-reservas">Mis reservas</NavLink>}
 
           {user && token ? (
             <>
-              <span style={{ fontSize: 14, color: "#555" }}>
+              <span className="navbar-user">
                 <strong>{user.email}</strong> <em>({role})</em>
               </span>
               <button className="btn danger" onClick={handleLogout}>
@@ -72,9 +52,7 @@ export default function Navbar() {
           ) : (
             <>
               <NavLink to="/login">Iniciar Sesión</NavLink>
-              <NavLink to="/signup" style={{ marginLeft: 12 }}>
-                Registrarse
-              </NavLink> {/* ✅ NUEVO */}
+              <NavLink to="/signup">Registrarse</NavLink>
             </>
           )}
         </div>

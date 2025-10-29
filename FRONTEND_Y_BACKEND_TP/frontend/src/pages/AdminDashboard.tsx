@@ -1,3 +1,4 @@
+// src/pages/AdminDashboard.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
@@ -74,10 +75,10 @@ export default function AdminDashboard() {
   };
 
   return (
-    <>
+    <div className="admin-dashboard">
       <h1>Admin: Paquetes</h1>
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
         <button onClick={handleCrear} style={btn}>
           ➕ Crear nuevo paquete
         </button>
@@ -95,7 +96,6 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* 👇 aplicamos clases globales responsivas */}
       <div className="card">
         <div className="table-container">
           <table className="users-table">
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -150,4 +150,5 @@ const btn: React.CSSProperties = {
   background: "#2563eb",
   color: "#fff",
   border: "none",
+  cursor: "pointer",
 };

@@ -8,17 +8,11 @@ type Reservation = {
   fechaFin: string | null;
   paquete: {
     nombre: string;
-    destino: {
-      id: number;
-      nombre: string;
-      createdAt: string;
-      updatedAt: string;
-    } | null;
+    destino: { id: number; nombre: string } | null;
   };
   status: "pendiente" | "aceptada" | "rechazada";
 };
 
-// 🔧 Función para formatear fechas
 function formatDate(dateString?: string | null) {
   if (!dateString) return "-";
   const d = new Date(dateString);
@@ -41,8 +35,7 @@ export default function MyReservations() {
           `/reservations/user/${user?.id}`
         );
         setReservas(res.data.reservas);
-      } catch (err) {
-        console.error("Error al cargar reservas:", err);
+      } catch {
         alert("No se pudieron cargar tus reservas.");
       } finally {
         setLoading(false);
@@ -55,41 +48,42 @@ export default function MyReservations() {
   if (loading) return <p>Cargando tus reservas…</p>;
 
   return (
-    <div className="card">
-      <h2>Mis reservas</h2>
-      {reservas.length === 0 ? (
-        <p>No tenés reservas registradas.</p>
-      ) : (
-        // 👇 tabla responsiva con clases globales
-        <div className="table-container">
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>Paquete</th>
-                <th>Destino</th>
-                <th>Inicio</th>
-                <th>Fin</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reservas.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.paquete.nombre}</td>
-                  <td>{r.paquete.destino?.nombre ?? "-"}</td>
-                  <td>{formatDate(r.fechaInicio)}</td>
-                  <td>{formatDate(r.fechaFin)}</td>
-                  <td>
-                    {r.status === "pendiente" && "⏳ Pendiente"}
-                    {r.status === "aceptada" && "✅ Aceptada"}
-                    {r.status === "rechazada" && "❌ Rechazada"}
-                  </td>
+    <div className="page-container">
+      <div className="card">
+        <h2>Mis reservas</h2>
+        {reservas.length === 0 ? (
+          <p>No tenés reservas registradas.</p>
+        ) : (
+          <div className="table-container">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Paquete</th>
+                  <th>Destino</th>
+                  <th>Inicio</th>
+                  <th>Fin</th>
+                  <th>Estado</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {reservas.map((r) => (
+                  <tr key={r.id}>
+                    <td>{r.paquete.nombre}</td>
+                    <td>{r.paquete.destino?.nombre ?? "-"}</td>
+                    <td>{formatDate(r.fechaInicio)}</td>
+                    <td>{formatDate(r.fechaFin)}</td>
+                    <td>
+                      {r.status === "pendiente" && "⏳ Pendiente"}
+                      {r.status === "aceptada" && "✅ Aceptada"}
+                      {r.status === "rechazada" && "❌ Rechazada"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
