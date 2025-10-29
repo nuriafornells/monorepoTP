@@ -7,6 +7,7 @@ const publicRoutes = [
   '/api/paquetes/publicos',
   '/api/destinos',
   '/api/hoteles',
+  '/api/users', 
 ];
 
 const verifyToken = async (req, res, next) => {

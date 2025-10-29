@@ -33,3 +33,12 @@ export type Hotel = {
   categoria?: string;
   destino?: Destino | null;
 };
+
+export type User = {
+  id: number;
+  name?: string | null;
+  email: string;
+  role: string;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};

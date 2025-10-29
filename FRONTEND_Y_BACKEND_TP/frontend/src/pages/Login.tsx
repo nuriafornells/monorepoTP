@@ -1,5 +1,5 @@
 // src/pages/Login.tsx
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import api from "../api";
 import { useAuth } from "../hooks/useAuth";
@@ -9,7 +9,7 @@ type Role = "admin" | "user";
 interface LoginResponse {
   token: string;
   role: Role;
-  id: number; 
+  id: number;
 }
 
 function isAxiosErrorManual(error: unknown): error is {
@@ -22,7 +22,7 @@ function isAxiosErrorManual(error: unknown): error is {
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth(); // usamos login del contexto
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const getRedirectPath = (role: Role) =>
@@ -39,8 +39,7 @@ const Login = () => {
 
       const { token, role, id } = res.data;
 
-      login(id, email, token, role); // ahora con el id incluido
-
+      login(id, email, token, role);
       navigate(getRedirectPath(role));
     } catch (err: unknown) {
       console.error("❌ Error en login:", err);
@@ -54,8 +53,14 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className="card"
+      style={{ maxWidth: 420, margin: "0 auto", padding: 16 }}
+    >
       <h2>🔐 Iniciar sesión</h2>
+
+      <label>Email</label>
       <input
         type="email"
         placeholder="Correo"
@@ -63,6 +68,8 @@ const Login = () => {
         onChange={(e) => setEmail(e.target.value)}
         required
       />
+
+      <label style={{ marginTop: 12 }}>Contraseña</label>
       <input
         type="password"
         placeholder="Contraseña"
@@ -70,7 +77,14 @@ const Login = () => {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button type="submit">Ingresar</button>
+
+      <button type="submit" className="btn" style={{ marginTop: 16 }}>
+        Ingresar
+      </button>
+
+      <p style={{ marginTop: 12, fontSize: 14 }}>
+        ¿No tenés cuenta? <Link to="/signup">Crear cuenta</Link>
+      </p>
     </form>
   );
 };

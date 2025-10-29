@@ -11,6 +11,8 @@ const reservationRoutes = require('./routes/reservationRoutes');
 const destinosRoutes = require('./routes/destinos.routes');
 const hotelsRoutes = require('./routes/hotels.routes');
 const { initORM } = require('./config/orm');
+const usersRoutes = require('./routes/users.routes');
+
 
 const app = express();
 
@@ -45,6 +47,7 @@ const PORT = process.env.PORT || 3001;
     app.use('/api/admin', adminRoutes);
     app.use('/api/reservations', reservationRoutes);
     app.use('/api/destinos', destinosRoutes);
+    app.use('/api/users', usersRoutes);
     
 
     // handler de errores después de montar rutas
