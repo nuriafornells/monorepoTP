@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { useAuth } from "../context/AuthContext";
-import axios from "../axios";
+import api from "../api";
 
 type Props = {
   packageId: number;
@@ -31,7 +31,7 @@ export default function ReservationForm({ packageId }: Props) {
       setError(null);
       setSuccess(false);
 
-      await axios.post(
+      await api.post(
         "/reservations",
         {
           packageId,

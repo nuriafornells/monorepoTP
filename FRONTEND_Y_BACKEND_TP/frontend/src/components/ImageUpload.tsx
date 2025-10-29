@@ -1,6 +1,6 @@
 // src/components/ImageUpload.tsx
 import React, { useState } from 'react';
-import axios from '../axios';
+import api from '../api';
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -28,7 +28,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const response = await axios.post<UploadResponse>('/upload', formData, {
+      const response = await api.post<UploadResponse>('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         baseURL: 'http://localhost:3001', // upload route is served outside /api
       });

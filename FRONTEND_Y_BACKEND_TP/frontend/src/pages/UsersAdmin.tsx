@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import axiosInstance from '../axios';
-
+import api from '../api'; 
 type User = {
   id: number;
   name?: string | null;
@@ -16,7 +15,7 @@ export default function UsersAdmin() {
 
   async function fetchUsers() {
     try {
-      const res = await axiosInstance.get<{ users: User[] }>('/users');
+      const res = await api.get<{ users: User[] }>('/users');
       setUsers(res.data.users);
     } catch (e) {
       console.error('Error al obtener usuarios:', e);
@@ -26,11 +25,13 @@ export default function UsersAdmin() {
     }
   }
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   async function handleDelete(id: number) {
     try {
-      await axiosInstance.delete(`/users/${id}`);
+      await api.delete(`/users/${id}`);
       setUsers(prev => prev.filter(u => u.id !== id));
     } catch (e: unknown) {
       console.error('Error al eliminar usuario:', e);
@@ -39,10 +40,12 @@ export default function UsersAdmin() {
       const status = maybeAxiosError?.response?.status ?? null;
 
       if (status === 409) {
-        const ok = confirm('El usuario tiene reservas asociadas. ¿Querés eliminar reservas y el usuario?');
+        const ok = confirm(
+          'El usuario tiene reservas asociadas. ¿Querés eliminar reservas y el usuario?'
+        );
         if (ok) {
           try {
-            await axiosInstance.delete(`/users/${id}?force=true`);
+            await api.delete(`/users/${id}?force=true`);
             setUsers(prev => prev.filter(u => u.id !== id));
           } catch (e2) {
             console.error('Error al forzar eliminación:', e2);
@@ -57,7 +60,7 @@ export default function UsersAdmin() {
 
   async function handleRoleChange(id: number, role: string) {
     try {
-      const res = await axiosInstance.put<{ user: User }>(`/users/${id}`, { role });
+      const res = await api.put<{ user: User }>(`/users/${id}`, { role });
       setUsers(prev => prev.map(u => (u.id === id ? res.data.user : u)));
     } catch (e) {
       console.error('Error al actualizar rol:', e);
@@ -93,13 +96,17 @@ export default function UsersAdmin() {
                 </select>
               </td>
               <td style={{ padding: 12, borderTop: '1px solid #e5e7eb' }}>
-                <button className="btn danger" onClick={() => handleDelete(u.id)}>Eliminar</button>
+                <button className="btn danger" onClick={() => handleDelete(u.id)}>
+                  Eliminar
+                </button>
               </td>
             </tr>
           ))}
           {users.length === 0 && (
             <tr>
-              <td colSpan={5} style={{ padding: 12 }}>No hay usuarios</td>
+              <td colSpan={5} style={{ padding: 12 }}>
+                No hay usuarios
+              </td>
             </tr>
           )}
         </tbody>

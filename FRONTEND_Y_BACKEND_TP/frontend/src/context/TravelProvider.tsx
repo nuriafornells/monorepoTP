@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TravelContext } from './TravelContext';
 import type { Paquete } from '../types';
 import type { Reservation } from './TravelContext';
-import axios from '../axios';
+import api from '../api';
 
 type PaquetesResponse = Paquete[] | { paquetes: Paquete[] };
 type ReservasResponse = Reservation[] | { reservas: Reservation[] };
@@ -14,7 +14,7 @@ const TravelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const res = await axios.get<PaquetesResponse>('/paquetes/publicos');
+        const res = await api.get<PaquetesResponse>('/paquetes/publicos');
         const payload = res.data;
         const lista = Array.isArray(payload) ? payload : payload.paquetes ?? [];
         setPackages(lista);
@@ -25,7 +25,7 @@ const TravelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
     const fetchReservations = async () => {
       try {
-        const res = await axios.get<ReservasResponse>('/reservations');
+        const res = await api.get<ReservasResponse>('/reservations');
         const payload = res.data;
         const lista = Array.isArray(payload) ? payload : payload.reservas ?? [];
         setReservations(lista);

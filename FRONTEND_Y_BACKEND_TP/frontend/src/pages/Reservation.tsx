@@ -1,7 +1,7 @@
 // src/pages/Reservation.tsx
 import React, { useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../axios';
+import api from '../api';
 import { useTravel } from '../hooks/useTravel';
 import { AuthContext } from '../context/AuthContext';
 import type { Paquete } from '../types';
@@ -45,8 +45,8 @@ export default function Reservation() {
     };
 
     try {
-      await axios.post('/reservations', payload);
-      alert('Reserva enviada correctamente ✅ En espera nuestra confirmación.');
+      await api.post('/reservations', payload);
+      alert('Reserva enviada correctamente ✅ ');
       setFullName('');
       setEmail('');
       setPassengers(1);

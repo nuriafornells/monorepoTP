@@ -1,7 +1,7 @@
 // src/hooks/useReservations.ts
 import { useEffect, useState } from 'react';
 import type { Reservation } from '../types';
-import axios from '../axios';
+import api from '../api';
 
 export function useReservations(token: string | null) {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -12,7 +12,7 @@ export function useReservations(token: string | null) {
 
     const fetchReservations = async () => {
       try {
-        const res = await axios.get<{ reservas?: Reservation[] } | Reservation[]>('/reservations');
+        const res = await api.get<{ reservas?: Reservation[] } | Reservation[]>('/reservations');
         const payload = res.data;
         const lista = Array.isArray(payload) ? payload : payload.reservas ?? [];
         setReservations(lista);

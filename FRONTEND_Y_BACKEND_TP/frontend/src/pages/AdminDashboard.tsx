@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../axios";
+import api from "../api";
 import type { Paquete } from "../types";
 
 export default function AdminDashboard() {
@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchPaquetes = async () => {
       try {
-        const res = await axios.get<{ paquetes: Paquete[] }>("/paquetes");
+        const res = await api.get<{ paquetes: Paquete[] }>("/paquetes");
         setPaquetes(res.data.paquetes);
       } catch (error) {
         console.error("Error al traer paquetes:", error);
@@ -21,7 +21,7 @@ export default function AdminDashboard() {
 
   const handleEliminar = async (id: number) => {
     try {
-      await axios.delete(`/paquetes/${id}`);
+      await api.delete(`/paquetes/${id}`);
       setPaquetes((prev) => prev.filter((p) => p.id !== id));
     } catch (error: unknown) {
       const status =
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
         );
         if (ok) {
           try {
-            await axios.delete(`/paquetes/${id}?force=true`);
+            await api.delete(`/paquetes/${id}?force=true`);
             setPaquetes((prev) => prev.filter((p) => p.id !== id));
           } catch (error2: unknown) {
             console.error("Error al forzar eliminación del paquete:", error2);
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
 
   const handleTogglePublicacion = async (id: number) => {
     try {
-      const res = await axios.patch<{ paquete: Paquete }>(
+      const res = await api.patch<{ paquete: Paquete }>(
         `/paquetes/${id}/publicar`
       );
       const nuevo = res.data.paquete;

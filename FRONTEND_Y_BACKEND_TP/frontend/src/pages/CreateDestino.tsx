@@ -1,6 +1,6 @@
 // src/pages/CreateDestino.tsx
 import { useState } from "react";
-import axios from "../axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 
@@ -11,7 +11,7 @@ export default function CreateDestino() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/destinos", { nombre });
+      await api.post("/destinos", { nombre });
       alert("Destino creado con éxito");
       navigate("/admin/dashboard");
     } catch (err) {

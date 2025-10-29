@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "../axios";
+import api from "../api";
 import { useAuth } from "../context/AuthContext";
 
 type Reserva = {
@@ -26,7 +26,7 @@ export default function AdminReservations() {
   useEffect(() => {
     const fetchReservas = async () => {
       try {
-        const res = await axios.get<{ reservas: Reserva[] }>("/reservations", {
+        const res = await api.get<{ reservas: Reserva[] }>("/reservations", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setReservas(res.data.reservas);
@@ -44,7 +44,7 @@ export default function AdminReservations() {
 
   const actualizarEstado = async (id: number, nuevoEstado: string) => {
     try {
-      const res = await axios.patch<{ reserva: Reserva }>(
+      const res = await api.patch<{ reserva: Reserva }>(
         `/reservations/${id}/status`,
         { status: nuevoEstado }
       );

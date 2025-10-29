@@ -1,6 +1,6 @@
 // src/pages/CreateHotel.tsx
 import { useEffect, useState } from "react";
-import axios from "../axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 import type { Destino } from "../types";
 
@@ -12,7 +12,7 @@ export default function CreateHotel() {
   const [destinos, setDestinos] = useState<Destino[]>([]);
 
   useEffect(() => {
-    axios.get<{ destinos: Destino[] }>("/destinos")
+    api.get<{ destinos: Destino[] }>("/destinos")
       .then((res) => setDestinos(res.data.destinos))
       .catch((err) => console.error("Error al cargar destinos:", err));
   }, []);
@@ -20,7 +20,7 @@ export default function CreateHotel() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/destinos/hoteles", { nombre, ubicacion, destinoId });
+      await api.post("/destinos/hoteles", { nombre, ubicacion, destinoId });
       alert("Hotel creado con éxito");
       navigate("/admin/dashboard");
     } catch (err) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import type { AuthContextType, AuthUser } from "./AuthContext";
 import type { ReactNode } from "react";
+import api from "../api"; // 👈 importante
 
 type Role = AuthContextType["role"];
 
@@ -12,29 +13,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedRole = localStorage.getItem("role");
-    const storedToken = localStorage.getItem("token");
+  const storedToken = localStorage.getItem("token");
+  const storedRole = localStorage.getItem("role");
 
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch {
-        console.warn("No se pudo parsear el usuario");
+  async function validarSesion() {
+    if (!storedToken) {
+      setIsLoading(false);
+      return;
+    }
+
+    setToken(storedToken);
+
+    try {
+      const res = await api.get<{ user: AuthUser }>("/auth/me");
+      setUser(res.data.user);
+      if (storedRole === "admin" || storedRole === "user") {
+        setRole(storedRole as Role);
       }
+    } catch (err) {
+      console.error("Token inválido:", err);
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
+      localStorage.removeItem("token");
+      setUser(null);
+      setRole(null);
+      setToken(null);
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    if (storedRole === "admin" || storedRole === "user") {
-      setRole(storedRole as Role);
-    }
-
-    if (storedToken) {
-      setToken(storedToken);
-    }
-
-    setIsLoading(false);
-  }, []);
+  validarSesion();
+}, []);
 
   const login = (id: number, email: string, token: string, role: Role) => {
     const userData: AuthUser = { id, email };

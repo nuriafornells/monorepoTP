@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../axios';
+import api from '../api';
 import type { Paquete, Destino, Hotel } from '../types';
 
 type Props = { mode?: 'edit' | 'create' };
@@ -26,7 +26,7 @@ export default function EditPackage({ mode = 'edit' }: Props) {
 
    // ✅ corregido
 useEffect(() => {
-  axios.get<{ destinos: Destino[] }>('/destinos')
+  api.get<{ destinos: Destino[] }>('/destinos')
     .then((res) => setDestinos(res.data.destinos))
     .catch((e) => console.error('Error al cargar destinos:', e));
 }, []);
@@ -36,11 +36,11 @@ useEffect(() => {
     const load = async () => {
       try {
         if (!form?.destinoId) {
-          const res = await axios.get<{ hoteles: Hotel[] }>('/destinos/hoteles');
+          const res = await api.get<{ hoteles: Hotel[] }>('/destinos/hoteles');
           setHoteles(res.data.hoteles);
           return;
         }
-        const res = await axios.get<{ hoteles: Hotel[] }>(
+        const res = await api.get<{ hoteles: Hotel[] }>(
           `/destinos/hoteles?destinoId=${form.destinoId}`
         );
         setHoteles(res.data.hoteles);
@@ -56,7 +56,7 @@ useEffect(() => {
     if (mode === 'edit' && id) {
       const fetchPackage = async () => {
         try {
-          const res = await axios.get<{ paquete: Paquete }>(`/paquetes/${id}`);
+          const res = await api.get<{ paquete: Paquete }>(`/paquetes/${id}`);
           const p = res.data.paquete;
           setForm({
             id: p.id,
@@ -106,7 +106,7 @@ useEffect(() => {
       if (!form) return;
 
       if (mode === 'edit') {
-        await axios.put(`/paquetes/${form.id}`, {
+        await api.put(`/paquetes/${form.id}`, {
           nombre: form.nombre,
           destinoId: form.destinoId,
           hotelId: form.hotelId,
@@ -115,7 +115,7 @@ useEffect(() => {
           fotoURL: form.fotoURL,
         });
       } else {
-        await axios.post('/paquetes', {
+        await api.post('/paquetes', {
           nombre: form.nombre,
           destinoId: form.destinoId,
           hotelId: form.hotelId,
