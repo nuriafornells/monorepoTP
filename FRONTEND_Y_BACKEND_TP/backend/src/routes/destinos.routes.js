@@ -1,10 +1,19 @@
 const express = require('express');
-const { getDestinos, getHoteles } = require('../controllers/destinos.controller');
+const {
+  getDestinos,
+  getHoteles,
+  createDestino,
+  createHotel,
+} = require('../controllers/destinos.controller');
 
 const router = express.Router();
 
-// Public endpoints for destinos and hoteles
-router.get('/destinos', getDestinos);
-router.get('/hoteles', getHoteles);
+// Endpoints para destinos
+router.get('/', getDestinos);        // GET /api/destinos
+router.post('/', createDestino);     // POST /api/destinos
+
+// Endpoints para hoteles
+router.get('/hoteles', getHoteles);  // GET /api/destinos/hoteles
+router.post('/hoteles', createHotel);// POST /api/destinos/hoteles
 
 module.exports = router;

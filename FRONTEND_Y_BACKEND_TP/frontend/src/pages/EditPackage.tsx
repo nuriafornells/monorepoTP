@@ -24,12 +24,12 @@ export default function EditPackage({ mode = 'edit' }: Props) {
   const [destinos, setDestinos] = useState<Destino[]>([]);
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
 
-  // ✅ Cargar destinos
-  useEffect(() => {
-    axios.get<{ destinos: Destino[] }>('/destinos/destinos')
-      .then((res) => setDestinos(res.data.destinos))
-      .catch((e) => console.error('Error al cargar destinos:', e));
-  }, []);
+   // ✅ corregido
+useEffect(() => {
+  axios.get<{ destinos: Destino[] }>('/destinos')
+    .then((res) => setDestinos(res.data.destinos))
+    .catch((e) => console.error('Error al cargar destinos:', e));
+}, []);
 
   // ✅ Cargar hoteles filtrados por destino
   useEffect(() => {

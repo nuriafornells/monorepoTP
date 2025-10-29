@@ -96,7 +96,7 @@ export default function AdminReservations() {
               <th>Fechas</th>
               <th>Personas</th>
               <th>Estado</th>
-              <th>Acciones</th>
+              
             </tr>
           </thead>
           <tbody>

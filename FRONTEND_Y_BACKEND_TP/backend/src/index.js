@@ -45,7 +45,7 @@ const PORT = process.env.PORT || 3001;
     app.use('/api/admin', adminRoutes);
     app.use('/api/reservations', reservationRoutes);
     app.use('/api/destinos', destinosRoutes);
-    app.use('/api/hoteles', hotelsRoutes);
+    
 
     // handler de errores después de montar rutas
     app.use(errorHandler);

@@ -1,5 +1,3 @@
-// src/App.tsx
-
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import TravelProvider from "./context/TravelProvider";
 import MainLayout from "./layouts/MainLayout";
@@ -15,6 +13,8 @@ import EditPackage from "./pages/EditPackage";
 import Unauthorized from "./pages/Unauthorized";
 import "react-datepicker/dist/react-datepicker.css";
 import AdminReservations from "./pages/AdminReservations";
+import CreateDestino from "./pages/CreateDestino"; // ✅ nuevo
+import CreateHotel from "./pages/CreateHotel";     // ✅ nuevo
 
 const router = createBrowserRouter([
   {
@@ -43,6 +43,8 @@ const router = createBrowserRouter([
           { path: "editar/:id", element: <EditPackage mode="edit" /> },
           { path: "crear", element: <EditPackage mode="create" /> },
           { path: "reservas", element: <AdminReservations /> },
+          { path: "create-destino", element: <CreateDestino /> }, // ✅ nuevo
+          { path: "create-hotel", element: <CreateHotel /> },     // ✅ nuevo
         ],
       },
       { path: "unauthorized", element: <Unauthorized /> },
