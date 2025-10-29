@@ -84,7 +84,7 @@ export default function ReservationForm({ packageId }: Props) {
       />
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>Reserva creada con éxito ✅</p>}
+      {success && <p style={{ color: "green" }}>Reserva creada con éxito ✅ - En espera de confirmación.</p>}
 
       <button type="submit" className="btn" disabled={loading}>
         {loading ? "Reservando…" : "Confirmar reserva"}

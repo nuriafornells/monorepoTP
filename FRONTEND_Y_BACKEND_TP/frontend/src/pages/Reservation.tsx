@@ -46,7 +46,7 @@ export default function Reservation() {
 
     try {
       await axios.post('/reservations', payload);
-      alert('Reserva enviada correctamente ✅');
+      alert('Reserva enviada correctamente ✅ En espera nuestra confirmación.');
       setFullName('');
       setEmail('');
       setPassengers(1);

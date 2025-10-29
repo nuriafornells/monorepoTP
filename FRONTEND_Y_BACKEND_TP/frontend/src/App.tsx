@@ -17,46 +17,44 @@ import CreateDestino from "./pages/CreateDestino"; // ✅ nuevo
 import CreateHotel from "./pages/CreateHotel";     // ✅ nuevo
 import CreateClient from "./pages/CreateClient";
 import UsersAdmin from "./pages/UsersAdmin";
-
-
+import MyReservations from "./pages/MyReservations"; // ✅ nuevo
 
 const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
   },
-  // { path: "/admin", element: <AdminLogin /> }, // eliminado: usar Login real
   {
-  path: "/",
-  element: <MainLayout />,
-  children: [
-    { index: true, element: <Home /> },
-    { path: "signup", element: <CreateClient /> }, // ✅ NUEVO (registro de cliente)
-    {
-      element: <PrivateRoute />,
-      children: [
-        { path: "packages", element: <Packages /> },
-        { path: "packages/:id", element: <PackageDetail /> },
-        { path: "reserve/:id", element: <Reservation /> },
-      ],
-    },
-    {
-      path: "admin/dashboard",
-      element: <PrivateRoute requiredRole="admin" />,
-      children: [
-        { index: true, element: <AdminDashboard /> },
-        { path: "editar/:id", element: <EditPackage mode="edit" /> },
-        { path: "crear", element: <EditPackage mode="create" /> },
-        { path: "reservas", element: <AdminReservations /> },
-        { path: "create-destino", element: <CreateDestino /> },
-        { path: "create-hotel", element: <CreateHotel /> },
-        { path: "users", element: <UsersAdmin /> }, // ✅ NUEVO (gestión usuarios)
-      ],
-    },
-    { path: "unauthorized", element: <Unauthorized /> },
-  ],
-}
-
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: "signup", element: <CreateClient /> }, // ✅ registro de cliente
+      {
+        element: <PrivateRoute />,
+        children: [
+          { path: "packages", element: <Packages /> },
+          { path: "packages/:id", element: <PackageDetail /> },
+          { path: "reserve/:id", element: <Reservation /> },
+          { path: "mis-reservas", element: <MyReservations /> }, // ✅ ahora acá
+        ],
+      },
+      {
+        path: "admin/dashboard",
+        element: <PrivateRoute requiredRole="admin" />,
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "editar/:id", element: <EditPackage mode="edit" /> },
+          { path: "crear", element: <EditPackage mode="create" /> },
+          { path: "reservas", element: <AdminReservations /> },
+          { path: "create-destino", element: <CreateDestino /> },
+          { path: "create-hotel", element: <CreateHotel /> },
+          { path: "users", element: <UsersAdmin /> },
+        ],
+      },
+      { path: "unauthorized", element: <Unauthorized /> },
+    ],
+  },
 ]);
 
 export default function App() {

@@ -56,6 +56,10 @@ export default function Navbar() {
             </>
           )}
 
+          {role === "user" && (
+              <NavLink to="/mis-reservas">Mis reservas</NavLink>
+          )}
+
           {user && token ? (
             <>
               <span style={{ fontSize: 14, color: "#555" }}>
