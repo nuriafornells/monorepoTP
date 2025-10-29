@@ -47,20 +47,10 @@ const getReservations = async (req, res) => {
     const where = req.user?.role === "admin" ? {} : { user: req.user?.id };
 
     const reservas = await repo.find(where, {
-      populate: ["paquete", "paquete.hotel", "paquete.hotel.destino", "user"],
+      populate: ["paquete", "paquete.hotel", "user"],
     });
 
-    const safe = reservas.map((r) => {
-      const plain = r.toJSON ? r.toJSON() : { ...r };
-      const destino = plain.paquete?.hotel?.destino ?? null;
-      return {
-        ...plain,
-        paquete: {
-          ...plain.paquete,
-          destino,
-        },
-      };
-    });
+    return res.status(200).json({ reservas });
 
     return res.status(200).json({ reservas: safe });
   } catch (error) {
@@ -107,22 +97,10 @@ const getReservationsByUser = async (req, res) => {
 
     const reservas = await repo.find(
       { user: userId },
-      { populate: ["paquete", "paquete.hotel", "paquete.hotel.destino", "user"] }
+      { populate: ["paquete", "paquete.hotel", "user"] }
     );
 
-    const safe = reservas.map((r) => {
-      const plain = r.toJSON ? r.toJSON() : { ...r };
-      const destino = plain.paquete?.hotel?.destino ?? null;
-      return {
-        ...plain,
-        paquete: {
-          ...plain.paquete,
-          destino,
-        },
-      };
-    });
-
-    return res.status(200).json({ reservas: safe });
+    return res.status(200).json({ reservas });
   } catch (error) {
     console.error("Error al obtener reservas del usuario:", error);
     return res.status(500).json({ message: "Hubo un problema al obtener reservas del usuario" });
