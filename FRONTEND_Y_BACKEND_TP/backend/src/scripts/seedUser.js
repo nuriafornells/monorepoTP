@@ -1,38 +1,56 @@
-require('dotenv').config();
-require('reflect-metadata');
+// backend/src/scripts/seedUser.js
 const bcrypt = require('bcrypt');
-const { initORM } = require('../config/orm');
+const { MikroORM } = require('@mikro-orm/core');
+const User = require('../entities/User');
 
 (async () => {
   try {
-    const orm = await initORM();
+    const orm = await MikroORM.init();
     const em = orm.em.fork();
 
-    const userRepo = em.getRepository('User');
     const now = new Date();
 
-    const admin = userRepo.create({
-      email: 'admin@admin.com',
-      password: await bcrypt.hash('admin123', 10),
-      role: 'admin',
-      createdAt: now,   // 👈 camelCase
-      updatedAt: now,   // 👈 camelCase
-    });
+    // ADMIN
+    const adminEmail = 'dmin@admin.com';
+    const adminExists = await em.findOne(User, { email: adminEmail });
 
-    const user = userRepo.create({
-      email: 'user@user.com',
-      password: await bcrypt.hash('user123', 10),
-      role: 'user',
-      createdAt: now,   // 👈 camelCase
-      updatedAt: now,   // 👈 camelCase
-    });
+    if (!adminExists) {
+      const admin = em.create(User, {
+        name: 'Administrador',
+        email: adminEmail,
+        password: await bcrypt.hash('admin123', 10),
+        role: 'admin',
+        createdAt: now,
+        updatedAt: now,
+      });
+      await em.persistAndFlush(admin);
+      console.log('✅ Admin creado:', adminEmail);
+    } else {
+      console.log('⚠️ Admin ya existe:', adminEmail);
+    }
 
-    await em.persistAndFlush([admin, user]);
+    // CLIENTE
+    const clientEmail = 'ser@user.com';
+    const clientExists = await em.findOne(User, { email: clientEmail });
 
-    console.log('✅ Usuarios creados correctamente');
-    process.exit();
+    if (!clientExists) {
+      const client = em.create(User, {
+        name: 'Cliente Ejemplo',
+        email: clientEmail,
+        password: await bcrypt.hash('user123', 10),
+        role: 'user',
+        createdAt: now,
+        updatedAt: now,
+      });
+      await em.persistAndFlush(client);
+      console.log('✅ Cliente creado:', clientEmail);
+    } else {
+      console.log('⚠️ Cliente ya existe:', clientEmail);
+    }
+
+    await orm.close();
   } catch (err) {
-    console.error('❌ Error al crear usuarios:', err);
+    console.error('❌ Error creando usuarios:', err);
     process.exit(1);
   }
 })();
