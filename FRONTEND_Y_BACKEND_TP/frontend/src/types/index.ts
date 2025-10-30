@@ -30,7 +30,6 @@ export type Hotel = {
   id: number;
   nombre: string;
   ubicacion: string;
-  categoria?: string;
   destino?: Destino | null;
 };
 

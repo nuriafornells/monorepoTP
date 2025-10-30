@@ -1,4 +1,23 @@
-// src/controllers/reservationController.js
+// Función auxiliar para generar instrucciones de pago
+function generarInstrucciones(reserva) {
+  if (reserva.status !== 'aceptada') return null;
+
+  const fechaLimite = new Date(reserva.createdAt);
+  fechaLimite.setHours(fechaLimite.getHours() + 48);
+
+  return {
+    mensaje: "Tu reserva fue aceptada 🎉 ",
+    numeroReserva: reserva.id,
+    paquete: reserva.paquete.nombre,
+    mensaje2: "comunicarse al whatsapp indicando su nombre y numero de reserva para concretar el pago",
+    contactoWhatsapp: "https://wa.me/5491112345678",
+    numeroWhatsapp: "+54 9 11 1234-5678",
+    email: "pagos@viajes.com",
+    metodo: "Transferencia bancaria o tarjeta de crédito (consultar promociones vigentes)",
+    plazo: `Tenés hasta el ${fechaLimite.toLocaleString()} para concretar el pago.`,
+  };
+}
+
 const createReservation = async (req, res) => {
   try {
     const { packageId, fechaInicio, fechaFin, userId, cantidadPersonas } = req.body;
@@ -52,9 +71,11 @@ const getReservations = async (req, res) => {
     const safe = reservas.map((r) => {
       const plain = r.toJSON ? r.toJSON() : { ...r };
       const destino = plain.paquete?.hotel?.destino ?? null;
+
       return {
         ...plain,
         paquete: { ...plain.paquete, destino },
+        instrucciones: generarInstrucciones(plain),
       };
     });
 
@@ -83,7 +104,10 @@ const updateReservationStatus = async (req, res) => {
 
     await req.em.persistAndFlush(reserva);
 
-    return res.status(200).json({ reserva });
+    return res.status(200).json({
+      reserva,
+      instrucciones: generarInstrucciones(reserva),
+    });
   } catch (error) {
     console.error('Error al actualizar estado de reserva: ', error);
     return res.status(500).json({ error: 'Error al actualizar reserva' });
@@ -108,9 +132,11 @@ const getReservationsByUser = async (req, res) => {
     const safe = reservas.map((r) => {
       const plain = r.toJSON ? r.toJSON() : { ...r };
       const destino = plain.paquete?.hotel?.destino ?? null;
+
       return {
         ...plain,
         paquete: { ...plain.paquete, destino },
+        instrucciones: generarInstrucciones(plain),
       };
     });
 

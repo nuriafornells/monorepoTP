@@ -5,6 +5,7 @@ import api from "../api";
 
 export default function CreateClient() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");       // 👈 nuevo estado
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,8 @@ export default function CreateClient() {
     e.preventDefault();
     try {
       setLoading(true);
-      await api.post("/auth/register", { email, password });
+      // 👇 ahora enviamos también el name
+      await api.post("/auth/register", { name, email, password });
       alert("✅ Usuario creado con éxito. Ahora podés iniciar sesión.");
       navigate("/login");
     } catch (err: unknown) {
@@ -32,7 +34,16 @@ export default function CreateClient() {
     >
       <h2>📝 Crear cuenta</h2>
 
-      <label>Email</label>
+      <label>Nombre</label>
+      <input
+        type="text"
+        placeholder="Nombre completo"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+      />
+
+      <label style={{ marginTop: 12 }}>Email</label>
       <input
         type="email"
         placeholder="Correo"

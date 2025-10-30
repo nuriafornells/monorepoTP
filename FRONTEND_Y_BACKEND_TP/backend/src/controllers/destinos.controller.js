@@ -43,7 +43,7 @@ const createHotel = async (req, res) => {
   try {
     console.log("👉 BODY recibido en createHotel:", req.body);
 
-    const { nombre, ubicacion, destinoId, categoria } = req.body;
+    const { nombre, ubicacion, destinoId } = req.body;
     if (!nombre || !ubicacion || !destinoId) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
@@ -53,7 +53,7 @@ const createHotel = async (req, res) => {
       return res.status(404).json({ error: 'Destino no encontrado' });
     }
 
-    const hotel = req.em.create('Hotel', { nombre, ubicacion, categoria, destino }); // ✅
+    const hotel = req.em.create('Hotel', { nombre, ubicacion, destino }); // ✅
     await req.em.persistAndFlush(hotel);                                  // ✅
 
     return res.status(201).json({ hotel });

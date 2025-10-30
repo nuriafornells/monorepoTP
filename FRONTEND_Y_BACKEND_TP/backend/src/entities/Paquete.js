@@ -10,7 +10,7 @@ module.exports = new EntitySchema({
     duracion: { type: 'number' },
     precio: { type: 'number' },
     publicado: { type: 'boolean', default: false },
-    fotoURL: { type: 'string', length: 500, nullable: true },
+    fotoURL: { type: 'string', length: 500, nullable: true, fieldName: 'fotoURL' },
     hotel: {
       kind: 'm:1',
       entity: () => require('./Hotel'),
