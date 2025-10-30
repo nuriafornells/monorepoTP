@@ -1,5 +1,4 @@
 // src/controllers/paquetes.controller.js
-
 const constructImageURL = (filename) => {
   if (!filename) return null;
   if (typeof filename !== 'string') return null;
@@ -18,7 +17,7 @@ const getAllPackages = async (req, res) => {
     });
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
-    console.error('Error en getAllPackages:', error);
+    console.error('Error en getAllPackages : ', error);
     return res.status(500).json({ error: 'Error al obtener paquetes' });
   }
 };
@@ -33,7 +32,7 @@ const getPublishedPackages = async (req, res) => {
     });
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
-    console.error('Error en getPublishedPackages:', error);
+    console.error('Error en getPublishedPackages: ', error);
     return res.status(500).json({ error: 'Error al obtener paquetes publicados' });
   }
 };
@@ -48,15 +47,17 @@ const getPackageById = async (req, res) => {
     const resp = { ...plain, destino: plain.hotel?.destino ?? null };
     return res.status(200).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en getPackageById:', error);
+    console.error('Error en getPackageById: ', error);
     return res.status(500).json({ error: 'Error al obtener paquete por ID' });
   }
 };
 
 const createPackage = async (req, res) => {
-  const { nombre, precio, duracion, hotelId, publicado = false, descripcion, fechaInicio, fechaFin, fotoURL } = req.body;
+  const { nombre, precio, duracion, hotelId, publicado = false, descripcion, fotoURL } = req.body;
   try {
-    if (!hotelId) return res.status(400).json({ error: 'hotelId es requerido' });
+    if (!nombre || precio == null || duracion == null || !hotelId) {
+      return res.status(400).json({ error: 'nombre, precio, duracion y hotelId son requeridos' });
+    }
 
     const em = req.em;
     const hotel = await em.findOne('Hotel', hotelId);
@@ -65,14 +66,11 @@ const createPackage = async (req, res) => {
     const repo = em.getRepository('Paquete');
     const now = new Date();
     const fullImageURL = constructImageURL(fotoURL);
-
     const paquete = repo.create({
       nombre,
       precio,
       duracion,
       descripcion: descripcion ?? null,
-      fechaInicio: fechaInicio ? new Date(fechaInicio) : null,
-      fechaFin: fechaFin ? new Date(fechaFin) : null,
       publicado,
       fotoURL: fullImageURL,
       hotel,
@@ -85,17 +83,16 @@ const createPackage = async (req, res) => {
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
     const resp = { ...plain, destino: plain.hotel?.destino ?? null };
-
     return res.status(201).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en createPackage:', error);
+    console.error('Error en createPackage: ', error);
     return res.status(500).json({ error: 'Error al crear paquete' });
   }
 };
 
 const updatePackage = async (req, res) => {
   const { id } = req.params;
-  const { nombre, precio, duracion, hotelId, publicado, descripcion, fechaInicio, fechaFin, fotoURL } = req.body;
+  const { nombre, precio, duracion, hotelId, publicado, descripcion, fotoURL } = req.body;
   try {
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
@@ -111,9 +108,6 @@ const updatePackage = async (req, res) => {
     paquete.precio = precio ?? paquete.precio;
     paquete.duracion = duracion ?? paquete.duracion;
     paquete.descripcion = descripcion ?? paquete.descripcion;
-    paquete.fechaInicio = fechaInicio ? new Date(fechaInicio) : paquete.fechaInicio;
-    paquete.fechaFin = fechaFin ? new Date(fechaFin) : paquete.fechaFin;
-
     if (typeof publicado === 'boolean') paquete.publicado = publicado;
     if (fotoURL !== undefined) paquete.fotoURL = constructImageURL(fotoURL);
 
@@ -124,10 +118,9 @@ const updatePackage = async (req, res) => {
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
     const resp = { ...plain, destino: plain.hotel?.destino ?? null };
-
     return res.status(200).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en updatePackage:', error);
+    console.error('Error en updatePackage: ', error);
     return res.status(500).json({ error: 'Error al actualizar paquete' });
   }
 };
@@ -147,10 +140,9 @@ const togglePublish = async (req, res) => {
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
     const resp = { ...plain, destino: plain.hotel?.destino ?? null };
-
     return res.status(200).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en togglePublish:', error);
+    console.error('Error en togglePublish: ', error);
     return res.status(500).json({ error: 'Error al cambiar estado de publicación' });
   }
 };
@@ -158,7 +150,6 @@ const togglePublish = async (req, res) => {
 const deletePackage = async (req, res) => {
   const { id } = req.params;
   const force = String(req.query.force || '').toLowerCase() === 'true';
-
   try {
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id);
@@ -171,7 +162,6 @@ const deletePackage = async (req, res) => {
         error: 'No se puede eliminar el paquete porque tiene reservas asociadas. Usa ?force=true para forzar.',
       });
     }
-
     if (reservas.length > 0 && force) {
       await req.em.nativeDelete('Reservation', { paquete: id });
     }
@@ -180,7 +170,7 @@ const deletePackage = async (req, res) => {
 
     return res.status(204).send();
   } catch (error) {
-    console.error('Error en deletePackage:', error);
+    console.error('Error en deletePackage: ', error);
     return res.status(500).json({ error: 'Error al eliminar paquete' });
   }
 };

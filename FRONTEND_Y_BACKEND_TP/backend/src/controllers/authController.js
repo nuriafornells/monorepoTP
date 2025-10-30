@@ -1,12 +1,13 @@
+// src/controllers/authController.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const login = async (req, res, next) => {
-  console.log('Body recibido en login:', req.body);
+  console.log('Body recibido en login: ', req.body);
   const { email, password } = req.body;
   try {
     if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET no está definido en el .env');
+      throw new Error('JWT SECRET no está definido en el .env');
     }
 
     const em = req.em;
@@ -28,22 +29,31 @@ const login = async (req, res, next) => {
     }
 
     const { id, role } = user;
-    const token = jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id, role }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
 
     return res.json({ token, role, id });
   } catch (err) {
-    console.error('Error interno en login:', err);
+    console.error('Error interno en login: ', err);
     err.statusCode = err.statusCode || 500;
     next(err);
   }
 };
 
 const register = async (req, res, next) => {
-  console.log('Body recibido en register:', req.body);
-  const { email, password, role } = req.body;
+  console.log('Body recibido en register: ', req.body);
+  const { name, email, password, role } = req.body;
   try {
     const em = req.em;
     if (!em) throw new Error('EntityManager no inicializado en la request');
+
+    // Validación clara: ahora name es obligatorio
+    if (!name || !email || !password) {
+      const err = new Error('name, email y password son requeridos');
+      err.statusCode = 400;
+      return next(err);
+    }
 
     const userRepo = em.getRepository('User');
     const existingUser = await userRepo.findOne({ email });
@@ -56,17 +66,22 @@ const register = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const now = new Date();
     const user = userRepo.create({
+      name,
       email,
       password: hashedPassword,
       role: role || 'user',
       createdAt: now,
       updatedAt: now,
     });
+
     await em.persistAndFlush(user);
 
-    return res.status(201).json({ message: 'Usuario creado', user: { email: user.email, role: user.role, id: user.id } });
+    return res.status(201).json({
+      message: 'Usuario creado',
+      user: { email: user.email, role: user.role, id: user.id, name: user.name },
+    });
   } catch (err) {
-    console.error('Error en register:', err);
+    console.error('Error en register: ', err);
     err.statusCode = err.statusCode || 500;
     next(err);
   }
