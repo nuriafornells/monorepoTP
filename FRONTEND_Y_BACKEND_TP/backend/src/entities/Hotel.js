@@ -7,22 +7,16 @@ module.exports = new EntitySchema({
     id: { type: 'number', primary: true, autoincrement: true },
     nombre: { type: 'string', length: 255 },
     ubicacion: { type: 'string', length: 255 },
-    categoria: { type: 'string', nullable: true },
-
     destino: {
       kind: 'm:1',
       entity: () => require('./Destino'),
       inversedBy: 'hoteles',
       nullable: true,
     },
-
     paquetes: {
       kind: '1:m',
       entity: () => require('./Paquete'),
       mappedBy: 'hotel',
     },
-
-    createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
-    updatedAt: { type: 'date', fieldName: 'updatedAt', nullable: true },
   },
 });
