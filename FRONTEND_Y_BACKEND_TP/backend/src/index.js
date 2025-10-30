@@ -10,9 +10,9 @@ const adminRoutes = require('./routes/adminRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const destinosRoutes = require('./routes/destinos.routes');
 const hotelsRoutes = require('./routes/hotels.routes');
-const { initORM } = require('./config/orm');
 const usersRoutes = require('./routes/users.routes');
-
+const imagesRoutes = require('./routes/imagesRoutes'); // ✅ nueva ruta para listar imágenes
+const { initORM } = require('./config/orm');
 
 const app = express();
 
@@ -48,7 +48,7 @@ const PORT = process.env.PORT || 3001;
     app.use('/api/reservations', reservationRoutes);
     app.use('/api/destinos', destinosRoutes);
     app.use('/api/users', usersRoutes);
-    
+    app.use('/api/images', imagesRoutes); // ✅ endpoint para listar imágenes
 
     // handler de errores después de montar rutas
     app.use(errorHandler);
