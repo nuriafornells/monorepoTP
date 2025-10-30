@@ -11,7 +11,7 @@ const User = require('../entities/User');
     const now = new Date();
 
     // ADMIN
-    const adminEmail = 'dmin@admin.com';
+    const adminEmail = 'admin@admin.com';
     const adminExists = await em.findOne(User, { email: adminEmail });
 
     if (!adminExists) {
@@ -30,7 +30,7 @@ const User = require('../entities/User');
     }
 
     // CLIENTE
-    const clientEmail = 'ser@user.com';
+    const clientEmail = 'user@user.com';
     const clientExists = await em.findOne(User, { email: clientEmail });
 
     if (!clientExists) {
