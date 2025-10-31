@@ -18,3 +18,4 @@ const verifyAdmin = async (req, res, next) => {
 };
 
 module.exports = verifyAdmin;
+// Middleware para verificar que el usuario autenticado tiene rol de admin antes de permitir acceso a rutas protegidas.

@@ -11,3 +11,5 @@ export type TravelContextType = {
 };
 
 export const TravelContext = createContext<TravelContextType | undefined>(undefined);
+// Contexto de viaje que maneja paquetes turísticos y reservas realizadas por el usuario
+// Proporciona el estado y las funciones para actualizar paquetes y reservas

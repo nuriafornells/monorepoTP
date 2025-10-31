@@ -27,3 +27,4 @@ router.patch('/:id/publicar', togglePublish);
 router.delete('/:id', deletePackage);
 
 module.exports = router;
+// Router para manejar rutas relacionadas con paquetes turísticos, incluyendo operaciones CRUD y publicación, con protección de rutas mediante verifyToken

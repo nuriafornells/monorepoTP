@@ -32,5 +32,5 @@ const PackageList = () => {
     </div>
   );
 };
-
+// Componente funcional de React que muestra una lista de paquetes turísticos disponibles
 export default PackageList;

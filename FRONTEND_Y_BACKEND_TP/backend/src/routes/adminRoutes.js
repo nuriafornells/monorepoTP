@@ -33,3 +33,4 @@ router.get("/paquetes", (req, res) => {
 });
 
 module.exports = router;
+// Router para manejar rutas administrativas, protegiendo todas las rutas con verifyToken y verificando rol admin

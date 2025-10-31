@@ -12,7 +12,7 @@ module.exports = new EntitySchema({
     reservations: {
       kind: '1:m',
       entity: () => require('./Reservation'),
-      mappedBy: 'user',
+      mappedBy: 'user', // relacion bidireccional, user tiene muchas reservas
     },
     createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },
     updatedAt: { type: 'date', fieldName: 'updatedAt', nullable: true },

@@ -10,13 +10,13 @@ module.exports = new EntitySchema({
     destino: {
       kind: 'm:1',
       entity: () => require('./Destino'),
-      inversedBy: 'hoteles',
+      inversedBy: 'hoteles', // relacion bidireccional, destino tiene muchos hoteles
       nullable: true,
     },
     paquetes: {
       kind: '1:m',
       entity: () => require('./Paquete'),
-      mappedBy: 'hotel',
+      mappedBy: 'hotel', // relacion bidireccional, hotel tiene muchos paquetes
     },
   },
 });

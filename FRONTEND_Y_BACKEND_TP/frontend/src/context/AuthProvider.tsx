@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import type { AuthContextType, AuthUser } from "./AuthContext";
 import type { ReactNode } from "react";
-import api from "../api"; // 👈 importante
-
+import api from "../api"; 
+// Proveedor de contexto de autenticación que maneja el estado del usuario, rol y token
+//sirve para envolver la aplicación y proporcionar el contexto a los componentes hijos
 type Role = AuthContextType["role"];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

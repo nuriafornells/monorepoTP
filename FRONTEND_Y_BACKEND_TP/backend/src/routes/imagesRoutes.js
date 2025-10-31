@@ -16,3 +16,4 @@ router.get('/', (req, res) => {
 });
 
 module.exports = router;
+// Router para manejar rutas relacionadas con imágenes, incluyendo listado de todas las imágenes disponibles

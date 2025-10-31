@@ -1,4 +1,6 @@
 // src/controllers/authController.js
+//UN CONTROLLER SIRVE PARA GESTIONAR LA LÓGICA DE NEGOCIO DE LAS RUTAS DE AUTENTICACIÓN
+//authController maneja el inicio de sesión y el registro de usuarios, incluyendo la verificación de credenciales y la generación de tokens JWT.
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 

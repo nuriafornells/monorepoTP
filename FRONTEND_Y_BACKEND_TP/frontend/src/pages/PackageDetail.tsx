@@ -43,7 +43,6 @@ export default function PackageDetail() {
       <ul style={{ fontSize: "1.1rem", lineHeight: 1.6, marginBottom: 16 }}>
         <li><strong>Duración:</strong> {paquete.duracion} días</li>
         <li><strong>Hotel:</strong> {paquete.hotel?.nombre} ({paquete.hotel?.ubicacion})</li>
-        <li><strong>Categoría:</strong> {paquete.hotel?.categoria}</li>
         <li><strong>Destino:</strong> {paquete.destino?.nombre}</li>
       </ul>
 

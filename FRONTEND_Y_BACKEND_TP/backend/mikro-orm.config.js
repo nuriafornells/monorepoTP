@@ -24,4 +24,4 @@ module.exports = defineConfig({
     path: './migrations',
   },
 });
-// Configuración de MikroORM para la conexión a la base de datos MySQL,
+// Configuración de MikroORM para la conexión a la base de datos MySQL

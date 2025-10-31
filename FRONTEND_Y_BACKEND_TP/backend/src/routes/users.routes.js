@@ -15,3 +15,4 @@ router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 
 module.exports = router;
+// Router para manejar rutas relacionadas con usuarios, incluyendo creación, obtención, actualización y eliminación, con protección de rutas mediante verifyToken

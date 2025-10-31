@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Paquete } from "../types";
 
+
 type Props = { item: Paquete };
 
 export default function PackageCard({ item }: Props) {
@@ -12,12 +13,13 @@ export default function PackageCard({ item }: Props) {
           alt={item.nombre}
           style={{
             width: "100%",
-            height: "160px", // ✅ más equilibrado para cards de 350px
+            height: "160px", //  más equilibrado para cards de 350px
             objectFit: "cover",
             borderRadius: "8px 8px 0 0",
           }}
         />
       )}
+
 
       <div className="card-body" style={{ padding: "1em" }}>
         <div
@@ -64,4 +66,4 @@ export default function PackageCard({ item }: Props) {
       </div>
     </div>
   );
-}
+} // Componente funcional de React que muestra la información básica de un paquete turístico

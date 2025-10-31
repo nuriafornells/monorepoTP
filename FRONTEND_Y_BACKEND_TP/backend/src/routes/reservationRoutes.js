@@ -14,3 +14,4 @@ router.get("/user/:id", verifyToken, getReservationsByUser); // ✅ NUEVA RUTA
 router.patch("/:id/status", verifyToken, updateReservationStatus);
 
 module.exports = router;
+// Router para manejar rutas relacionadas con reservas, incluyendo creación, listado y actualización de estado, con protección mediante verifyToken

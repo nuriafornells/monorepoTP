@@ -1,4 +1,5 @@
 // src/components/Navbar.tsx
+// Barra de navegación que adapta sus enlaces según el rol del usuario (invitado, usuario, admin)
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -9,10 +10,11 @@ export default function Navbar() {
 
   if (isLoading) return null;
 
-  // Ocultar navbar en login y admin login
+  // Ocultar navbar 
   const hiddenRoutes = ["/login", "/admin"];
   if (hiddenRoutes.includes(location.pathname)) return null;
 
+ 
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -36,7 +38,8 @@ export default function Navbar() {
               <NavLink to="/admin/dashboard/reservas">Reservas</NavLink>
               <NavLink to="/admin/dashboard/users">Usuarios</NavLink>
             </>
-          )}
+          )} 
+          
 
           {role === "user" && <NavLink to="/mis-reservas">Mis reservas</NavLink>}
 

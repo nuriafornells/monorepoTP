@@ -1,4 +1,6 @@
 // src/context/AuthContext.tsx
+// Contexto de autenticación para manejar el estado del usuario, rol y token
+// Proporciona funciones para iniciar y cerrar sesión, así como para actualizar el estado
 import { createContext, useContext } from 'react';
 
 export type Role = 'admin' | 'user' | null;
@@ -18,7 +20,7 @@ export interface AuthContextType {
   setUser: (user: AuthUser | null) => void;
   setRole: (role: Role) => void;
   setToken: (token: string | null) => void;
-}
+} // Definición del tipo de contexto de autenticación
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 

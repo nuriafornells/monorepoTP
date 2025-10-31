@@ -40,3 +40,5 @@ const verifyToken = async (req, res, next) => {
 };
 
 module.exports = verifyToken;
+// Middleware para verificar y decodificar tokens JWT en solicitudes entrantes,
+// permitiendo acceso a rutas públicas sin token y adjuntando info del usuario autenticado a la request.

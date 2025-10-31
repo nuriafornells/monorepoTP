@@ -1,6 +1,9 @@
 import React, { useContext } from 'react';
 import { TravelContext } from '../context/TravelContext';
 import type { Reservation } from '../types';
+// Componente funcional de React que muestra una lista de reservas realizadas por el usuario
+// Utiliza el contexto TravelContext para obtener las reservas
+
 
 // helper seguro para fechas
 function formatMaybeDate(date?: string | null): string {
@@ -19,7 +22,7 @@ const ReservationList: React.FC = () => {
       <h2>Reservas</h2>
       {reservations.length === 0 ? (
         <p>No hay reservas registradas.</p>
-      ) : (
+      ) : ( // Mostrar lista de reservas
         <ul>
           {reservations.map((r: Reservation) => {
             const destinoNombre = r.paquete?.hotel?.destino?.nombre ?? 'Destino no disponible';
@@ -48,6 +51,6 @@ const ReservationList: React.FC = () => {
       )}
     </div>
   );
-};
+}; 
 
 export default ReservationList;

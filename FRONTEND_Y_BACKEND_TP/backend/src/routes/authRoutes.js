@@ -21,3 +21,4 @@ router.get("/me", verifyToken, (req, res) => {
 });
 
 module.exports = router;
+//  para manejar las rutas de autenticación (login, registro y validación de sesión)

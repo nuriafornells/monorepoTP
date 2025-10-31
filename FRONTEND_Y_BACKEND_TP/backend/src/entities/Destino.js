@@ -9,7 +9,8 @@ module.exports = new EntitySchema({
     hoteles: {
       kind: '1:m',
       entity: () => require('./Hotel'),
-      mappedBy: 'destino',
+      mappedBy: 'destino', // relacion bidireccional, destino tiene muchos hoteles
     },
   },
 });
+//entitySchema define la estructura de la entidad Destino en la base de datos, incluyendo sus propiedades y relaciones con otras entidades.

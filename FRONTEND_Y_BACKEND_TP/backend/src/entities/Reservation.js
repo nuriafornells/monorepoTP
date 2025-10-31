@@ -12,13 +12,13 @@ module.exports = new EntitySchema({
     user: {
       kind: 'm:1',
       entity: () => require('./User'),
-      inversedBy: 'reservations',
+      inversedBy: 'reservations', // relacion bidireccional, user tiene muchas reservas
       reference: true,
     },
     paquete: {
       kind: 'm:1',
       entity: () => require('./Paquete'),
-      inversedBy: 'reservations',
+      inversedBy: 'reservations', // relacion bidireccional, paquete tiene muchas reservas
       reference: true,
     },
     createdAt: { type: 'date', fieldName: 'createdAt', nullable: true },

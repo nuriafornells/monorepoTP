@@ -17,3 +17,4 @@ router.get('/hoteles', getHoteles);  // GET /api/destinos/hoteles
 router.post('/hoteles', createHotel);// POST /api/destinos/hoteles
 
 module.exports = router;
+// Router para manejar rutas relacionadas con destinos y hoteles

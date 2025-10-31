@@ -54,3 +54,4 @@ const User = require('../entities/User');
     process.exit(1);
   }
 })();
+// Script para crear usuarios admin y cliente si no existen en la base de datos

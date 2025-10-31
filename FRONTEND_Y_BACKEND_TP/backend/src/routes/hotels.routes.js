@@ -14,3 +14,4 @@ router.get('/all', getAllHotels);
 router.get('/:id', getHotelById);
 
 module.exports = router;
+// Router para manejar rutas relacionadas con hoteles, incluyendo obtención de todos los hoteles, por destino y por ID

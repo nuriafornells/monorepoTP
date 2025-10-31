@@ -1,5 +1,7 @@
 // src/routes/uploadRoutes.js
-
+// Router para manejar rutas de subida de imágenes
+//para subir imágenes al servidor y almacenarlas en la carpeta 'public', utilizando multer para gestionar la carga de archivos
+//no lo usamos tdv, pero está listo para cuando queramos implementar la subida de imágenes desde el frontend
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -15,6 +17,7 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
+//multer es para manejar la subida de archivos, se configura el almacenamiento en la carpeta 'public' con nombres únicos 
 
 const upload = multer({
   storage: storage,
@@ -52,3 +55,4 @@ router.post('/upload', upload.single('image'), (req, res) => {
 });
 
 module.exports = router;
+// Router para manejar rutas de subida de imágenes, utilizando multer para gestionar la carga y almacenamiento de archivos en el servidor.

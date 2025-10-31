@@ -2,6 +2,11 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { useAuth } from "../context/AuthContext";
 import api from "../api";
+// Formulario para reservar un paquete turístico específico
+// Recibe el ID del paquete como prop
+// Utiliza un selector de rango de fechas y un campo para la cantidad de personas
+// Envía la reserva al backend autenticado con el token del usuario
+// Muestra mensajes de éxito o error según la respuesta del servidor
 
 type Props = {
   packageId: number;
@@ -14,6 +19,7 @@ export default function ReservationForm({ packageId }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+// Estados para manejar el formulario de reserva
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +48,7 @@ export default function ReservationForm({ packageId }: Props) {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-          },
+          }, // Envío del token en el header para autenticación
         }
       );
 
@@ -56,7 +62,7 @@ export default function ReservationForm({ packageId }: Props) {
     } finally {
       setLoading(false);
     }
-  };
+  };// Manejar envío del formulario de reserva
 
   return (
     <form
@@ -91,13 +97,14 @@ export default function ReservationForm({ packageId }: Props) {
         required
         className="input-field"
       />
+      
 
       {error && <p style={{ color: "red" }}>{error}</p>}
       {success && (
         <p style={{ color: "green" }}>
           Reserva creada con éxito ✅ - En espera de confirmación.
         </p>
-      )}
+      )} 
 
       {/* Solo mostrar el botón si aún no se envió */}
       {!success && (
@@ -108,3 +115,4 @@ export default function ReservationForm({ packageId }: Props) {
     </form>
   );
 }
+// Componente funcional de React que maneja el formulario de reserva de un paquete turístico
