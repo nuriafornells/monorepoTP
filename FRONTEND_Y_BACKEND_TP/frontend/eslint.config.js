@@ -1,3 +1,7 @@
+// frontend/eslint.config.js
+// Configuración de ESLint para el proyecto frontend con TypeScript y React
+//eslint es para analizar código y encontrar problemas de calidad y estilo
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
