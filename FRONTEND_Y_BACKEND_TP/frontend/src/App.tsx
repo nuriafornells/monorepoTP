@@ -18,6 +18,9 @@ import CreateHotel from "./pages/CreateHotel";     // ✅ nuevo
 import CreateClient from "./pages/CreateClient";
 import UsersAdmin from "./pages/UsersAdmin";
 import MyReservations from "./pages/MyReservations"; // ✅ nuevo
+// Archivo principal de la aplicación que configura las rutas
+// Utiliza un enrutador de navegador con rutas públicas y privadas
+// Las rutas privadas están protegidas por el componente PrivateRoute 
 
 const router = createBrowserRouter([
   {
@@ -29,16 +32,16 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: "signup", element: <CreateClient /> }, // ✅ registro de cliente
+      { path: "signup", element: <CreateClient /> }, //  registro de cliente
       {
         element: <PrivateRoute />,
         children: [
           { path: "packages", element: <Packages /> },
           { path: "packages/:id", element: <PackageDetail /> },
           { path: "reserve/:id", element: <Reservation /> },
-          { path: "mis-reservas", element: <MyReservations /> }, // ✅ ahora acá
+          { path: "mis-reservas", element: <MyReservations /> }, //  ahora acá
         ],
-      },
+      }, 
       {
         path: "admin/dashboard",
         element: <PrivateRoute requiredRole="admin" />,
@@ -55,12 +58,12 @@ const router = createBrowserRouter([
       { path: "unauthorized", element: <Unauthorized /> },
     ],
   },
-]);
+]); 
 
 export default function App() {
   return (
     <TravelProvider>
       <RouterProvider router={router} />
     </TravelProvider>
-  );
+  ); // TravelProvider envuelve la app para contexto global. esto permite compartir datos de viajes
 }

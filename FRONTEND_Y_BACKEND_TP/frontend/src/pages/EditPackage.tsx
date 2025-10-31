@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from '../api';
 import type { Paquete, Destino, Hotel } from '../types';
+// Página para crear o editar un paquete turístico
+// En modo edición, carga los datos del paquete existente
+// Permite seleccionar destino, hotel, duración, precio y foto
+// Envía los datos al backend para crear o actualizar el paquete
+// Muestra una vista previa de la imagen seleccionada
 
 type Props = { mode?: 'edit' | 'create' };
 

@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { useAuth } from "../hooks/useAuth";
 import React from "react";
+// Página para que los usuarios vean sus reservas
+// Carga las reservas del usuario desde el backend al montar el componente
+// Muestra una tabla con las reservas y sus estados correspondientes 
 
 type Reservation = {
   id: number;

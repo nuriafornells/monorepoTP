@@ -8,3 +8,5 @@ const Unauthorized = () => {
 };
 
 export default Unauthorized;
+// Página que muestra un mensaje de acceso denegado
+// para usuarios no autorizados

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+// Página de inicio de sesión para administradores
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");

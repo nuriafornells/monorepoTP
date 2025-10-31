@@ -2,6 +2,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api";
+// Página para crear una nueva cuenta de cliente
+// Permite registrar un nuevo usuario enviando los datos al backend
+
 
 export default function CreateClient() {
   const navigate = useNavigate();
@@ -23,7 +26,7 @@ export default function CreateClient() {
       alert("No se pudo crear el usuario. Verifica si el email ya existe.");
     } finally {
       setLoading(false);
-    }
+    }// Manejar envío del formulario de creación de cliente
   }
 
   return (

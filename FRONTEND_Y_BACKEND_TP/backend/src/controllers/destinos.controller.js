@@ -1,3 +1,6 @@
+// backend/src/controllers/destinos.controller.js
+// Controladores para manejar destinos y hoteles
+// ver de unifiicar con hotels.controller.js si es posible
 const getDestinos = async (req, res) => {
   try {
     const destinos = await req.em.find('Destino', {}); // ✅ más simple

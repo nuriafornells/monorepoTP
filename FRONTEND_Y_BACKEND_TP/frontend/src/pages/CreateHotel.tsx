@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import type { Destino } from "../types";
+// Página para crear un nuevo hotel enviando los datos al backend
+// Permite seleccionar el destino al que pertenece el hotel
+// Carga los destinos disponibles al montar el componente
+// Envía los datos del nuevo hotel al backend al enviar el formulario
 
 export default function CreateHotel() {
   const navigate = useNavigate();

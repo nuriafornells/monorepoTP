@@ -1,3 +1,6 @@
+// src/main.tsx
+// Punto de entrada principal de la aplicación React
+// Renderiza el componente App dentro del AuthProvider para manejar la autenticación globalmente
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";

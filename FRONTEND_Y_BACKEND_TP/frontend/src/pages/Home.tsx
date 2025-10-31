@@ -3,7 +3,9 @@ import { useContext } from "react";
 import { TravelContext } from "../context/TravelContext";
 import PackageCard from "../components/PackageCard";
 import { Link } from "react-router-dom";
-
+// Página de inicio que muestra paquetes turísticos destacados
+// Utiliza el contexto de viaje para obtener los paquetes disponibles
+// Filtra y muestra los paquetes publicados en una cuadrícula
 export default function Home() {
   const context = useContext(TravelContext);
 

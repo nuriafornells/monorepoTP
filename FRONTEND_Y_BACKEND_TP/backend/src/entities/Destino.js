@@ -1,4 +1,5 @@
 const { EntitySchema } = require('@mikro-orm/core');
+// Define la entidad Destino con sus propiedades y relaciones
 
 module.exports = new EntitySchema({
   name: 'Destino',

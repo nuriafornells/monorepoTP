@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { useTravel } from "../hooks/useTravel";
 import PackageCard from "../components/PackageCard";
+// Página que muestra todos los paquetes turísticos disponibles
+// estaba duplicado con package list de components. ya lo borre
 
 export default function Packages() {
   const { packages } = useTravel();

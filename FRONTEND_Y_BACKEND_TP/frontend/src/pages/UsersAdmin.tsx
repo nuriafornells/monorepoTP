@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+// Página de administración de usuarios
+// Permite ver, cambiar roles y eliminar usuarios
+// Utiliza la API para interactuar con el backend y actualizar el estado local
+// Muestra una tabla con los usuarios y acciones disponibles
 
 type User = {
   id: number;

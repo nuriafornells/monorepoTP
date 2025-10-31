@@ -1,7 +1,7 @@
 /* src/styles/global.css
-   Versión corregida completa — incluye Navbar + contenedores + breakpoints
-*/
-
+// Estilos globales para la aplicación de frontend
+// Define variables CSS, estilos base, navbar, contenedores, cards, tablas, botones, formularios y utilidades
+// BORRE APP.CSS e INDEX.CSS Y USE ESTE ARCHIVO EN SU LUGAR. 
 
 /* Variables básicas */
 :root {
@@ -283,6 +283,5 @@ h2 {
 }
 
 
-/* End of file */
 
 

@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { useTravel } from "../hooks/useTravel";
 import type { Paquete } from "../types";
 import ReservationForm from "../components/ReservationForm";
+// Página de detalle de un paquete turístico
+//incluye información detallada del paquete y un formulario para reservarlo
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();

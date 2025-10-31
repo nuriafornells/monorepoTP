@@ -1,8 +1,14 @@
 // src/api.ts
+// Archivo de configuración de la instancia Axios para llamadas API
+// Configura la URL base, interceptores para agregar token y manejar errores
+// Utiliza react-toastify para mostrar notificaciones de error
+//token de autenticación en los headers de las solicitudes
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const API_URL = "http://localhost:3001/api";
+
+
 
 const api = axios.create({
   baseURL: API_URL,

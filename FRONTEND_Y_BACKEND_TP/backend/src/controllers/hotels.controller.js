@@ -1,5 +1,5 @@
 // src/controllers/hotels.controller.js
-
+// Controladores para manejar hoteles
 const getAllHotels = async (req, res) => {
   try {
     const repo = req.em.getRepository('Hotel');

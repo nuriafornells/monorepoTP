@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import type { Paquete } from "../types";
+// Página de administración para gestionar paquetes turísticos
+// Permite crear, editar, eliminar y publicar/despublicar paquetes
+// Utiliza la API para interactuar con el backend y actualizar el estado local
+// Muestra una tabla con las acciones disponibles para cada paquete
 
 export default function AdminDashboard() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([]);

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
+// Página para crear un nuevo destino turístico enviando los datos al backend
 
 
 export default function CreateDestino() {
@@ -17,7 +18,7 @@ export default function CreateDestino() {
     } catch (err) {
       console.error("Error al crear destino:", err);
       alert("No se pudo crear el destino");
-    }
+    } 
   };
 
   return (
@@ -28,4 +29,4 @@ export default function CreateDestino() {
       <button className="btn" type="submit">Crear destino</button>
     </form>
   );
-}
+} 

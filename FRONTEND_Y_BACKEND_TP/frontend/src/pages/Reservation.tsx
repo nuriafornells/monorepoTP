@@ -5,6 +5,9 @@ import api from '../api';
 import { useTravel } from '../hooks/useTravel';
 import { AuthContext } from '../context/AuthContext';
 import type { Paquete } from '../types';
+// Página para que los usuarios realicen reservas de paquetes turísticos
+// Muestra un formulario para ingresar detalles de la reserva
+// Envía la reserva al backend y maneja la respuesta
 
 export default function Reservation() {
   const { id } = useParams<{ id: string }>();

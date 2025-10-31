@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
+// Página de administración para gestionar las reservas realizadas por los usuarios
+// Permite filtrar reservas por estado y actualizar su estado (aceptada, rechazada)
+// Utiliza la API para interactuar con el backend y actualizar el estado local
 
 type Reserva = {
   id: number;

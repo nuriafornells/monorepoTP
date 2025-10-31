@@ -2,6 +2,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api";
+// Página de registro de nuevos usuarios
+// Permite crear una cuenta enviando los datos al backend
+// Redirige al login tras un registro exitoso
 
 export default function Register() {
   const navigate = useNavigate();
