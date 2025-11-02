@@ -1,44 +1,42 @@
 // src/components/ImageUpload.tsx
-//TODAVIA NO SE USA
-// Componente para subir y previsualizar imágenes
-// Utiliza la API de subida de imágenes del backend. Recibe una función onImageUploaded para notificar al padre cuando la imagen se ha subido exitosamente
-// y una URL de imagen actual para previsualización inicial si existe.
 import React, { useState } from 'react';
 import api from '../api';
 
 interface ImageUploadProps {
-  onImageUploaded: (url: string) => void;
-  currentImage?: string;
-} // URL de la imagen actual, si existe
+  onImageUploaded: (filename: string) => void; // ahora devolvemos filename
+  currentImage?: string; // puede ser filename (ej: 'abc.jpg') o url
+}
 
 type UploadResponse = {
   message: string;
   filename: string;
   url: string;
-}; // URL completa de la imagen subida
+};
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage }) => {
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(currentImage ?? null);
-// Estado para la vista previa de la imagen
+  const [preview, setPreview] = useState<string | null>(currentImage ? (currentImage.startsWith('http') ? currentImage : `http://localhost:3001/images/${currentImage}`) : null);
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
-// Mostrar vista previa inmediatamente
+
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('image', file);
+      // POST directo al endpoint de subida del backend
       const response = await api.post<UploadResponse>('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        baseURL: 'http://localhost:3001', // upload route is served outside /api
+        baseURL: 'http://localhost:3001', // upload route está fuera de /api
       });
-      // Notificar al padre con la URL de la imagen subida
-      // http://localhost:3001/images/filename
-      onImageUploaded(response.data.url);
+      // Notificar al padre con el filename (coincide con la lista de /api/images)
+      onImageUploaded(response.data.filename);
+      // actualizar preview a la url pública del archivo subido
+      setPreview(response.data.url);
     } catch (error) {
       console.error('Upload failed:', error);
       alert('Upload failed. Please try again.');
@@ -46,7 +44,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
       setUploading(false);
     }
   };
-// Manejar selección de archivo y subirlo al backend
+
   return (
     <div style={{ marginBottom: 15 }}>
       <label>Imagen del paquete:</label>
@@ -60,6 +58,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploaded, currentImage
       )}
     </div>
   );
-}; // Componente funcional de React con props tipadas
+};
 
 export default ImageUpload;

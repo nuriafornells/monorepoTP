@@ -1,53 +1,37 @@
 // src/routes/uploadRoutes.js
-// Router para manejar rutas de subida de imágenes
-//para subir imágenes al servidor y almacenarlas en la carpeta 'public', utilizando multer para gestionar la carga de archivos
-//no lo usamos tdv, pero está listo para cuando queramos implementar la subida de imágenes desde el frontend
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const router = express.Router();
 
-// Configure multer for file upload
+// destino: backend/public (subimos dos niveles desde src/routes)
+const publicDir = path.join(__dirname, '..', '..', 'public');
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/'); // Upload files to public folder
+    cb(null, publicDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
-//multer es para manejar la subida de archivos, se configura el almacenamiento en la carpeta 'public' con nombres únicos 
 
 const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
+    if (file.mimetype && file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Only image files are allowed!'), false);
   },
 });
 
-// Upload endpoint
-router.post('/upload', upload.single('image'), (req, res) => {
+// POST /upload (form field name: 'image')
+router.post('/', upload.single('image'), (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    // Return the URL to access the uploaded file using the /images static mapping
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const fileUrl = `http://localhost:3001/images/${req.file.filename}`;
-
-    res.json({
-      message: 'File uploaded successfully',
-      filename: req.file.filename,
-      url: fileUrl,
-    });
+    res.json({ message: 'File uploaded successfully', filename: req.file.filename, url: fileUrl });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'Upload failed' });
@@ -55,4 +39,3 @@ router.post('/upload', upload.single('image'), (req, res) => {
 });
 
 module.exports = router;
-// Router para manejar rutas de subida de imágenes, utilizando multer para gestionar la carga y almacenamiento de archivos en el servidor.

@@ -13,6 +13,7 @@ const destinosRoutes = require('./routes/destinos.routes');
 const hotelsRoutes = require('./routes/hotels.routes');
 const usersRoutes = require('./routes/users.routes');
 const imagesRoutes = require('./routes/imagesRoutes');
+const uploadRoutes = require('./routes/uploadRoutes'); // <-- aseguramos que esté montado
 const { initORM } = require('./config/orm');
 
 const app = express();
@@ -25,8 +26,11 @@ app.options('*', cors());
 
 app.use(express.json());
 
-// Serve static files from public folder at /images
-app.use('/images', express.static(path.join(__dirname, 'public')));
+
+app.use('/images', express.static(path.join(__dirname, '..', 'public')));
+
+// Mount upload route so frontend can POST to http://localhost:3001/upload
+app.use('/upload', uploadRoutes);
 
 // Health
 app.get('/', (req, res) => res.send('Backend funcionando'));
@@ -49,7 +53,7 @@ const PORT = process.env.PORT || 3001;
     app.use('/api/destinos', destinosRoutes);
     app.use('/api/hoteles', hotelsRoutes);
     app.use('/api/users', usersRoutes);
-    app.use('/api/images', imagesRoutes);
+    app.use('/api/images', imagesRoutes); // listado de imágenes
 
     // handler de errores después de montar rutas
     app.use(errorHandler);
