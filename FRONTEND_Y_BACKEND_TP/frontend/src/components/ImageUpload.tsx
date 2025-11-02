@@ -1,4 +1,5 @@
 // src/components/ImageUpload.tsx
+//TODAVIA NO SE USA
 // Componente para subir y previsualizar imágenes
 // Utiliza la API de subida de imágenes del backend. Recibe una función onImageUploaded para notificar al padre cuando la imagen se ha subido exitosamente
 // y una URL de imagen actual para previsualización inicial si existe.

@@ -1,8 +1,7 @@
 // src/controllers/authController.js
-//UN CONTROLLER SIRVE PARA GESTIONAR LA LÓGICA DE NEGOCIO DE LAS RUTAS DE AUTENTICACIÓN
-//authController maneja el inicio de sesión y el registro de usuarios, incluyendo la verificación de credenciales y la generación de tokens JWT.
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { createUserEntity } = require('../services/user.service');
 
 const login = async (req, res, next) => {
   console.log('Body recibido en login: ', req.body);
@@ -45,43 +44,11 @@ const login = async (req, res, next) => {
 
 const register = async (req, res, next) => {
   console.log('Body recibido en register: ', req.body);
-  const { name, email, password, role } = req.body;
   try {
-    const em = req.em;
-    if (!em) throw new Error('EntityManager no inicializado en la request');
-
-    // Validación clara: ahora name es obligatorio
-    if (!name || !email || !password) {
-      const err = new Error('name, email y password son requeridos');
-      err.statusCode = 400;
-      return next(err);
-    }
-
-    const userRepo = em.getRepository('User');
-    const existingUser = await userRepo.findOne({ email });
-    if (existingUser) {
-      const err = new Error('El usuario ya existe');
-      err.statusCode = 400;
-      return next(err);
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const now = new Date();
-    const user = userRepo.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: role || 'user',
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    await em.persistAndFlush(user);
-
-    return res.status(201).json({
-      message: 'Usuario creado',
-      user: { email: user.email, role: user.role, id: user.id, name: user.name },
-    });
+    const { name, email, password } = req.body;
+    // delegamos validaciones y persistencia al servicio
+    const created = await createUserEntity({ name, email, password, role: 'user' }, req.em);
+    return res.status(201).json({ message: 'Usuario creado', user: created });
   } catch (err) {
     console.error('Error en register: ', err);
     err.statusCode = err.statusCode || 500;

@@ -3,6 +3,7 @@ require('dotenv').config();
 require('reflect-metadata');
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const paquetesRoutes = require('./routes/PaquetesRoutes');
@@ -11,7 +12,7 @@ const reservationRoutes = require('./routes/reservationRoutes');
 const destinosRoutes = require('./routes/destinos.routes');
 const hotelsRoutes = require('./routes/hotels.routes');
 const usersRoutes = require('./routes/users.routes');
-const imagesRoutes = require('./routes/imagesRoutes'); // ✅ nueva ruta para listar imágenes
+const imagesRoutes = require('./routes/imagesRoutes');
 const { initORM } = require('./config/orm');
 
 const app = express();
@@ -25,13 +26,12 @@ app.options('*', cors());
 app.use(express.json());
 
 // Serve static files from public folder at /images
-app.use('/images', express.static('public'));
+app.use('/images', express.static(path.join(__dirname, 'public')));
 
 // Health
 app.get('/', (req, res) => res.send('Backend funcionando'));
 
 const PORT = process.env.PORT || 3001;
-
 (async () => {
   try {
     const orm = await initORM();
@@ -47,8 +47,9 @@ const PORT = process.env.PORT || 3001;
     app.use('/api/admin', adminRoutes);
     app.use('/api/reservations', reservationRoutes);
     app.use('/api/destinos', destinosRoutes);
+    app.use('/api/hoteles', hotelsRoutes);
     app.use('/api/users', usersRoutes);
-    app.use('/api/images', imagesRoutes); // ✅ endpoint para listar imágenes
+    app.use('/api/images', imagesRoutes);
 
     // handler de errores después de montar rutas
     app.use(errorHandler);
@@ -57,7 +58,7 @@ const PORT = process.env.PORT || 3001;
       console.log(`Servidor corriendo en puerto ${PORT}`);
     });
   } catch (error) {
-    console.error('Error al iniciar el servidor:', error);
+    console.error('Error al iniciar el servidor: ', error);
     if (error && error.stack) console.error(error.stack);
     process.exit(1);
   }

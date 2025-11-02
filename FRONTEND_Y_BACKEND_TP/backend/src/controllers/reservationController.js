@@ -1,5 +1,5 @@
-// Función auxiliar para generar instrucciones de pago
-function generarInstrucciones(reserva) {
+
+function generarInstrucciones(reserva) { // Función auxiliar para generar instrucciones de pago
   if (reserva.status !== 'aceptada') return null;
 
   const fechaLimite = new Date(reserva.createdAt);
@@ -18,7 +18,7 @@ function generarInstrucciones(reserva) {
   };
 }
 
-const createReservation = async (req, res) => {
+const createReservation = async (req, res) => { // crea una nueva reserva
   try {
     const { packageId, fechaInicio, fechaFin, userId, cantidadPersonas } = req.body;
 
@@ -40,7 +40,7 @@ const createReservation = async (req, res) => {
       paquete,
       user,
       fechaInicio: fechaInicio ? new Date(fechaInicio) : null,
-      fechaFin: fechaFin ? new Date(fechaFin) : null,
+      fechaFin: fechaFin ? new Date(fechaFin) : null, 
       cantidadPersonas,
       status: 'pendiente',
       createdAt: now,
@@ -56,7 +56,7 @@ const createReservation = async (req, res) => {
   }
 };
 
-const getReservations = async (req, res) => {
+const getReservations = async (req, res) => { // obtiene todas las reservas, o solo las del usuario si no es admin
   try {
     const em = req.em;
     if (!em) return res.status(500).json({ message: 'ORM no inicializado en la request' });
@@ -86,7 +86,7 @@ const getReservations = async (req, res) => {
   }
 };
 
-const updateReservationStatus = async (req, res) => {
+const updateReservationStatus = async (req, res) => { // actualiza el estado de una reserva
   const { id } = req.params;
   const { status } = req.body;
 
@@ -126,7 +126,7 @@ const getReservationsByUser = async (req, res) => {
 
     const reservas = await repo.find(
       { user: userId },
-      { populate: ['paquete', 'paquete.hotel', 'paquete.hotel.destino', 'user'] }
+      { populate: ['paquete', 'paquete.hotel', 'paquete.hotel.destino', 'user'] } //pupulate es para traer las relaciones
     );
 
     const safe = reservas.map((r) => {

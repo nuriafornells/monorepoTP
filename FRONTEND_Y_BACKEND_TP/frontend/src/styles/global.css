@@ -267,12 +267,13 @@ h2 {
   padding: 8px 0;
 }
 
-
-@media (min-width: 640px) {
+/* A partir de pantallas pequeñas, 2 columnas */
+@media (min-width: 640px) { 
   .packages-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
+/* A partir de pantallas grandes, 3 columnas */  
 }
 @media (min-width: 1024px) {
   .packages-grid {

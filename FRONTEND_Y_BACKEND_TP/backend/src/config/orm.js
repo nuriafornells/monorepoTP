@@ -13,4 +13,4 @@ async function initORM() {
 
 module.exports = { initORM };
 
-//mikroORM es un ORM para Node.js y TypeScript que facilita la interacción con bases de datos relacionales y NoSQL.
+//mikroORM es un ORM para Node.js que facilita la interacción con bases de datos relacionales y NoSQL mediante un enfoque orientado a objetos. Proporciona una capa de abstracción sobre la base de datos, permitiendo a los desarrolladores trabajar con entidades y relaciones en lugar de escribir consultas SQL directamente.

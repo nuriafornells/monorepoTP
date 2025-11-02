@@ -1,9 +1,12 @@
 // src/controllers/paquetes.controller.js
+// Controladores para manejar paquetes turísticos
+
 const constructImageURL = (filename) => {
   if (!filename) return null;
   if (typeof filename !== 'string') return null;
   const trimmed = filename.trim();
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  // ruta servida por express.static('/images', path.join(__dirname, '..', 'public'))
   return `http://localhost:3001/images/${trimmed}`;
 };
 

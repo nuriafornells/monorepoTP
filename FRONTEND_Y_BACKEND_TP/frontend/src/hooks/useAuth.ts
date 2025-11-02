@@ -7,4 +7,4 @@ export const useAuth = () => {
     throw new Error("useAuth debe usarse dentro de un AuthProvider");
   }
   return context;
-};
+}; // Hook personalizado para acceder al contexto de autenticación

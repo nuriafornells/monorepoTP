@@ -1,3 +1,5 @@
+// src/routes/adminRoutes.js
+// Router para manejar rutas administrativas, protegiendo todas las rutas con verifyToken y verificando rol admin
 const express = require("express");
 const verifyToken = require("../middlewares/verifyToken");
 

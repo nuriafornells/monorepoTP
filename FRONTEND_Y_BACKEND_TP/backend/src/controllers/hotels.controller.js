@@ -1,5 +1,7 @@
 // src/controllers/hotels.controller.js
 // Controladores para manejar hoteles
+//la funcionalidad de obtener hoteles ya está en destinos.controller.js, ver si unifican o dejan separados
+//la de creAr hotel también está en destinos.controller.js
 const getAllHotels = async (req, res) => {
   try {
     const repo = req.em.getRepository('Hotel');

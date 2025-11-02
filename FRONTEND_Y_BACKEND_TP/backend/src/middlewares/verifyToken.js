@@ -1,5 +1,5 @@
 // src/middlewares/verifyToken.js
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); // biblioteca para manejar JSON Web Tokens (JWT)
 
 const publicRoutes = [
   '/api/auth/login',

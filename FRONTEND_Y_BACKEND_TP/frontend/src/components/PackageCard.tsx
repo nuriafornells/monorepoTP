@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Paquete } from "../types";
-
+// Componente para mostrar la información básica de un paquete turístico
 
 type Props = { item: Paquete };
 
@@ -66,4 +66,4 @@ export default function PackageCard({ item }: Props) {
       </div>
     </div>
   );
-} // Componente funcional de React que muestra la información básica de un paquete turístico
+} // Card con imagen, destino, nombre, descripción corta, precio y botón de detalle

@@ -58,7 +58,7 @@ export default function EditPackage({ mode = 'edit' }: Props) {
 
   // Cargar imágenes disponibles
   useEffect(() => {
-    api.get<{ images: string[] }>('/images')
+    api.get<{images: string[] }>('/images')
       .then(res => setImageList(res.data.images))
       .catch(err => console.error('Error al cargar imágenes:', err));
   }, []);

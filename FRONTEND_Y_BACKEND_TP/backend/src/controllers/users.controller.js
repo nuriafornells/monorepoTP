@@ -1,12 +1,11 @@
 // src/controllers/users.controller.js
 const bcrypt = require('bcrypt');
+const { createUserEntity } = require('../services/user.service');
 
 const getUsers = async (req, res) => {
   try {
     const repo = req.em.getRepository('User');
     const users = await repo.findAll({ populate: ['reservations'] });
-
-    // Por seguridad, no devolver password
     const safe = users.map(u => {
       const plain = u.toJSON ? u.toJSON() : { ...u };
       delete plain.password;
@@ -36,35 +35,15 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
+    // createUser aquí es para uso admin; permití pasar role desde body
     const { name, email, password, role = 'user' } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'name, email y password son requeridos' });
-    }
-
-    const existing = await req.em.findOne('User', { email });
-    if (existing) return res.status(409).json({ error: 'Ya existe un usuario con ese email' });
-
-    const hashed = await bcrypt.hash(password, 10);
-    const now = new Date();
-
-    const user = req.em.create('User', {
-      name,
-      email,
-      password: hashed,
-      role,
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    await req.em.persistAndFlush(user);
-
-    const plain = user.toJSON ? user.toJSON() : { ...user };
-    delete plain.password;
-
-    return res.status(201).json({ user: plain });
+    // delegamos creación al servicio (usa validaciones comunes)
+    const created = await createUserEntity({ name, email, password, role }, req.em);
+    return res.status(201).json({ user: created });
   } catch (error) {
     console.error('Error en createUser : ', error);
-    return res.status(500).json({ error: 'Error al crear usuario' });
+    const status = error.statusCode || 500;
+    return res.status(status).json({ error: error.message || 'Error al crear usuario' });
   }
 };
 
@@ -110,7 +89,6 @@ const deleteUser = async (req, res) => {
     const user = await repo.findOne(req.params.id);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-    // Comprobar reservas asociadas
     const reservas = await req.em.find('Reservation', { user: user.id }, { limit: 1 });
     const force = String(req.query.force || '').toLowerCase() === 'true';
     if (reservas.length > 0 && !force) {
