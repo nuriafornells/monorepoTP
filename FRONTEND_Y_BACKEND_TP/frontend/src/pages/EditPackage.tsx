@@ -1,16 +1,9 @@
 // src/pages/EditPackage.tsx
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import type { Paquete, Destino, Hotel } from "../types";
-import ImageUpload from "../components/ImageUpload";
-
-/**
- * Página para crear o editar un paquete turístico
- * - En modo edición carga el paquete existente
- * - Permite seleccionar destino, hotel, duración, precio y foto
- * - Permite subir una imagen (usa /upload) y actualizar la lista de imágenes
- */
+import ImageUpload, { type ImageUploadHandle } from "../components/ImageUpload";
 
 type Props = { mode?: "edit" | "create" };
 
@@ -23,7 +16,7 @@ type FormState = {
   precio: number | null;
   duracion: number | null;
   publicado?: boolean;
-  fotoURL?: string; // guardamos filename (ej: '12345-archivo.jpg')
+  fotoURL?: string;
 };
 
 export default function EditPackage({ mode = "edit" }: Props) {
@@ -34,6 +27,12 @@ export default function EditPackage({ mode = "edit" }: Props) {
   const [destinos, setDestinos] = useState<Destino[]>([]);
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
   const [imageList, setImageList] = useState<string[]>([]);
+  const [imageMode, setImageMode] = useState<"select" | "upload">("select");
+  const [loadingImages, setLoadingImages] = useState(false);
+
+  // ref al componente ImageUpload (exponer doUpload y hasPending)
+  const uploadRef = useRef<ImageUploadHandle | null>(null);
+  const [pendingNewImage, setPendingNewImage] = useState(false);
 
   // Cargar destinos
   useEffect(() => {
@@ -43,7 +42,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
       .catch((e) => console.error("Error al cargar destinos:", e));
   }, []);
 
-  // Cargar hoteles según destino seleccionado
+  // Cargar hoteles según destino
   useEffect(() => {
     const load = async () => {
       try {
@@ -61,14 +60,17 @@ export default function EditPackage({ mode = "edit" }: Props) {
     load();
   }, [form?.destinoId]);
 
-  // Cargar imágenes disponibles (filenames)
+  // Cargar lista de imágenes (filenames)
   const loadImageList = async () => {
+    setLoadingImages(true);
     try {
       const res = await api.get<{ images: string[] }>("/images");
       setImageList(res.data.images);
     } catch (err) {
       console.error("Error al cargar imágenes:", err);
       setImageList([]);
+    } finally {
+      setLoadingImages(false);
     }
   };
 
@@ -92,7 +94,6 @@ export default function EditPackage({ mode = "edit" }: Props) {
             precio: p.precio ?? null,
             duracion: p.duracion ?? null,
             publicado: p.publicado,
-            // Guardamos filename si la foto está en formato http://.../images/<filename>
             fotoURL: p.fotoURL ? p.fotoURL.replace("http://localhost:3001/images/", "") : "",
           });
         } catch (error) {
@@ -132,39 +133,44 @@ export default function EditPackage({ mode = "edit" }: Props) {
     });
   };
 
-  const handleImageUploaded = async (filename: string) => {
-    // filename es el nombre guardado en backend/public
-    setForm((f) => (f ? { ...f, fotoURL: filename } : f));
-    // recarga la lista para que el select incluya la nueva imagen
-    await loadImageList();
+  const handlePendingChange = (hasPending: boolean) => {
+    setPendingNewImage(hasPending);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (!form) return;
-      if (mode === "edit" && form.id) {
-        await api.put(`/paquetes/${form.id}`, {
-          nombre: form.nombre,
-          descripcion: form.descripcion,
-          destinoId: form.destinoId,
-          hotelId: form.hotelId,
-          precio: form.precio,
-          duracion: form.duracion,
-          fotoURL: form.fotoURL, // enviamos filename o URL; backend acepta filename
-        });
-      } else {
-        await api.post("/paquetes", {
-          nombre: form.nombre,
-          descripcion: form.descripcion,
-          destinoId: form.destinoId,
-          hotelId: form.hotelId,
-          precio: form.precio,
-          duracion: form.duracion,
-          publicado: false,
-          fotoURL: form.fotoURL,
-        });
+
+      let finalFotoFilename = form.fotoURL;
+
+      // Si hay imagen nueva pendiente, subirla antes de guardar el paquete
+      if (pendingNewImage && uploadRef.current?.doUpload) {
+        const res = await uploadRef.current.doUpload();
+        if (res) {
+          finalFotoFilename = res.filename;
+          // recargar lista para mantener sincronía en la UI
+          await loadImageList();
+        }
       }
+
+      const payload = {
+        nombre: form.nombre,
+        descripcion: form.descripcion,
+        destinoId: form.destinoId,
+        hotelId: form.hotelId,
+        precio: form.precio,
+        duracion: form.duracion,
+        fotoURL: finalFotoFilename,
+        publicado: form.publicado,
+      };
+
+      if (mode === "edit" && form.id) {
+        await api.put(`/paquetes/${form.id}`, payload);
+      } else {
+        await api.post("/paquetes", payload);
+      }
+
       navigate("/admin/dashboard");
     } catch (error) {
       console.error("Error al guardar paquete:", error);
@@ -175,7 +181,7 @@ export default function EditPackage({ mode = "edit" }: Props) {
   if (!form) return <p>Cargando formulario ...</p>;
 
   return (
-    <form onSubmit={handleSubmit} className="card" style={{ maxWidth: 600, margin: "0 auto" }}>
+    <form onSubmit={handleSubmit} className="card" style={{ maxWidth: 800, margin: "0 auto" }}>
       <h2>{mode === "edit" ? "Editar paquete" : "Crear nuevo paquete"}</h2>
 
       <label>Nombre</label>
@@ -210,37 +216,65 @@ export default function EditPackage({ mode = "edit" }: Props) {
       <label>Precio (USD)</label>
       <input name="precio" type="number" value={form.precio ?? ""} onChange={handleChange} required />
 
-      <label>Foto</label>
+      <hr style={{ margin: "1rem 0" }} />
 
-      <ImageUpload currentImage={form.fotoURL ?? ""} onImageUploaded={handleImageUploaded} />
+      <label style={{ display: "block", marginBottom: 6 }}>Imagen del paquete</label>
 
-      <select name="fotoURL" value={form.fotoURL ?? ""} onChange={handleChange}>
-        <option value="">Seleccionar imagen...</option>
-        {imageList.map((img) => (
-          <option key={img} value={img}>
-            {img}
-          </option>
-        ))}
-      </select>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <input type="radio" name="imageMode" value="select" checked={imageMode === "select"} onChange={() => setImageMode("select")} />
+          Seleccionar imagen existente
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <input type="radio" name="imageMode" value="upload" checked={imageMode === "upload"} onChange={() => setImageMode("upload")} />
+          Agregar nueva imagen
+        </label>
+        <div style={{ marginLeft: "auto", color: "#666", fontSize: 13 }}>
+          {imageMode === "select" ? "Elige una imagen de la lista" : "Subí una imagen nueva y poné un nombre"}
+        </div>
+      </div>
 
-      {form.fotoURL && (
-        <div style={{ marginTop: 10, marginBottom: 10 }}>
-          <p>Vista previa :</p>
-          <img
-            src={`http://localhost:3001/images/${form.fotoURL}`}
-            alt="Vista previa"
-            style={{ width: 200, height: 120, objectFit: "cover", borderRadius: 4 }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-          <p style={{ fontSize: 12, color: "#666", marginTop: 5 }}>URL: http://localhost:3001/images/{form.fotoURL}</p>
+      {imageMode === "upload" ? (
+        <div style={{ marginBottom: 12 }}>
+          <ImageUpload ref={uploadRef} currentImage={form.fotoURL ?? ""} onCancel={() => { setImageMode("select"); setPendingNewImage(false); }} onPendingChange={handlePendingChange} />
+          <div style={{ fontSize: 13, color: "#666" }}>La imagen se subirá cuando confirmes Guardar paquete</div>
+        </div>
+      ) : (
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: "block", marginBottom: 6 }}>Seleccionar imagen existente</label>
+          {loadingImages ? (
+            <div>Cargando imágenes...</div>
+          ) : (
+            <>
+              <select name="fotoURL" value={form.fotoURL ?? ""} onChange={handleChange} style={{ width: "100%", padding: 8, borderRadius: 6 }}>
+                <option value="">-- Sin imagen --</option>
+                {imageList.map((img) => (
+                  <option key={img} value={img}>
+                    {img}
+                  </option>
+                ))}
+              </select>
+              <div style={{ fontSize: 13, color: "#666", marginTop: 6 }}>
+                Si subiste una imagen nueva, seleccioná "Agregar nueva imagen" y luego confirmar Guardar para que quede disponible.
+              </div>
+            </>
+          )}
         </div>
       )}
 
-      <button className="btn" type="submit">
-        {mode === "edit" ? "Guardar cambios" : "Crear paquete"}
-      </button>
+      {form.fotoURL && (
+        <div style={{ marginTop: 10, marginBottom: 10 }}>
+          <p>Vista previa:</p>
+          <img src={`http://localhost:3001/images/${form.fotoURL}`} alt="Vista previa" style={{ width: 300, height: 170, objectFit: "cover", borderRadius: 6 }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <p style={{ fontSize: 12, color: "#666", marginTop: 6 }}>URL: http://localhost:3001/images/{form.fotoURL}</p>
+        </div>
+      )}
+
+      <div style={{ marginTop: 14 }}>
+        <button className="btn" type="submit">
+          {mode === "edit" ? "Guardar cambios" : "Crear paquete"}
+        </button>
+      </div>
     </form>
   );
 }
