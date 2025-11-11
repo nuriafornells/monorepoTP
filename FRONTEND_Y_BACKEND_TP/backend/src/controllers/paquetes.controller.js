@@ -1,21 +1,23 @@
 // src/controllers/paquetes.controller.js
-// Controladores para manejar paquetes turísticos
+const path = require('path');
 
 const constructImageURL = (filename) => {
   if (!filename) return null;
   if (typeof filename !== 'string') return null;
   const trimmed = filename.trim();
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
-  // ruta servida por express.static('/images', path.join(__dirname, '..', 'public'))
   return `http://localhost:3001/images/${trimmed}`;
 };
 
 const getAllPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquetes = await repo.findAll({ populate: ['hotel', 'hotel.destino'] });
+    const where = req.user?.role === 'admin' ? {} : { publicado: true };
+    const paquetes = await repo.find(where, { populate: ['hotel', 'hotel.destino'] });
     const safe = paquetes.map((p) => {
       const plain = p.toJSON ? p.toJSON() : { ...p };
+      // eliminar campos sensibles si existieran
+      if (plain.password) delete plain.password;
       return { ...plain, destino: plain.hotel?.destino ?? null };
     });
     return res.status(200).json({ paquetes: safe });
@@ -46,7 +48,12 @@ const getPackageById = async (req, res) => {
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
+
     const plain = paquete.toJSON ? paquete.toJSON() : { ...paquete };
+    // si no está publicado y no es admin, no mostrar
+    if (!plain.publicado && req.user?.role !== 'admin') {
+      return res.status(404).json({ error: 'Paquete no encontrado' });
+    }
     const resp = { ...plain, destino: plain.hotel?.destino ?? null };
     return res.status(200).json({ paquete: resp });
   } catch (error) {
@@ -186,4 +193,5 @@ module.exports = {
   updatePackage,
   togglePublish,
   deletePackage,
+  constructImageURL,
 };

@@ -1,23 +1,23 @@
 // src/routes/users.routes.js
 const express = require('express');
-const { getUsers, getUserById, createUser, updateUser, deleteUser } = require('../controllers/users.controller');
-const verifyToken = require('../middlewares/verifyToken');
-const verifyAdmin = require('../middlewares/verifyAdmin');
+const { verifyToken, verifyAdmin } = require('../middlewares/auth');
+const usersCtrl = require('../controllers/users.controller');
 
 const router = express.Router();
 
-// Crear cliente/usuario (publico para registro desde admin?)
-// Si querés que el registro público pase por /auth/register, podés eliminar este POST público.
-// Aquí lo dejamos como admin-only create; si querés público, mover register a auth.
-router.post('/', createUser);
+// GET /api/users -> admin only
+router.get('/', verifyToken, verifyAdmin, usersCtrl.getUsers);
 
-// Protegemos las siguientes rutas: requiere token y admin
-router.use(verifyToken);
-router.use(verifyAdmin);
+// GET /api/users/:id -> admin or same user
+router.get('/:id', verifyToken, usersCtrl.getUserById);
 
-router.get('/', getUsers);
-router.get('/:id', getUserById);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+// POST /api/users -> create user (registro) - público
+router.post('/', usersCtrl.createUser);
+
+// PUT /api/users/:id -> admin or same user
+router.put('/:id', verifyToken, usersCtrl.updateUser);
+
+// DELETE /api/users/:id -> admin only
+router.delete('/:id', verifyToken, verifyAdmin, usersCtrl.deleteUser);
 
 module.exports = router;
