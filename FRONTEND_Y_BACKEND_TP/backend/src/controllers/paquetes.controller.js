@@ -1,40 +1,42 @@
 // src/controllers/paquetes.controller.js
 const path = require('path');
 
-const constructImageURL = (filename) => {
+function constructImageURL(filename) {
   if (!filename) return null;
   if (typeof filename !== 'string') return null;
   const trimmed = filename.trim();
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
   return `http://localhost:3001/images/${trimmed}`;
-};
+}
 
 const getAllPackages = async (req, res) => {
   try {
+    const role = req.user?.role ? String(req.user.role).toLowerCase() : null;
+    const where = role === 'admin' ? {} : { publicado: true };
     const repo = req.em.getRepository('Paquete');
-    const where = req.user?.role === 'admin' ? {} : { publicado: true };
     const paquetes = await repo.find(where, { populate: ['hotel', 'hotel.destino'] });
-    const safe = paquetes.map((p) => {
+    const safe = paquetes.map(p => {
       const plain = p.toJSON ? p.toJSON() : { ...p };
-      // eliminar campos sensibles si existieran
-      if (plain.password) delete plain.password;
       return { ...plain, destino: plain.hotel?.destino ?? null };
     });
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
-    console.error('Error en getAllPackages : ', error);
+    console.error('Error en getAllPackages:', error);
     return res.status(500).json({ error: 'Error al obtener paquetes' });
   }
 };
+  
 
 const getPublishedPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
     const paquetes = await repo.find({ publicado: true }, { populate: ['hotel', 'hotel.destino'] });
+
     const safe = paquetes.map((p) => {
       const plain = p.toJSON ? p.toJSON() : { ...p };
       return { ...plain, destino: plain.hotel?.destino ?? null };
     });
+
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
     console.error('Error en getPublishedPackages: ', error);
@@ -50,10 +52,10 @@ const getPackageById = async (req, res) => {
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
 
     const plain = paquete.toJSON ? paquete.toJSON() : { ...paquete };
-    // si no está publicado y no es admin, no mostrar
     if (!plain.publicado && req.user?.role !== 'admin') {
       return res.status(404).json({ error: 'Paquete no encontrado' });
     }
+
     const resp = { ...plain, destino: plain.hotel?.destino ?? null };
     return res.status(200).json({ paquete: resp });
   } catch (error) {
@@ -76,6 +78,7 @@ const createPackage = async (req, res) => {
     const repo = em.getRepository('Paquete');
     const now = new Date();
     const fullImageURL = constructImageURL(fotoURL);
+
     const paquete = repo.create({
       nombre,
       precio,
@@ -139,20 +142,20 @@ const togglePublish = async (req, res) => {
   const { id } = req.params;
   try {
     const repo = req.em.getRepository('Paquete');
-    const paquete = await repo.findOne(id);
+    const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
 
-    paquete.publicado = !paquete.publicado;
+    // Invertir el estado actual
+    paquete.publicado = !Boolean(paquete.publicado);
     paquete.updatedAt = new Date();
 
     await req.em.persistAndFlush(paquete);
 
-    const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
-    const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
+    const plain = paquete.toJSON ? paquete.toJSON() : { ...paquete };
     const resp = { ...plain, destino: plain.hotel?.destino ?? null };
     return res.status(200).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en togglePublish: ', error);
+    console.error('Error en togglePublish:', error);
     return res.status(500).json({ error: 'Error al cambiar estado de publicación' });
   }
 };

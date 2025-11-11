@@ -1,42 +1,33 @@
-// src/pages/AdminDashboard.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import type { Paquete } from "../types";
-// Página de administración para gestionar paquetes turísticos
-// Permite crear, editar, eliminar y publicar/despublicar paquetes
-// Utiliza la API para interactuar con el backend y actualizar el estado local
-// Muestra una tabla con las acciones disponibles para cada paquete
 
 export default function AdminDashboard() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPaquetes = async () => {
-      try {
-        const res = await api.get<{ paquetes: Paquete[] }>("/paquetes");
-        setPaquetes(res.data.paquetes);
-      } catch (error) {
-        console.error("Error al traer paquetes:", error);
-      }
-    };
-    fetchPaquetes();
-  }, []);
+  const fetchPaquetes = async () => {
+    try {
+      const role = localStorage.getItem("role");
+      const endpoint = role === "admin" ? "/paquetes" : "/paquetes/published";
 
+      const res = await api.get<{ paquetes: Paquete[] }>(endpoint);
+      setPaquetes(res.data.paquetes);
+    } catch (error) {
+      console.error("Error al traer paquetes:", error);
+    }
+  };
+  fetchPaquetes();
+}, []);
   const handleEliminar = async (id: number) => {
     try {
       await api.delete(`/paquetes/${id}`);
       setPaquetes((prev) => prev.filter((p) => p.id !== id));
-    } catch (error: unknown) {
-      const status =
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        typeof (error as { response?: { status?: number } }).response?.status ===
-          "number"
-          ? (error as { response: { status: number } }).response.status
-          : null;
+    } catch (error) {
+      const axiosError = error as { response?: { status?: number } };
+      const status = axiosError.response?.status ?? null;
 
       if (status === 409) {
         const ok = confirm(
@@ -46,7 +37,7 @@ export default function AdminDashboard() {
           try {
             await api.delete(`/paquetes/${id}?force=true`);
             setPaquetes((prev) => prev.filter((p) => p.id !== id));
-          } catch (error2: unknown) {
+          } catch (error2) {
             console.error("Error al forzar eliminación del paquete:", error2);
             alert("No se pudo forzar la eliminación.");
           }
@@ -60,9 +51,7 @@ export default function AdminDashboard() {
 
   const handleTogglePublicacion = async (id: number) => {
     try {
-      const res = await api.patch<{ paquete: Paquete }>(
-        `/paquetes/${id}/publicar`
-      );
+      const res = await api.patch<{ paquete: Paquete }>(`/paquetes/${id}/publish`);
       const nuevo = res.data.paquete;
       setPaquetes((prev) => prev.map((p) => (p.id === id ? nuevo : p)));
     } catch (error) {

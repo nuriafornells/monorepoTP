@@ -1,6 +1,6 @@
 // src/controllers/reservationController.js
 const generarInstrucciones = (reserva) => {
-  if (reserva.status !== 'aceptada') return null;
+  if (!reserva || reserva.status !== 'aceptada') return null;
   const fechaLimite = new Date(reserva.createdAt);
   fechaLimite.setHours(fechaLimite.getHours() + 48);
   return {
@@ -26,7 +26,6 @@ const createReservation = async (req, res) => {
     const em = req.em;
     if (!em) return res.status(500).json({ message: 'ORM no inicializado en la request' });
 
-    // si no es admin, forzamos userId al del token
     const userId = req.user?.role === 'admin' ? Number(bodyUserId || req.user.id) : Number(req.user?.id);
     if (!userId) return res.status(400).json({ message: 'userId inválido' });
 
@@ -89,7 +88,8 @@ const getReservations = async (req, res) => {
 const updateReservationStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  if (!['pendiente', 'aceptada', 'rechazada'].includes(status)) {
+  const allowed = ['pendiente', 'aceptada', 'rechazada'];
+  if (!allowed.includes(status)) {
     return res.status(400).json({ error: 'Estado inválido' });
   }
   try {
@@ -120,7 +120,6 @@ const getReservationsByUser = async (req, res) => {
     const userId = Number(req.params.id);
     if (!userId) return res.status(400).json({ message: 'Falta userId' });
 
-    // si no es admin y pide otro userId, denegar
     if (req.user?.role !== 'admin' && Number(req.user?.id) !== userId) {
       return res.status(403).json({ message: 'Acceso denegado' });
     }
