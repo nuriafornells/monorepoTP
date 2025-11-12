@@ -6,6 +6,10 @@ function verifyToken(req, res, next) {
   if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Token requerido' });
   const token = auth.split(' ')[1];
   try {
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET no definido');
+      return res.status(500).json({ error: 'Configuración del servidor incompleta' });
+    }
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = { id: payload.id, role: payload.role ? String(payload.role).toLowerCase() : null };
     return next();
@@ -26,6 +30,10 @@ function optionalAuth(req, res, next) {
   if (!auth || !auth.startsWith('Bearer ')) return next();
   const token = auth.split(' ')[1];
   try {
+    if (!process.env.JWT_SECRET) {
+      console.warn('[optionalAuth] JWT_SECRET no definido');
+      return next();
+    }
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = { id: payload.id, role: payload.role ? String(payload.role).toLowerCase() : null };
   } catch (err) {

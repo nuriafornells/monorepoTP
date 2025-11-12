@@ -3,6 +3,7 @@ const express = require('express');
 const paquetesCtrl = require('../controllers/paquetes.controller');
 const { verifyToken, verifyAdmin, optionalAuth } = require('../middlewares/auth');
 const { packageCreateRules, handleValidation } = require('../middlewares/validators');
+const { sanitizeFields } = require('../middlewares/sanitizers');
 
 const router = express.Router();
 
@@ -16,10 +17,26 @@ router.get('/published', paquetesCtrl.getPublishedPackages);
 router.get('/:id', optionalAuth, paquetesCtrl.getPackageById);
 
 // Crear paquete: solo admin
-router.post('/', verifyToken, verifyAdmin, packageCreateRules, handleValidation, paquetesCtrl.createPackage);
+router.post(
+  '/',
+  verifyToken,
+  verifyAdmin,
+  packageCreateRules,
+  handleValidation,
+  sanitizeFields(['nombre', 'descripcion', 'fotoURL']),
+  paquetesCtrl.createPackage
+);
 
 // Actualizar paquete: solo admin
-router.put('/:id', verifyToken, verifyAdmin, packageCreateRules, handleValidation, paquetesCtrl.updatePackage);
+router.put(
+  '/:id',
+  verifyToken,
+  verifyAdmin,
+  packageCreateRules,
+  handleValidation,
+  sanitizeFields(['nombre', 'descripcion', 'fotoURL']),
+  paquetesCtrl.updatePackage
+);
 
 // Toggle publicar/despublicar: solo admin
 router.patch('/:id/publish', verifyToken, verifyAdmin, paquetesCtrl.togglePublish);

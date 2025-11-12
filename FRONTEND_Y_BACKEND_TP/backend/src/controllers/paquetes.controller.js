@@ -1,6 +1,11 @@
 // src/controllers/paquetes.controller.js
 const path = require('path');
+const sanitizeHtml = require('sanitize-html');
+const { logger } = require('../middlewares/logger');
 
+/**
+ * Construye URL completa de la imagen a partir del filename recibido.
+ */
 function constructImageURL(filename) {
   if (!filename) return null;
   if (typeof filename !== 'string') return null;
@@ -9,24 +14,58 @@ function constructImageURL(filename) {
   return `http://localhost:3001/images/${trimmed}`;
 }
 
+/**
+ * getAllPackages
+ * - Si el request viene de un admin devuelve más campos (gestión).
+ * - Si es usuario público devuelve solo paquetes publicados y campos públicos.
+ */
 const getAllPackages = async (req, res) => {
   try {
     const role = req.user?.role ? String(req.user.role).toLowerCase() : null;
     const where = role === 'admin' ? {} : { publicado: true };
     const repo = req.em.getRepository('Paquete');
+
     const paquetes = await repo.find(where, { populate: ['hotel', 'hotel.destino'] });
-    const safe = paquetes.map(p => {
+
+    const safe = paquetes.map((p) => {
       const plain = p.toJSON ? p.toJSON() : { ...p };
-      return { ...plain, destino: plain.hotel?.destino ?? null };
+
+      // Campos públicos mínimos
+      const publicView = {
+        id: plain.id,
+        nombre: plain.nombre,
+        precio: plain.precio,
+        duracion: plain.duracion ?? null,
+        fotoURL: plain.fotoURL ?? null,
+        destino: plain.hotel?.destino?.nombre ?? null,
+        publicado: Boolean(plain.publicado),
+      };
+
+      // Si es admin devolvemos más detalles (sin exponer reservas completas)
+      if (role === 'admin') {
+        return {
+          ...publicView,
+          descripcion: plain.descripcion ?? null,
+          hotel: plain.hotel ? { id: plain.hotel.id, nombre: plain.hotel.nombre, ubicacion: plain.hotel.ubicacion } : null,
+          createdAt: plain.createdAt ?? null,
+          updatedAt: plain.updatedAt ?? null,
+        };
+      }
+
+      return publicView;
     });
+
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
-    console.error('Error en getAllPackages:', error);
+    logger.error('Error en getAllPackages:', { error: error?.stack || error });
     return res.status(500).json({ error: 'Error al obtener paquetes' });
   }
 };
-  
 
+/**
+ * getPublishedPackages
+ * - Endpoint público: devuelve solo campos públicos mínimos.
+ */
 const getPublishedPackages = async (req, res) => {
   try {
     const repo = req.em.getRepository('Paquete');
@@ -34,16 +73,28 @@ const getPublishedPackages = async (req, res) => {
 
     const safe = paquetes.map((p) => {
       const plain = p.toJSON ? p.toJSON() : { ...p };
-      return { ...plain, destino: plain.hotel?.destino ?? null };
+      return {
+        id: plain.id,
+        nombre: plain.nombre,
+        precio: plain.precio,
+        duracion: plain.duracion ?? null,
+        fotoURL: plain.fotoURL ?? null,
+        destino: plain.hotel?.destino?.nombre ?? null,
+      };
     });
 
     return res.status(200).json({ paquetes: safe });
   } catch (error) {
-    console.error('Error en getPublishedPackages: ', error);
+    logger.error('Error en getPublishedPackages:', { error: error?.stack || error });
     return res.status(500).json({ error: 'Error al obtener paquetes publicados' });
   }
 };
 
+/**
+ * getPackageById
+ * - Admin ve cualquier paquete; usuario solo paquetes publicados.
+ * - Devuelve vista segura del paquete.
+ */
 const getPackageById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -56,17 +107,38 @@ const getPackageById = async (req, res) => {
       return res.status(404).json({ error: 'Paquete no encontrado' });
     }
 
-    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
+    const resp = {
+      id: plain.id,
+      nombre: plain.nombre,
+      precio: plain.precio,
+      duracion: plain.duracion ?? null,
+      descripcion: plain.descripcion ?? null,
+      fotoURL: plain.fotoURL ?? null,
+      publicado: Boolean(plain.publicado),
+      destino: plain.hotel?.destino?.nombre ?? null,
+      hotel: plain.hotel ? { id: plain.hotel.id, nombre: plain.hotel.nombre, ubicacion: plain.hotel.ubicacion } : null,
+      createdAt: plain.createdAt ?? null,
+      updatedAt: plain.updatedAt ?? null,
+    };
+
     return res.status(200).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en getPackageById: ', error);
+    logger.error('Error en getPackageById:', { error: error?.stack || error });
     return res.status(500).json({ error: 'Error al obtener paquete por ID' });
   }
 };
 
+/**
+ * createPackage
+ * - Sanitiza strings importantes.
+ * - Valida existencia de hotel (ya lo hacías).
+ * - Usa constructImageURL para foto.
+ */
 const createPackage = async (req, res) => {
-  const { nombre, precio, duracion, hotelId, publicado = false, descripcion, fotoURL } = req.body;
   try {
+    const { nombre, precio, duracion, hotelId, publicado = false, descripcion, fotoURL } = req.body;
+
+    // Validaciones básicas (las reglas de validators.js deberían cubrir esto en la ruta)
     if (!nombre || precio == null || duracion == null || !hotelId) {
       return res.status(400).json({ error: 'nombre, precio, duracion y hotelId son requeridos' });
     }
@@ -77,14 +149,18 @@ const createPackage = async (req, res) => {
 
     const repo = em.getRepository('Paquete');
     const now = new Date();
-    const fullImageURL = constructImageURL(fotoURL);
+    const fullImageURL = constructImageURL(typeof fotoURL === 'string' ? fotoURL.trim() : fotoURL);
+
+    // Sanitizar strings
+    const cleanNombre = sanitizeHtml(String(nombre), { allowedTags: [], allowedAttributes: {} }).trim();
+    const cleanDescripcion = descripcion ? sanitizeHtml(String(descripcion), { allowedTags: [], allowedAttributes: {} }).trim() : null;
 
     const paquete = repo.create({
-      nombre,
-      precio,
-      duracion,
-      descripcion: descripcion ?? null,
-      publicado,
+      nombre: cleanNombre,
+      precio: Number(precio),
+      duracion: Number(duracion),
+      descripcion: cleanDescripcion,
+      publicado: Boolean(publicado),
       fotoURL: fullImageURL,
       hotel,
       createdAt: now,
@@ -95,18 +171,36 @@ const createPackage = async (req, res) => {
 
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
-    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
+    const resp = {
+      id: plain.id,
+      nombre: plain.nombre,
+      precio: plain.precio,
+      duracion: plain.duracion ?? null,
+      descripcion: plain.descripcion ?? null,
+      fotoURL: plain.fotoURL ?? null,
+      publicado: Boolean(plain.publicado),
+      destino: plain.hotel?.destino ?? null,
+      hotel: plain.hotel ? { id: plain.hotel.id, nombre: plain.hotel.nombre, ubicacion: plain.hotel.ubicacion } : null,
+      createdAt: plain.createdAt ?? null,
+      updatedAt: plain.updatedAt ?? null,
+    };
+
     return res.status(201).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en createPackage: ', error);
+    logger.error('Error en createPackage:', { error: error?.stack || error });
     return res.status(500).json({ error: 'Error al crear paquete' });
   }
 };
 
+/**
+ * updatePackage
+ * - Sanitiza y normaliza campos antes de persistir.
+ */
 const updatePackage = async (req, res) => {
   const { id } = req.params;
-  const { nombre, precio, duracion, hotelId, publicado, descripcion, fotoURL } = req.body;
   try {
+    const { nombre, precio, duracion, hotelId, publicado, descripcion, fotoURL } = req.body;
+
     const repo = req.em.getRepository('Paquete');
     const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
@@ -117,12 +211,12 @@ const updatePackage = async (req, res) => {
       paquete.hotel = hotel;
     }
 
-    paquete.nombre = nombre ?? paquete.nombre;
-    paquete.precio = precio ?? paquete.precio;
-    paquete.duracion = duracion ?? paquete.duracion;
-    paquete.descripcion = descripcion ?? paquete.descripcion;
+    if (typeof nombre === 'string') paquete.nombre = sanitizeHtml(nombre, { allowedTags: [], allowedAttributes: {} }).trim();
+    if (precio !== undefined) paquete.precio = Number(precio);
+    if (duracion !== undefined) paquete.duracion = Number(duracion);
+    if (descripcion !== undefined) paquete.descripcion = descripcion ? sanitizeHtml(String(descripcion), { allowedTags: [], allowedAttributes: {} }).trim() : null;
     if (typeof publicado === 'boolean') paquete.publicado = publicado;
-    if (fotoURL !== undefined) paquete.fotoURL = constructImageURL(fotoURL);
+    if (fotoURL !== undefined) paquete.fotoURL = constructImageURL(typeof fotoURL === 'string' ? fotoURL.trim() : fotoURL);
 
     paquete.updatedAt = new Date();
 
@@ -130,14 +224,30 @@ const updatePackage = async (req, res) => {
 
     const paqueteConRel = await repo.findOne(paquete.id, { populate: ['hotel', 'hotel.destino'] });
     const plain = paqueteConRel.toJSON ? paqueteConRel.toJSON() : { ...paqueteConRel };
-    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
+    const resp = {
+      id: plain.id,
+      nombre: plain.nombre,
+      precio: plain.precio,
+      duracion: plain.duracion ?? null,
+      descripcion: plain.descripcion ?? null,
+      fotoURL: plain.fotoURL ?? null,
+      publicado: Boolean(plain.publicado),
+      destino: plain.hotel?.destino ?? null,
+      hotel: plain.hotel ? { id: plain.hotel.id, nombre: plain.hotel.nombre, ubicacion: plain.hotel.ubicacion } : null,
+      createdAt: plain.createdAt ?? null,
+      updatedAt: plain.updatedAt ?? null,
+    };
+
     return res.status(200).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en updatePackage: ', error);
+    logger.error('Error en updatePackage:', { error: error?.stack || error });
     return res.status(500).json({ error: 'Error al actualizar paquete' });
   }
 };
 
+/**
+ * togglePublish
+ */
 const togglePublish = async (req, res) => {
   const { id } = req.params;
   try {
@@ -145,21 +255,30 @@ const togglePublish = async (req, res) => {
     const paquete = await repo.findOne(id, { populate: ['hotel', 'hotel.destino'] });
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
 
-    // Invertir el estado actual
     paquete.publicado = !Boolean(paquete.publicado);
     paquete.updatedAt = new Date();
 
     await req.em.persistAndFlush(paquete);
 
     const plain = paquete.toJSON ? paquete.toJSON() : { ...paquete };
-    const resp = { ...plain, destino: plain.hotel?.destino ?? null };
+    const resp = {
+      id: plain.id,
+      nombre: plain.nombre,
+      publicado: Boolean(plain.publicado),
+      destino: plain.hotel?.destino ?? null,
+      fotoURL: plain.fotoURL ?? null,
+      updatedAt: plain.updatedAt ?? null,
+    };
     return res.status(200).json({ paquete: resp });
   } catch (error) {
-    console.error('Error en togglePublish:', error);
+    logger.error('Error en togglePublish:', { error: error?.stack || error });
     return res.status(500).json({ error: 'Error al cambiar estado de publicación' });
   }
 };
 
+/**
+ * deletePackage
+ */
 const deletePackage = async (req, res) => {
   const { id } = req.params;
   const force = String(req.query.force || '').toLowerCase() === 'true';
@@ -183,7 +302,7 @@ const deletePackage = async (req, res) => {
 
     return res.status(204).send();
   } catch (error) {
-    console.error('Error en deletePackage: ', error);
+    logger.error('Error en deletePackage:', { error: error?.stack || error });
     return res.status(500).json({ error: 'Error al eliminar paquete' });
   }
 };

@@ -1,6 +1,7 @@
 // src/index.js
 require('dotenv').config();
 require('reflect-metadata');
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -16,17 +17,29 @@ const imagesRoutes = require('./routes/imagesRoutes');
 const uploadRoutes = require('./routes/uploadRoutes'); // <-- aseguramos que esté montado
 const { initORM } = require('./config/orm');
 
+const { helmetMiddleware, corsOptions, apiLimiter, loginLimiter } = require('./middlewares/security');
+const { requestLogger } = require('./middlewares/logger');
+
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
-app.options('*', cors());
+// Si estás detrás de un proxy (Heroku, nginx) habilitar trust proxy
+app.set('trust proxy', 1);
 
+// Seguridad básica
+app.use(helmetMiddleware);
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// Body parser
 app.use(express.json());
 
+// Logger de requests
+app.use(requestLogger);
 
+// Limiter global para evitar abuso
+app.use(apiLimiter);
+
+// Static files (imágenes)
 app.use('/images', express.static(path.join(__dirname, '..', 'public')));
 
 // Mount upload route so frontend can POST to http://localhost:3001/upload
@@ -36,6 +49,7 @@ app.use('/upload', uploadRoutes);
 app.get('/', (req, res) => res.send('Backend funcionando'));
 
 const PORT = process.env.PORT || 3001;
+
 (async () => {
   try {
     const orm = await initORM();
@@ -44,6 +58,10 @@ const PORT = process.env.PORT || 3001;
     // attach request-scoped EM
     const ormMiddleware = require('./middlewares/ormMiddleware');
     app.use(ormMiddleware(orm));
+
+    // Aplicar limiter específico para login (se ejecuta antes de authRoutes)
+    // authRoutes probablemente define POST /login, por eso montamos el limiter en la ruta completa
+    app.use('/api/auth/login', loginLimiter);
 
     // rutas montadas bajo /api
     app.use('/api/auth', authRoutes);
