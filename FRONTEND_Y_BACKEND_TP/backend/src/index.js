@@ -39,9 +39,6 @@ app.use(requestLogger);
 // Limiter global para evitar abuso
 app.use(apiLimiter);
 
-// Static files (imágenes)
-app.use('/images', express.static(path.join(__dirname, '..', 'public')));
-
 // Mount upload route so frontend can POST to http://localhost:3001/upload
 app.use('/upload', uploadRoutes);
 
@@ -58,6 +55,15 @@ const PORT = process.env.PORT || 3001;
     // attach request-scoped EM
     const ormMiddleware = require('./middlewares/ormMiddleware');
     app.use(ormMiddleware(orm));
+
+    // Static files (imágenes) with permissive CORS for development
+    app.use('/images', (req, res, next) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.header('Access-Control-Allow-Headers', '*');
+      res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+      next();
+    }, express.static(path.join(__dirname, '..', 'public')));
 
     // Aplicar limiter específico para login (se ejecuta antes de authRoutes)
     // authRoutes probablemente define POST /login, por eso montamos el limiter en la ruta completa

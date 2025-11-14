@@ -76,10 +76,20 @@ const getPublishedPackages = async (req, res) => {
       return {
         id: plain.id,
         nombre: plain.nombre,
+        descripcion: plain.descripcion ?? null,
         precio: plain.precio,
         duracion: plain.duracion ?? null,
-        fotoURL: plain.fotoURL ?? null,
-        destino: plain.hotel?.destino?.nombre ?? null,
+        fotoURL: constructImageURL(plain.fotoURL),
+        destino: plain.hotel?.destino ? {
+          id: plain.hotel.destino.id,
+          nombre: plain.hotel.destino.nombre
+        } : null,
+        hotel: plain.hotel ? {
+          id: plain.hotel.id,
+          nombre: plain.hotel.nombre,
+          ubicacion: plain.hotel.ubicacion ?? null
+        } : null,
+        publicado: true, // Always true since we filter by publicado: true
       };
     });
 
