@@ -63,7 +63,13 @@ export default function PackageDetail() {
           gap: "1rem",
         }}
       >
-        <ReservationForm packageId={paquete.id} />
+        <ReservationForm 
+          packageId={paquete.id} 
+          packageInfo={{
+            nombre: paquete.nombre,
+            precio: paquete.precio
+          }}
+        />
       </div>
 
       {/* Botón volver */}

@@ -4,7 +4,7 @@ export interface Reservation {
   fechaInicio?: string | null;
   fechaFin?: string | null;
   cantidadPersonas: number;
-  status: string;
+  status: string; // 'pendiente', 'aceptada', 'rechazada'
   paquete: Paquete;
   user: { id: number; email: string };
 }

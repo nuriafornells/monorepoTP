@@ -2,6 +2,7 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { useAuth } from "../context/AuthContext";
 import api from "../api";
+import PaymentPopup from "./PaymentPopup";
 // Formulario para reservar un paquete turístico específico
 // Recibe el ID del paquete como prop
 // Utiliza un selector de rango de fechas y un campo para la cantidad de personas
@@ -10,15 +11,21 @@ import api from "../api";
 
 type Props = {
   packageId: number;
+  packageInfo: {
+    nombre: string;
+    precio: number;
+  };
 };
 
-export default function ReservationForm({ packageId }: Props) {
+export default function ReservationForm({ packageId, packageInfo }: Props) {
   const { user, token } = useAuth();
   const [range, setRange] = useState<[Date | null, Date | null]>([null, null]);
   const [cantidad, setCantidad] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+  const [reservationData, setReservationData] = useState<any>(null);
 // Estados para manejar el formulario de reserva
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,39 +39,83 @@ export default function ReservationForm({ packageId }: Props) {
       return;
     }
 
+    // Guardar los datos de la reserva y mostrar popup de pago
+    setReservationData({
+      packageId,
+      userId: user.id,
+      fechaInicio: range[0],
+      fechaFin: range[1],
+      cantidadPersonas: cantidad,
+    });
+    
+    setError(null);
+    setShowPaymentPopup(true);
+  };// Manejar envío del formulario de reserva
+
+  const handlePaymentMethodSelect = async (method: 'mercadopago' | 'presencial') => {
+    if (!reservationData || !user || !token) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      await api.post(
+      // Crear la reserva primero
+      const reservationResponse = await api.post(
         "/reservations",
-        {
-          packageId,
-          userId: user.id,
-          fechaInicio: range[0],
-          fechaFin: range[1],
-          cantidadPersonas: cantidad,
-        },
+        reservationData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-          }, // Envío del token en el header para autenticación
+          },
         }
       );
 
-      setSuccess(true);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
+      const createdReservation = reservationResponse.data.reservation;
+
+      if (method === 'mercadopago') {
+        // Calcular total: precio * cantidad de personas
+        const totalAmount = createdReservation.paquete.precio * cantidad;
+        
+        // Crear preferencia de pago en MercadoPago
+        const paymentResponse = await api.post('/payments/create-preference', {
+          reservationId: createdReservation.id,
+          amount: totalAmount,
+          description: `Reserva: ${createdReservation.paquete.nombre} - ${cantidad} persona(s)`,
+          userEmail: user?.email
+        });
+
+        // Abrir ventana de MercadoPago
+        window.open(paymentResponse.data.initPoint, '_blank');
       } else {
-        setError("Error desconocido");
+        // Para pago presencial, mantener el estado en 'pendiente'
+        console.log('Pago presencial seleccionado - reserva queda pendiente');
       }
+      
+      setSuccess(true);
+      setShowPaymentPopup(false);
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      setError('Error al procesar el pago. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
-  };// Manejar envío del formulario de reserva
+  };
 
   return (
+    <>
+      <PaymentPopup
+        isOpen={showPaymentPopup}
+        onClose={() => setShowPaymentPopup(false)}
+        reservation={{
+          id: 0, // Temporary ID since reservation isn't created yet
+          paquete: {
+            nombre: packageInfo.nombre,
+            precio: packageInfo.precio
+          }
+        }}
+        cantidadPersonas={cantidad}
+        onPaymentMethodSelect={handlePaymentMethodSelect}
+      />
     <form
       onSubmit={handleSubmit}
       style={{
@@ -113,6 +164,7 @@ export default function ReservationForm({ packageId }: Props) {
         </button>
       )}
     </form>
+    </>
   );
 }
 // Componente funcional de React que maneja el formulario de reserva de un paquete turístico

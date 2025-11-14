@@ -15,6 +15,7 @@ const hotelsRoutes = require('./routes/hotels.routes');
 const usersRoutes = require('./routes/users.routes');
 const imagesRoutes = require('./routes/imagesRoutes');
 const uploadRoutes = require('./routes/uploadRoutes'); // <-- aseguramos que esté montado
+const paymentRoutes = require('./routes/payment.routes');
 const { initORM } = require('./config/orm');
 
 const { helmetMiddleware, corsOptions, apiLimiter, loginLimiter } = require('./middlewares/security');
@@ -78,6 +79,7 @@ const PORT = process.env.PORT || 3001;
     app.use('/api/hoteles', hotelsRoutes);
     app.use('/api/users', usersRoutes);
     app.use('/api/images', imagesRoutes); // listado de imágenes
+    app.use('/api/payments', paymentRoutes); // rutas de pago
 
     // handler de errores después de montar rutas
     app.use(errorHandler);
