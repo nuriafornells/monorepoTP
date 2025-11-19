@@ -14,18 +14,22 @@ type Props = {
   packageInfo: {
     nombre: string;
     precio: number;
+    duracion: number;
   };
 };
 
 export default function ReservationForm({ packageId, packageInfo }: Props) {
   const { user, token } = useAuth();
-  const [range, setRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [startDate, setStartDate] = useState<Date | null>(null);
   const [cantidad, setCantidad] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [reservationData, setReservationData] = useState<any>(null);
+
+  // Calculate end date based on start date + package duration
+  const endDate = startDate ? new Date(startDate.getTime() + (packageInfo.duracion - 1) * 24 * 60 * 60 * 1000) : null;
 // Estados para manejar el formulario de reserva
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,35 +38,25 @@ export default function ReservationForm({ packageId, packageInfo }: Props) {
       setError("Debes iniciar sesión para reservar.");
       return;
     }
-    if (!range[0] || !range[1]) {
-      setError("Selecciona un rango de fechas válido.");
+    if (!startDate) {
+      setError("Selecciona una fecha de inicio válida.");
       return;
     }
-
-    // Guardar los datos de la reserva y mostrar popup de pago
-    setReservationData({
-      packageId,
-      userId: user.id,
-      fechaInicio: range[0],
-      fechaFin: range[1],
-      cantidadPersonas: cantidad,
-    });
-    
-    setError(null);
-    setShowPaymentPopup(true);
-  };// Manejar envío del formulario de reserva
-
-  const handlePaymentMethodSelect = async (method: 'mercadopago' | 'presencial') => {
-    if (!reservationData || !user || !token) return;
 
     try {
       setLoading(true);
       setError(null);
 
-      // Crear la reserva primero
+      // Crear la reserva primero con estado 'pendiente'
       const reservationResponse = await api.post(
         "/reservations",
-        reservationData,
+        {
+          packageId,
+          userId: user.id,
+          fechaInicio: startDate,
+          fechaFin: endDate,
+          cantidadPersonas: cantidad,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -70,17 +64,34 @@ export default function ReservationForm({ packageId, packageInfo }: Props) {
         }
       );
 
-      const createdReservation = reservationResponse.data.reservation;
+      const createdReservation = reservationResponse.data.reservation || reservationResponse.data;
+      setReservationData(createdReservation);
+      
+      // Mostrar popup de pago
+      setShowPaymentPopup(true);
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+      setError('Error al crear la reserva. Inténtalo de nuevo.');
+    } finally {
+      setLoading(false);
+    }
+  };// Manejar envío del formulario de reserva
+
+  const handlePaymentMethodSelect = async (method: 'mercadopago' | 'presencial') => {
+    if (!reservationData || !user) return;
+
+    try {
+      setError(null);
 
       if (method === 'mercadopago') {
         // Calcular total: precio * cantidad de personas
-        const totalAmount = createdReservation.paquete.precio * cantidad;
+        const totalAmount = packageInfo.precio * cantidad;
         
         // Crear preferencia de pago en MercadoPago
         const paymentResponse = await api.post('/payments/create-preference', {
-          reservationId: createdReservation.id,
+          reservationId: reservationData.id,
           amount: totalAmount,
-          description: `Reserva: ${createdReservation.paquete.nombre} - ${cantidad} persona(s)`,
+          description: `Reserva: ${packageInfo.nombre} - ${cantidad} persona(s)`,
           userEmail: user?.email
         });
 
@@ -96,8 +107,6 @@ export default function ReservationForm({ packageId, packageInfo }: Props) {
     } catch (error) {
       console.error('Error processing payment:', error);
       setError('Error al procesar el pago. Inténtalo de nuevo.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -127,17 +136,22 @@ export default function ReservationForm({ packageId, packageInfo }: Props) {
     >
       <h3>Reservar este paquete</h3>
 
-      <label>Fechas</label>
+      <label>Fecha de inicio</label>
       <DatePicker
-        selectsRange
-        startDate={range[0]}
-        endDate={range[1]}
-        onChange={(update) => setRange(update)}
+        selected={startDate}
+        onChange={(date) => setStartDate(date)}
         isClearable
         dateFormat="yyyy-MM-dd"
-        placeholderText="Selecciona rango de fechas"
+        placeholderText="Selecciona fecha de inicio"
         className="input-field"
+        minDate={new Date()} // Prevent selecting past dates
       />
+      
+      {startDate && endDate && (
+        <div style={{ fontSize: '0.9rem', color: 'var(--muted)', marginTop: '0.5rem' }}>
+          <strong>Fecha de fin:</strong> {endDate.toLocaleDateString('es-AR')}
+        </div>
+      )}
 
       <label>Cantidad de personas</label>
       <input

@@ -51,4 +51,39 @@ router.post('/webhook', paymentCtrl.handlePaymentWebhook);
 // Verificar estado de pago (requiere autenticación)
 router.get('/status/:paymentId', verifyToken, paymentCtrl.getPaymentStatus);
 
+// Test endpoint - just redirect to success page
+router.get('/test-success/:reservationId', (req, res) => {
+  const { reservationId } = req.params;
+  res.redirect(`http://localhost:5173/payment/success?payment_id=test_${reservationId}&status=approved&external_reference=${reservationId}`);
+});
+
+// Manual test endpoint - simulate payment success with DB update
+router.get('/simulate-success/:reservationId', async (req, res) => {
+  try {
+    const { reservationId } = req.params;
+    
+    console.log('Simulating success for reservation:', reservationId);
+    
+    // Check if we have access to the ORM
+    if (!req.em) {
+      console.error('No ORM access in simulate-success route');
+      return res.status(500).json({ error: 'ORM not available' });
+    }
+    
+    // Update reservation to 'aceptada'
+    const em = req.em;
+    const reservationRepo = em.getRepository('Reservation');
+    await reservationRepo.nativeUpdate({ id: parseInt(reservationId) }, { status: 'aceptada' });
+    await em.flush();
+    
+    console.log('Reservation updated successfully');
+    
+    // Redirect to success page
+    res.redirect(`http://localhost:5173/payment/success?payment_id=sim_${reservationId}&status=approved&external_reference=${reservationId}`);
+  } catch (error) {
+    console.error('Error in simulate-success:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

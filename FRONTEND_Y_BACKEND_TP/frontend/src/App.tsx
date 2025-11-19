@@ -18,6 +18,9 @@ import CreateHotel from "./pages/CreateHotel";     // ✅ nuevo
 import CreateClient from "./pages/CreateClient";
 import UsersAdmin from "./pages/UsersAdmin";
 import MyReservations from "./pages/MyReservations"; // ✅ nuevo
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
+import PaymentPending from "./pages/PaymentPending";
 // Archivo principal de la aplicación que configura las rutas
 // Utiliza un enrutador de navegador con rutas públicas y privadas
 // Las rutas privadas están protegidas por el componente PrivateRoute 
@@ -56,6 +59,9 @@ const router = createBrowserRouter([
         ],
       },
       { path: "unauthorized", element: <Unauthorized /> },
+      { path: "payment/success", element: <PaymentSuccess /> },
+      { path: "payment/failure", element: <PaymentFailure /> },
+      { path: "payment/pending", element: <PaymentPending /> },
     ],
   },
 ]); 

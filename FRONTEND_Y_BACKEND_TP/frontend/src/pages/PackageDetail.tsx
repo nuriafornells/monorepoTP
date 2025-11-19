@@ -67,7 +67,8 @@ export default function PackageDetail() {
           packageId={paquete.id} 
           packageInfo={{
             nombre: paquete.nombre,
-            precio: paquete.precio
+            precio: paquete.precio,
+            duracion: paquete.duracion
           }}
         />
       </div>

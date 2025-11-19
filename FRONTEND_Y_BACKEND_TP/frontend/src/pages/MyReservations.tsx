@@ -13,7 +13,7 @@ type Reservation = {
   fechaFin: string | null;
   paquete: {
     nombre: string;
-    destino: { id: number; nombre: string } | null;
+    destino: string | null;
   };
   status: "pendiente" | "aceptada" | "rechazada";
   instrucciones?: {
@@ -86,7 +86,7 @@ export default function MyReservations() {
                   <React.Fragment key={`reserva-block-${r.id}`}>
                     <tr key={`reserva-${r.id}`}>
                       <td>{r.paquete.nombre}</td>
-                      <td>{r.paquete.destino?.nombre ?? "-"}</td>
+                      <td>{r.paquete.destino ?? "-"}</td>
                       <td>{formatDate(r.fechaInicio)}</td>
                       <td>{formatDate(r.fechaFin)}</td>
                       <td>
@@ -96,18 +96,40 @@ export default function MyReservations() {
                       </td>
                     </tr>
 
+                    {/* Instrucciones para reservas PENDIENTES - mostrar info de pago */}
+                    {r.status === "pendiente" && (
+                      <tr key={`instrucciones-pendiente-${r.id}`}>
+                        <td colSpan={5}>
+                          <div className="alert warning" style={{ marginTop: 8, backgroundColor: '#fff3cd', borderColor: '#ffeaa7', color: '#856404', padding: '12px', borderRadius: '4px' }}>
+                            {r.instrucciones ? (
+                              <>
+                                <h4>{r.instrucciones.mensaje}</h4>
+                                <p>{r.instrucciones.mensaje2}</p>
+                                <p><strong>WhatsApp:</strong> <a href={r.instrucciones.contactoWhatsapp} target="_blank" rel="noopener noreferrer">{r.instrucciones.numeroWhatsapp}</a></p>
+                                <p><strong>Método de pago:</strong> {r.instrucciones.metodo}</p>
+                                <p><strong>Plazo:</strong> {r.instrucciones.plazo}</p>
+                              </>
+                            ) : (
+                              <>
+                                <h4>Pago Pendiente</h4>
+                                <p>Comunicarse al WhatsApp indicando su nombre y número de reserva para concretar el pago.</p>
+                                <p><strong>WhatsApp:</strong> <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer">+54 9 11 1234-5678</a></p>
+                                <p><strong>Método de pago:</strong> Transferencia bancaria o tarjeta de crédito (consultar promociones vigentes)</p>
+                                <p><strong>Plazo:</strong> 48 horas para confirmar el pago</p>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}                    {/* Instrucciones para reservas ACEPTADAS - solo info básica */}
                     {r.status === "aceptada" && r.instrucciones && (
-                      <tr key={`instrucciones-${r.id}`}>
+                      <tr key={`instrucciones-aceptada-${r.id}`}>
                         <td colSpan={5}>
                           <div className="alert success" style={{ marginTop: 8 }}>
-                            <h4>{r.instrucciones.mensaje}</h4>
                             <p><strong>Número de reserva:</strong> #{r.instrucciones.numeroReserva}</p>
                             <p><strong>Paquete:</strong> {r.instrucciones.paquete}</p>
-                            <p>{r.instrucciones.mensaje2}</p>
                             <p><strong>WhatsApp:</strong> <a href={r.instrucciones.contactoWhatsapp} target="_blank" rel="noopener noreferrer">{r.instrucciones.numeroWhatsapp}</a></p>
                             <p><strong>Email:</strong> {r.instrucciones.email}</p>
-                            <p><strong>Método de pago:</strong> {r.instrucciones.metodo}</p>
-                            <p><strong>Plazo:</strong> {r.instrucciones.plazo}</p>
                           </div>
                         </td>
                       </tr>
